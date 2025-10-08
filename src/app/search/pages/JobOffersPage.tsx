@@ -1,35 +1,35 @@
-import React, { useState } from "react";
+"use client";
+import React, { useState, useEffect } from "react";
 import { SearchButton } from "../components/SearchButton";
+import { fetchServicios } from "@/lib/api";
 
-const mockJobOffers = [
-  {
-    id: 1,
-    description: "Reparación de lavadora",
-    fixerName: "Juan Pérez",
-    whatsapp: "+591 71234567",
-    tags: ["Electrodomésticos", "Urgente"],
-    addedAt: "2025-10-08T10:00:00Z",
-  },
-  {
-    id: 2,
-    description: "Instalación de lámparas LED",
-    fixerName: "María López",
-    whatsapp: "+591 78901234",
-    tags: ["Electricidad", "LED"],
-    addedAt: "2025-10-07T15:30:00Z",
-  },
-  // ...más ofertas simuladas
-];
+interface Servicio {
+  id?: string;
+  _id?: string;
+  title?: string;
+  description?: string;
+  fixerName?: string;
+  contacto?: string;
+  whatsapp?: string;
+  telefono?: string;
+  tags?: string[];
+  etiquetas?: string[];
+}
 
 export default function JobOffersPage() {
+  const [servicios, setServicios] = useState([]);
+  const [loading, setLoading] = useState(false);
   const [search, setSearch] = useState("");
   const [view, setView] = useState<"list" | "grid">("list");
 
-  const filteredOffers = mockJobOffers
-    .filter((offer) =>
-      offer.description.toLowerCase().includes(search.toLowerCase())
-    )
-    .sort((a, b) => new Date(b.addedAt).getTime() - new Date(a.addedAt).getTime());
+  // Buscar servicios cuando cambia el texto de búsqueda
+  useEffect(() => {
+    setLoading(true);
+    fetchServicios({ name: search, context: "" })
+      .then(data => setServicios(Array.isArray(data.data) ? data.data : []))
+      .catch(() => setServicios([]))
+      .finally(() => setLoading(false));
+  }, [search]);
 
   return (
     <div className="max-w-4xl mx-auto py-8">
@@ -51,29 +51,35 @@ export default function JobOffersPage() {
         </button>
       </div>
       <div className="text-center mb-4">
-        <span className="font-semibold">{filteredOffers.length}</span> ofertas encontradas
+        <span className="font-semibold">{servicios.length}</span> ofertas encontradas
       </div>
-      <div className={view === "grid" ? "grid grid-cols-2 gap-4" : "flex flex-col gap-4"}>
-        {filteredOffers.map((offer) => (
-          <div key={offer.id} className="border rounded p-4 shadow">
-            <div className="font-bold">{offer.description}</div>
-            <div>
-              <span className="font-semibold">Fixer:</span> {offer.fixerName}
+      {loading ? (
+        <div className="text-center">Cargando...</div>
+      ) : (
+        <div className={view === "grid" ? "grid grid-cols-2 gap-4" : "flex flex-col gap-4"}>
+          {Array.isArray(servicios) && servicios.map((servicio: Servicio) => (
+            <div key={servicio.id || servicio._id} className="border rounded p-4 shadow">
+              <div className="font-bold">{servicio.title}</div>
+              <div>{servicio.description}</div>
+              <div>
+                <span className="font-semibold">Fixer:</span> {servicio.fixerName || servicio.contacto}
+              </div>
+              <div>
+                <span className="font-semibold">WhatsApp:</span> {servicio.whatsapp || servicio.telefono}
+              </div>
+              <div className="mt-2">
+                {(Array.isArray(servicio.tags) ? servicio.tags : Array.isArray(servicio.etiquetas) ? servicio.etiquetas : []).map(
+                  (tag: string, idx: number) => (
+                    <span key={tag + idx} className="inline-block bg-blue-100 text-blue-800 px-2 py-1 rounded mr-2 text-xs">
+                      {tag}
+                    </span>
+                  )
+                )}
+              </div>
             </div>
-            <div>
-              <span className="font-semibold">WhatsApp:</span> {offer.whatsapp}
-            </div>
-            <div className="mt-2">
-              {offer.tags.map((tag) => (
-                <span key={tag} className="inline-block bg-blue-100 text-blue-800 px-2 py-1 rounded mr-2 text-xs">
-                  {tag}
-                </span>
-              ))}
-            </div>
-          </div>
-        ))}
-      </div>
-      {/* Aquí podrías agregar paginación o scroll infinito */}
+          ))}
+        </div>
+      )}
     </div>
   );
 }

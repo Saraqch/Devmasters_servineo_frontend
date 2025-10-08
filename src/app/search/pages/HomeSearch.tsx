@@ -1,7 +1,16 @@
+"use client";
 import { InputDemo } from "../components/SearchBar";
 import { SearchButton } from "../components/SearchButton";
+import JobOffersPage from "./JobOffersPage";
+import React, { useState } from "react";
 
 export default function HomeSearch() {
+  const [showJobOffers, setShowJobOffers] = useState(false);
+
+  if (showJobOffers) {
+    return <JobOffersPage />;
+  }
+
   return (
     <main
       style={{
@@ -12,7 +21,26 @@ export default function HomeSearch() {
         justifyContent: "center",
       }}
     >
-      <h1 style={{ marginBottom: 20, fontSize: "2.2rem", fontFamily: "Roboto, Arial, sans-serif", fontWeight: "bold",lineHeight: 0.8 }}>
+      <nav style={{ marginBottom: 32 }}>
+        <button
+          onClick={() => setShowJobOffers(true)}
+          style={{
+            backgroundColor: "#0833a2",
+            color: "#fff",
+            border: "none",
+            padding: "10px 18px",
+            borderRadius: "9px",
+            cursor: "pointer",
+            fontFamily: "Roboto, Arial, sans-serif",
+            fontWeight: "bold",
+            fontSize: "1rem",
+          }}
+        >
+          Job offers
+        </button>
+        {/* Otros botones del menú */}
+      </nav>
+      <h1 style={{ marginBottom: 20, fontSize: "2.2rem", fontFamily: "Roboto, Arial, sans-serif", fontWeight: "bold", lineHeight: 0.8 }}>
         Encuentra el profesional perfecto
       </h1>
       <h2 style={{ marginBottom: 18, textAlign: "center", fontFamily: "Roboto, Arial, sans-serif", lineHeight: 0.05 }}>

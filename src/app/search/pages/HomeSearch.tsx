@@ -1,7 +1,28 @@
+"use client";
+
+import { useState } from "react";
 import { InputDemo } from "../components/SearchBar";
 import { SearchButton } from "../components/SearchButton";
+import PaginationInfo from "../../Pagination/PaginationInfo";
+import PaginationControls from "../../Pagination/PaginationControls";
+import PaginationSelector from "../../Pagination/PaginationSelector";
 
 export default function HomeSearch() {
+  const [paginaActual, setPaginaActual] = useState(1);
+  const [registrosPorPagina, setRegistrosPorPagina] = useState(10);
+
+  const totalRegistros = 120;
+  const totalPaginas = Math.ceil(totalRegistros / registrosPorPagina);
+
+  const handlePaginaChange = (nuevaPagina: number) => {
+    setPaginaActual(nuevaPagina);
+  };
+
+  const handleChangeRegistrosPorPagina = (nuevoValor: number) => {
+    setRegistrosPorPagina(nuevoValor);
+    setPaginaActual(1); // Reiniciar a la primera página al cambiar el tamaño
+  };
+
   return (
     <main
       style={{
@@ -12,15 +33,39 @@ export default function HomeSearch() {
         justifyContent: "center",
       }}
     >
-      <h1 style={{ marginBottom: 20, fontSize: "2.2rem", fontFamily: "Roboto, Arial, sans-serif", fontWeight: "bold",lineHeight: 0.8 }}>
+      <h1
+        style={{
+          marginBottom: 20,
+          fontSize: "2.2rem",
+          fontFamily: "Roboto, Arial, sans-serif",
+          fontWeight: "bold",
+          lineHeight: 0.8,
+        }}
+      >
         Encuentra el profesional perfecto
       </h1>
-      <h2 style={{ marginBottom: 18, textAlign: "center", fontFamily: "Roboto, Arial, sans-serif", lineHeight: 0.05 }}>
-        Conecta con expertos verificados. Más de 1000 
+      <h2
+        style={{
+          marginBottom: 18,
+          textAlign: "center",
+          fontFamily: "Roboto, Arial, sans-serif",
+          lineHeight: 0.05,
+        }}
+      >
+        Conecta con expertos verificados. Más de 1000
       </h2>
-      <h2 style={{ marginBottom: 18, textAlign: "center", fontFamily: "Roboto, Arial, sans-serif", lineHeight: 0.5 }}>
+      <h2
+        style={{
+          marginBottom: 18,
+          textAlign: "center",
+          fontFamily: "Roboto, Arial, sans-serif",
+          lineHeight: 0.5,
+        }}
+      >
         profesionales listos para ayudarte.
       </h2>
+
+      {/* 🔍 Barra de búsqueda */}
       <div
         style={{
           width: 780,
@@ -48,6 +93,26 @@ export default function HomeSearch() {
           />
         </div>
       </div>
+
+      {/* 🧾 Texto de resultados debajo */}
+      <PaginationInfo
+        paginaActual={paginaActual}
+        totalRegistros={totalRegistros}
+        registrosPorPagina={registrosPorPagina}
+      />
+
+      {/* ⚙️ Selector de cantidad de registros */}
+      <PaginationSelector
+        registrosPorPagina={registrosPorPagina}
+        onChange={handleChangeRegistrosPorPagina}
+      />
+
+      {/* 🔢 Controles de paginación al final */}
+      <PaginationControls
+        paginaActual={paginaActual}
+        totalPaginas={totalPaginas}
+        onPaginaChange={handlePaginaChange}
+      />
     </main>
   );
 }

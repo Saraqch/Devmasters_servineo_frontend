@@ -1,7 +1,19 @@
+"use client"; 
+
 import { InputDemo } from "../components/SearchBar";
 import { SearchButton } from "../components/SearchButton";
+// Importa el hook usesearch
+import { useSearch } from "../hooks/useSearch"; 
 
 export default function HomeSearch() {
+  // Llamada al hook para obtener la lógica y el estado
+  const { 
+    searchTerm, 
+    isSearchDisabled, 
+    handleInputChange, 
+    handleSearch 
+  } = useSearch();
+
   return (
     <main
       style={{
@@ -12,6 +24,7 @@ export default function HomeSearch() {
         justifyContent: "center",
       }}
     >
+      
       <h1 style={{ marginBottom: 20, fontSize: "2.2rem", fontFamily: "Roboto, Arial, sans-serif", fontWeight: "bold",lineHeight: 0.8 }}>
         Encuentra el profesional perfecto
       </h1>
@@ -21,6 +34,7 @@ export default function HomeSearch() {
       <h2 style={{ marginBottom: 18, textAlign: "center", fontFamily: "Roboto, Arial, sans-serif", lineHeight: 0.5 }}>
         profesionales listos para ayudarte.
       </h2>
+      
       <div
         style={{
           width: 780,
@@ -30,17 +44,24 @@ export default function HomeSearch() {
         }}
       >
         <div style={{ flexGrow: 1 }}>
-          <InputDemo />
+          {/* Pasa los valores del hook al componente InputDemo */}
+          <InputDemo 
+            value={searchTerm} 
+            onChange={handleInputChange} 
+          />
         </div>
         <div style={{ marginTop: 1.5 }}>
           <SearchButton
+            // Pasa la validación y el manejador de búsqueda del hook
+            disabled={isSearchDisabled}
+            onClick={handleSearch} 
             style={{
               backgroundColor: "#0833a2",
               color: "#fff",
               border: "none",
               padding: "10px 10px",
               borderRadius: "9px",
-              cursor: "pointer",
+              cursor: isSearchDisabled ? 'not-allowed' : 'pointer', 
               paddingLeft: 10,
               paddingRight: 10,
               fontFamily: "Roboto, Arial, sans-serif",
@@ -48,6 +69,13 @@ export default function HomeSearch() {
           />
         </div>
       </div>
+      
+      {/* Indicador visual basado en el estado del hook */}
+      {searchTerm.length > 0 && isSearchDisabled && (
+          <p style={{ color: "#888", marginTop: '10px', fontSize: '0.8rem' }}>
+              Mínimo 2 caracteres para buscar. 
+          </p>
+      )}
     </main>
   );
 }

@@ -1,6 +1,14 @@
 import { Input } from "../../../components/ui/input";
+import React from "react";
 
-export function InputDemo() {
+// Define las props que recibirá el componente
+interface InputDemoProps {
+  value: string;
+  onChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
+}
+
+// Cambia la firma de la función para recibir las props
+export function InputDemo({ value, onChange }: InputDemoProps) {
   return (
     <div style={{ position: 'relative', display: 'flex', alignItems: 'center' }}>
       <span style={{ position: 'absolute', left: 8, zIndex: 2, display: 'flex', alignItems: 'center' }}>
@@ -13,6 +21,8 @@ export function InputDemo() {
         type="text"
         placeholder="¿Qué servicio necesitas?"
         style={{ paddingLeft: 35, width: '100%', minWidth: 300, maxWidth: 1000 }}
+        value={value} // Controla el valor
+        onChange={onChange} // Llama a la función de cambio
       />
     </div>
   );

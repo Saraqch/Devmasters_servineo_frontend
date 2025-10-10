@@ -41,7 +41,14 @@ export function FilterDrawer({ isOpen, onClose }: FilterDrawerProps) {
           </div>
           {openSection === "fixer" && (
             <div className="bg-white border border-gray-200 p-4 rounded">
-              {/* Aquí irá el contenido */}
+              <div className="grid grid-cols-2 gap-2">
+                {["De (A-C)", "De (D-F)", "De (G-I)", "De (J-L)", "De (M-Ñ)", "De (O-Q)", "De (R-T)", "De (U-W)", "De (X-Z)"].map((range) => (
+                  <label key={range} className="flex items-center gap-2 text-sm">
+                    <input type="checkbox" className="w-4 h-4" />
+                    <span>{range}</span>
+                  </label>
+                ))}
+              </div>
             </div>
           )}
         </div>
@@ -55,8 +62,15 @@ export function FilterDrawer({ isOpen, onClose }: FilterDrawerProps) {
             Ciudad
           </div>
           {openSection === "ciudad" && (
-            <div className="bg-white border border-gray-200 p-4 rounded">
-              {/* Aquí irá el contenido */}
+            <div className="bg-white border border-gray-200 p-4 rounded max-h-60 overflow-y-auto">
+              <div className="flex flex-col gap-2">
+                {["Beni", "Chuquisaca", "Cochabamba", "La Paz", "Oruro", "Pando", "Potosí", "Santa Cruz", "Tarija"].map((city) => (
+                  <label key={city} className="flex items-center gap-2 text-sm">
+                    <input type="checkbox" className="w-4 h-4" />
+                    <span>{city}</span>
+                  </label>
+                ))}
+              </div>
             </div>
           )}
         </div>
@@ -70,8 +84,15 @@ export function FilterDrawer({ isOpen, onClose }: FilterDrawerProps) {
             Tipo de Trabajo
           </div>
           {openSection === "trabajo" && (
-            <div className="bg-white border border-gray-200 p-4 rounded">
-              {/* Aquí irá el contenido */}
+            <div className="bg-white border border-gray-200 p-4 rounded max-h-60 overflow-y-auto">
+              <div className="flex flex-col gap-2">
+                {["Albañil", "Carpintero", "Fontanero", "Electricista", "Pintor", "Soldador", "Jardinero", "Cerrajero", "Mecánico", "Vidriero", "Yesero", "Fumigador", "Limpiador", "Instalador", "Montador", "Decorador", "Pulidor", "Techador"].map((job) => (
+                  <label key={job} className="flex items-center gap-2 text-sm">
+                    <input type="checkbox" className="w-4 h-4" />
+                    <span>{job}</span>
+                  </label>
+                ))}
+              </div>
             </div>
           )}
         </div>

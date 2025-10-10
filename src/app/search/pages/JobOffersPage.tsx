@@ -39,13 +39,10 @@ export default function JobOffersPage() {
       <div className="max-w-4xl mx-auto py-8">
         <h1 className="text-3xl font-bold text-center mb-6">Ofertas de Trabajo</h1>
         <div className="flex items-center justify-center gap-4 mb-4">
-          <button
-            className="p-2"
-            title="Filtrar resultados"
+          <FilterButton 
+            title="Filtrar resultados" 
             onClick={() => setShowFilters(!showFilters)}
-          >
-            <FilterButton />
-          </button>
+          />
           <input
             type="text"
             placeholder="Buscar oferta..."

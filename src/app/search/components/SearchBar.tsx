@@ -1,44 +1,10 @@
 import { Input } from "../../../components/ui/input";
 import React from "react";
 
-// Define las props que recibirá el componente
 interface InputDemoProps {
-  value: string;
-  onChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
-  onClear: () => void;
+  placeholder: string;
 }
-
-// Cambia la firma de la función para recibir las props
-export function InputDemo({ value, onChange, onClear }: InputDemoProps) {
-  const ClearButton = () => (
-    <button 
-      onClick={onClear}
-      style={{
-        position: 'absolute',
-        right: 8,
-        zIndex: 2,
-         display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        width: 20,
-        height: 20,
-        backgroundColor: 'transparent',
-        border: 'none',
-        cursor: 'pointer',
-        padding: 0,
-      }}
-      aria-label="Limpiar búsqueda"
-    >
-      {/* Icono simple de "X" (SVG) */}
-      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#888" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-        <line x1="18" y1="6" x2="6" y2="18"></line>
-        <line x1="6" y1="6" x2="18" y2="18"></line>
-      </svg>
-    </button>
-  );
-
-  const paddingRight = value.length > 0 ? 35 + 20 : 35;// 35 (icono) + 20 (botón "X")
-        
+export function InputDemo({ placeholder }: InputDemoProps) {
   return (
     <div style={{ position: 'relative', display: 'flex', alignItems: 'center' }}>
       <span style={{ position: 'absolute', left: 8, zIndex: 2, display: 'flex', alignItems: 'center' }}>
@@ -49,10 +15,8 @@ export function InputDemo({ value, onChange, onClear }: InputDemoProps) {
       </span>
       <Input
         type="text"
-        placeholder="¿Qué servicio necesitas?"
-        style={{ paddingLeft: 35, paddingRight: paddingRight, width: '100%', minWidth: 300, maxWidth: 1000 }}
-        value={value} // Controla el valor
-        onChange={onChange} // Llama a la función de cambio
+        placeholder={placeholder}
+        style={{ paddingLeft: 35, width: '100%', minWidth: 300, maxWidth: 1000 }}
       />
 
       {value.length > 0 && <ClearButton />}

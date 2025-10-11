@@ -7,11 +7,10 @@ export default function SearchPage() {
 			<h1>Búsqueda de servicios</h1>
 			<div style={{ display: 'flex', gap: 8 }}>
 				<SearchBar
-					value=""
-					onChange={(e) => {}}
-					onClear={() => {}}
+					placeholder="¿Qué servicio necesitas?"
 				/>
 				<SearchButton />
+				
 			</div>
 		</main>
 	);

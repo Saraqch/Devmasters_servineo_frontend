@@ -1,4 +1,5 @@
 import { Input } from "../../../components/ui/input";
+import React from "react";
 
 interface InputDemoProps {
   placeholder: string;
@@ -17,6 +18,9 @@ export function InputDemo({ placeholder }: InputDemoProps) {
         placeholder={placeholder}
         style={{ paddingLeft: 35, width: '100%', minWidth: 300, maxWidth: 1000 }}
       />
+
+      {value.length > 0 && <ClearButton />}
+
     </div>
   );
 }

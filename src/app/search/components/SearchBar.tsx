@@ -1,15 +1,15 @@
- import { Input } from "../../../components/ui/input";
+import { Input } from "../../../components/ui/input";
 import React from "react";
 
 // Define las props que recibirá el componente
 interface InputDemoProps {
-  value: string;
+  value?: string;
   onChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
   onClear: () => void;
 }
 
 // Cambia la firma de la función para recibir las props
-export function InputDemo({ value, onChange, onClear }: InputDemoProps) {
+export function InputDemo({ value = "", onChange, onClear }: InputDemoProps) {
   const ClearButton = () => (
     <button 
       onClick={onClear}
@@ -17,7 +17,7 @@ export function InputDemo({ value, onChange, onClear }: InputDemoProps) {
         position: 'absolute',
         right: 8,
         zIndex: 2,
-         display: 'flex',
+        display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',
         width: 20,
@@ -37,7 +37,7 @@ export function InputDemo({ value, onChange, onClear }: InputDemoProps) {
     </button>
   );
 
-  const paddingRight = value.length > 0 ? 35 + 20 : 35;// 35 (icono) + 20 (botón "X")
+  const paddingRight = value.length > 0 ? 55 : 35; // 35 (icono) + 20 (botón "X")
         
   return (
     <div style={{ position: 'relative', display: 'flex', alignItems: 'center' }}>
@@ -50,13 +50,11 @@ export function InputDemo({ value, onChange, onClear }: InputDemoProps) {
       <Input
         type="text"
         placeholder="¿Qué servicio necesitas?"
-        style={{ paddingLeft: 35, paddingRight: paddingRight, width: '100%', minWidth: 300, maxWidth: 1000 }}
-        value={value} // Controla el valor
-        onChange={onChange} // Llama a la función de cambio
+        style={{ paddingLeft: 35, paddingRight, width: '100%', minWidth: 300, maxWidth: 1000 }}
+        value={value}
+        onChange={onChange}
       />
-
       {value.length > 0 && <ClearButton />}
-
     </div>
   );
 }

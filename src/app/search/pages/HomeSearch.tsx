@@ -30,7 +30,9 @@ export default function HomeSearch() {
         }}
       >
         <div style={{ flexGrow: 1 }}>
-          <InputDemo />
+          <InputDemo
+            placeholder="¿Qué servicio necesitas?"
+          />
         </div>
         <div style={{ marginTop: 1.5 }}>
           <SearchButton

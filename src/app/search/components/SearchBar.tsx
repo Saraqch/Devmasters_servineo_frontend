@@ -1,16 +1,44 @@
-"use client";
-import { Input } from "../../../components/ui/input";
-import React, { useState } from "react";
+ import { Input } from "../../../components/ui/input";
+import React from "react";
 
+// Define las props que recibirá el componente
 interface InputDemoProps {
-  placeholder: string;
+  value: string;
+  onChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
+  onClear: () => void;
 }
 
-export function InputDemo({ placeholder }: InputDemoProps) {
-  const [value, setValue] = useState("");
+// Cambia la firma de la función para recibir las props
+export function InputDemo({ value, onChange, onClear }: InputDemoProps) {
+  const ClearButton = () => (
+    <button 
+      onClick={onClear}
+      style={{
+        position: 'absolute',
+        right: 8,
+        zIndex: 2,
+         display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        width: 20,
+        height: 20,
+        backgroundColor: 'transparent',
+        border: 'none',
+        cursor: 'pointer',
+        padding: 0,
+      }}
+      aria-label="Limpiar búsqueda"
+    >
+      {/* Icono simple de "X" (SVG) */}
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#888" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+        <line x1="18" y1="6" x2="6" y2="18"></line>
+        <line x1="6" y1="6" x2="18" y2="18"></line>
+      </svg>
+    </button>
+  );
 
-  const handleClear = () => setValue("");
-
+  const paddingRight = value.length > 0 ? 35 + 20 : 35;// 35 (icono) + 20 (botón "X")
+        
   return (
     <div style={{ position: 'relative', display: 'flex', alignItems: 'center' }}>
       <span style={{ position: 'absolute', left: 8, zIndex: 2, display: 'flex', alignItems: 'center' }}>
@@ -21,29 +49,14 @@ export function InputDemo({ placeholder }: InputDemoProps) {
       </span>
       <Input
         type="text"
-        placeholder={placeholder}
-        value={value}
-        onChange={e => setValue(e.target.value)}
-        style={{ paddingLeft: 35, width: '100%', minWidth: 300, maxWidth: 1000 }}
+        placeholder="¿Qué servicio necesitas?"
+        style={{ paddingLeft: 35, paddingRight: paddingRight, width: '100%', minWidth: 300, maxWidth: 1000 }}
+        value={value} // Controla el valor
+        onChange={onChange} // Llama a la función de cambio
       />
-      {value.length > 0 && (
-        <button
-          onClick={handleClear}
-          style={{
-            position: 'absolute',
-            right: 8,
-            background: 'transparent',
-            border: 'none',
-            cursor: 'pointer',
-            fontSize: 18,
-            color: '#888'
-          }}
-          aria-label="Limpiar"
-        >
-          ×
-        </button>
-      )}
+
+      {value.length > 0 && <ClearButton />}
+
     </div>
   );
 }
-

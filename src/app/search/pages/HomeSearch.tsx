@@ -45,8 +45,11 @@ export default function HomeSearch() {
         }}
       >
         <div style={{ flexGrow: 1 }}>
-          <InputDemo
-            placeholder="¿Qué servicio necesitas?"
+          {/* Pasa los valores del hook al componente InputDemo */}
+          <InputDemo 
+            value={searchTerm} 
+            onChange={handleInputChange} 
+            onClear={handleClearSearch} 
           />
         </div>
         <div style={{ marginTop: 1.5 }}>

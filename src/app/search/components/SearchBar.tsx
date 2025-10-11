@@ -1,10 +1,16 @@
+"use client";
 import { Input } from "../../../components/ui/input";
-import React from "react";
+import React, { useState } from "react";
 
 interface InputDemoProps {
   placeholder: string;
 }
+
 export function InputDemo({ placeholder }: InputDemoProps) {
+  const [value, setValue] = useState("");
+
+  const handleClear = () => setValue("");
+
   return (
     <div style={{ position: 'relative', display: 'flex', alignItems: 'center' }}>
       <span style={{ position: 'absolute', left: 8, zIndex: 2, display: 'flex', alignItems: 'center' }}>
@@ -16,11 +22,27 @@ export function InputDemo({ placeholder }: InputDemoProps) {
       <Input
         type="text"
         placeholder={placeholder}
+        value={value}
+        onChange={e => setValue(e.target.value)}
         style={{ paddingLeft: 35, width: '100%', minWidth: 300, maxWidth: 1000 }}
       />
-
-      {value.length > 0 && <ClearButton />}
-
+      {value.length > 0 && (
+        <button
+          onClick={handleClear}
+          style={{
+            position: 'absolute',
+            right: 8,
+            background: 'transparent',
+            border: 'none',
+            cursor: 'pointer',
+            fontSize: 18,
+            color: '#888'
+          }}
+          aria-label="Limpiar"
+        >
+          ×
+        </button>
+      )}
     </div>
   );
 }

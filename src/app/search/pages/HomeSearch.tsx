@@ -11,7 +11,8 @@ export default function HomeSearch() {
     searchTerm, 
     isSearchDisabled, 
     handleInputChange, 
-    handleSearch 
+    handleSearch,
+    handleClearSearch,
   } = useSearch();
 
   return (
@@ -48,6 +49,7 @@ export default function HomeSearch() {
           <InputDemo 
             value={searchTerm} 
             onChange={handleInputChange} 
+            onClear={handleClearSearch} 
           />
         </div>
         <div style={{ marginTop: 1.5 }}>
@@ -56,7 +58,7 @@ export default function HomeSearch() {
             disabled={isSearchDisabled}
             onClick={handleSearch} 
             style={{
-              backgroundColor: "#0833a2",
+              backgroundColor: "#2B6AE0",
               color: "#fff",
               border: "none",
               padding: "10px 10px",

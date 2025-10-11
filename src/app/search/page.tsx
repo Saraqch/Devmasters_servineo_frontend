@@ -21,7 +21,11 @@ export default function SearchPage() {
 		<main style={{ padding: 24 }}>
 			<h1>Búsqueda de servicios</h1>
 			<div style={{ display: "flex", gap: 8 }}>
-				<SearchBar value={query} onChange={handleChange} />
+				<SearchBar
+					value={query}
+					onChange={handleChange}
+					onClear={() => setQuery("")}
+				/>
 				<SearchButton disabled={!canSearch} onClick={() => console.log("Search clicked:", query)} />
 			</div>
 			{query && !canSearch && (

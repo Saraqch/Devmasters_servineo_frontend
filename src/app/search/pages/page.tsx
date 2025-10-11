@@ -6,7 +6,11 @@ export default function SearchPage() {
 		<main style={{ padding: 24 }}>
 			<h1>Búsqueda de servicios</h1>
 			<div style={{ display: 'flex', gap: 8 }}>
-				<SearchBar value="" onChange={() => {}} />
+				<SearchBar
+					value=""
+					onChange={(e) => {}}
+					onClear={() => {}}
+				/>
 				<SearchButton />
 			</div>
 		</main>

@@ -7,6 +7,7 @@ interface UseSearchReturn {
   isSearchDisabled: boolean;
   handleInputChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
   handleSearch: () => void;
+  handleClearSearch: () => void;
 }
 
 // Define la longitud mínima requerida para la búsqueda
@@ -26,7 +27,7 @@ export const useSearch = (): UseSearchReturn => {
     setSearchTerm(e.target.value);
   }, []);
 
-  // 4. Función para manejar el clic del botón de búsqueda (usamos useCallback)
+  // 4. Función para manejar el click del botón de búsqueda (usamos useCallback)
   const handleSearch = useCallback(() => {
     if (!isSearchDisabled) {
       console.log("Iniciando búsqueda con:", searchTerm);
@@ -35,10 +36,15 @@ export const useSearch = (): UseSearchReturn => {
     }
   }, [isSearchDisabled, searchTerm]);
 
+  const handleClearSearch = useCallback(() => {
+    setSearchTerm("");
+  }, []);
+
   return {
     searchTerm,
     isSearchDisabled,
     handleInputChange,
     handleSearch,
+    handleClearSearch,
   };
 };

@@ -1,6 +1,9 @@
 import { Input } from "../../../components/ui/input";
 
-export function InputDemo() {
+interface InputDemoProps {
+  placeholder: string;
+}
+export function InputDemo({ placeholder }: InputDemoProps) {
   return (
     <div style={{ position: 'relative', display: 'flex', alignItems: 'center' }}>
       <span style={{ position: 'absolute', left: 8, zIndex: 2, display: 'flex', alignItems: 'center' }}>
@@ -11,7 +14,7 @@ export function InputDemo() {
       </span>
       <Input
         type="text"
-        placeholder="¿Qué servicio necesitas?"
+        placeholder={placeholder}
         style={{ paddingLeft: 35, width: '100%', minWidth: 300, maxWidth: 1000 }}
       />
     </div>

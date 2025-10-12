@@ -15,7 +15,7 @@ export function FilterDrawer({ isOpen, onClose }: FilterDrawerProps) {
   });
 
   const [selectedRanges, setSelectedRanges] = useState<string[]>([]);
-  const [selectedCities, setSelectedCities] = useState<string[]>([]);
+  const [selectedCity, setSelectedCity] = useState<string>(""); // ✅ Cambiado a string simple
   const [selectedJobs, setSelectedJobs] = useState<string[]>([]);
 
   const toggleSection = (section: string) => {
@@ -34,11 +34,8 @@ export function FilterDrawer({ isOpen, onClose }: FilterDrawerProps) {
   };
 
   const handleCityChange = (city: string) => {
-    setSelectedCities(prev => 
-      prev.includes(city) 
-        ? prev.filter(c => c !== city)
-        : [...prev, city]
-    );
+    // ✅ Si la ciudad ya está seleccionada, la desmarca, sino selecciona la nueva
+    setSelectedCity(selectedCity === city ? "" : city);
   };
 
   const handleJobChange = (job: string) => {
@@ -102,7 +99,12 @@ export function FilterDrawer({ isOpen, onClose }: FilterDrawerProps) {
               <div className="flex flex-col gap-2">
                 {["Beni", "Chuquisaca", "Cochabamba", "La Paz", "Oruro", "Pando", "Potosí", "Santa Cruz", "Tarija"].map((city) => (
                   <label key={city} className="flex items-center gap-2 text-sm">
-                    <input type="checkbox" className="w-4 h-4" checked={selectedCities.includes(city)} onChange={() => handleCityChange(city)}/>
+                    <input 
+                      type="checkbox" 
+                      className="w-4 h-4" 
+                      checked={selectedCity === city} 
+                      onChange={() => handleCityChange(city)}
+                    />
                     <span>{city}</span>
                   </label>
                 ))}

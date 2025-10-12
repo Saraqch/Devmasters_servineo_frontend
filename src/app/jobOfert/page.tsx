@@ -1,8 +1,12 @@
-"use client";
+ "use client"; // 🔹 Obligatorio para usar useState y hooks
+
 import React, { useState, useEffect } from "react";
-import { FilterButton } from "../components/FilterButton";
-import { SearchButton } from "../components/SearchButton";
-import { FilterDrawer } from "../components/FilterDrawer";
+import { InputDemo } from "@/app/search/components/SearchBar";
+import { FilterButton } from "./components/FilterButton";
+import { SearchButton } from "@/app/search/components/SearchButton";
+import { FilterDrawer } from "./components/FilterDrawer";
+import Paginacion from "./components/Paginacion";
+import CardJob from "./components/CardJob";
 import { fetchServicios } from "@/lib/api";
 
 interface Servicio {
@@ -18,7 +22,7 @@ interface Servicio {
   etiquetas?: string[];
 }
 
-export default function JobOffersPage() {
+export default function JobOffers() {
   const [servicios, setServicios] = useState([]);
   const [loading, setLoading] = useState(false);
   const [search, setSearch] = useState("");
@@ -34,39 +38,41 @@ export default function JobOffersPage() {
       .finally(() => setLoading(false));
   }, [search]);
 
-  return (
-    <>
-      <div className="max-w-4xl mx-auto py-8">
-        <h1 className="text-3xl font-bold text-center mb-6">Ofertas de Trabajo</h1>
-        <div className="flex items-center justify-center gap-4 mb-4">
-          <FilterButton 
-            title="Filtrar resultados" 
-            onClick={() => setShowFilters(!showFilters)}
-          />
-          <input
-            type="text"
-            placeholder="Buscar oferta..."
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-            className="border px-4 py-2 rounded w-1/2"
-          />
-          <SearchButton />
-          <button
-            className="ml-2 px-4 py-2 border rounded"
-            onClick={() => setView(view === "list" ? "grid" : "list")}
-          >
-            {view === "list" ? "Ver en cuadrícula" : "Ver en lista"}
-          </button>
-        </div>
+  return ( 
+  <>
+    <main className="p-40">
+      <h1 className="mb-4 text-center text-3xl font-bold">
+        Ofertas de trabajo
+      </h1>
 
-        <div className="text-center mb-4">
-          <span className="font-semibold">{servicios.length}</span> ofertas encontradas
-        </div>
+      <div className="flex items-center justify-center gap-2 mb-6">
+        <FilterButton 
+          title="Filtrar resultados" 
+          onClick={() => setShowFilters(!showFilters)}
+        />
+        <InputDemo
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
+          onClear={() => setSearch("")}
+        />
+        <SearchButton />
+        <button
+          className="ml-2 px-4 py-2 border rounded"
+          onClick={() => setView(view === "list" ? "grid" : "list")}
+        >
+          {view === "list" ? "Ver en cuadrícula" : "Ver en lista"}
+        </button>
+      </div>
 
-        {loading ? (
-          <div className="text-center">Cargando...</div>
-        ) : (
-          <div className={view === "grid" ? "grid grid-cols-2 gap-4" : "flex flex-col gap-4"}>
+      <div className="text-center mb-4">
+        <span className="font-semibold">{servicios.length}</span> ofertas encontradas
+      </div>
+
+      {loading ? (
+        <div className="text-center">Cargando...</div>
+      ) : (
+        <>
+          <div className={view === "grid" ? "grid grid-cols-2 gap-4 justify-center" : "flex flex-col gap-4"}>
             {Array.isArray(servicios) &&
               servicios.map((servicio: Servicio) => (
                 <div key={servicio.id || servicio._id} className="border rounded p-4 shadow">
@@ -98,9 +104,17 @@ export default function JobOffersPage() {
                 </div>
               ))}
           </div>
-        )}
+
+          <div className="flex flex-wrap gap-4 justify-center mt-6">
+            <CardJob />
+          </div>
+        </>
+      )}
+      <div className="mt-6">
+        <Paginacion />
       </div>
-      <FilterDrawer isOpen={showFilters} onClose={() => setShowFilters(false)} />
-    </>
-  );
+    </main>
+    <FilterDrawer isOpen={showFilters} onClose={() => setShowFilters(false)} />
+  </>
+ );
 }

@@ -45,6 +45,13 @@ export function FilterDrawer({ isOpen, onClose }: FilterDrawerProps) {
     );
   };
 
+  // Función para resetear todos los filtros
+  const handleReset = () => {
+    setSelectedRanges([]);
+    setSelectedCity("");
+    setSelectedJobs([]);
+  };
+
   return (
     <div
       className={`fixed top-0 left-0 h-full w-80 bg-white shadow-xl z-50 transform transition-transform duration-300 ease-in-out ${
@@ -74,8 +81,8 @@ export function FilterDrawer({ isOpen, onClose }: FilterDrawerProps) {
         <div className="flex justify-between items-center mb-6">
           <h2 className="text-xl font-bold">Filtros</h2>
           <button
-            onClick={onClose}
-            className="bg-[#2B6AE0] text-white px-4 py-2 rounded-lg text-sm font-semibold hover:bg-[#062a7a]"
+            onClick={handleReset}
+            className="bg-[#2B6AE0] text-white px-4 py-2 rounded-lg text-sm font-semibold hover:bg-[#062a7a] transition-colors"
           >
             Resetear
           </button>

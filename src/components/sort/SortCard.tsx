@@ -10,6 +10,7 @@ import {
 import React, { useState } from 'react';
 import { ChevronDown } from 'lucide-react';
 import { Roboto } from 'next/font/google';
+import Image from 'next/image';
 
 const roboto = Roboto({
   weight: ['400', '500', '700'],
@@ -37,7 +38,14 @@ export default function SortCard() {
             variant="outline"
             className="flex items-center gap-2 border-[#286AE0] text-[#286AE0] hover:bg-[#1AA7ED] hover:text-white transition-colors"
           >
-            {selectedSort}
+            <Image
+              src="/sort.svg"
+              alt="Sort icon"
+              width={20}
+              height={20}
+              className="filter invert-0 brightness-0 hue-rotate-[215deg] saturate-[500%]"
+            />
+            {/* {selectedSort} */}
             <ChevronDown className="h-4 w-4" />
           </Button>
         </DropdownMenuTrigger>

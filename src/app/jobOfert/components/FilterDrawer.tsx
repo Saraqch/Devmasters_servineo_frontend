@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect, useRef } from "react";
 
 interface FilterDrawerProps {
   isOpen: boolean;
@@ -8,6 +8,7 @@ interface FilterDrawerProps {
 }
 
 export function FilterDrawer({ isOpen, onClose }: FilterDrawerProps) {
+  const drawerRef = useRef<HTMLDivElement | null>(null);
   const [openSections, setOpenSections] = useState<{[key: string]: boolean}>({
     fixer: false,
     ciudad: false,
@@ -52,9 +53,27 @@ export function FilterDrawer({ isOpen, onClose }: FilterDrawerProps) {
     setSelectedJobs([]);
   };
 
+  // Efecto para cerrar el drawer al hacer click fuera
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (drawerRef.current && !drawerRef.current.contains(event.target as Node)) {
+        onClose();
+      }
+    };
+
+    if (isOpen) {
+      document.addEventListener("mousedown", handleClickOutside);
+    }
+
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, [isOpen, onClose]);
+
   return (
     <div
-      className={`fixed top-0 left-0 h-full w-80 bg-white shadow-xl z-50 transform transition-transform duration-300 ease-in-out ${
+      ref={drawerRef}
+      className={`fixed top-0 left-0 h-full w-80 bg-[#F5F5F5] shadow-xl z-50 transform transition-transform duration-300 ease-in-out ${
         isOpen ? "translate-x-0" : "-translate-x-full"
       }`}
     >

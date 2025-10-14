@@ -1,6 +1,6 @@
+"use client";
 import { InputDemo as SearchBar } from "./components/SearchBar";
 import { SearchButton } from "./components/SearchButton";
-"use client";
 import React, { useState } from "react";
 
 export default function SearchPage() {

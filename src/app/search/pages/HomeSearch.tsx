@@ -7,13 +7,19 @@ import { useSearch } from "../hooks/useSearch";
 
 export default function HomeSearch() {
   // Llamada al hook para obtener la lógica y el estado
+  // Define the callback function for search trigger
+  const onSearchTriggered = (term: string) => {
+    // TODO: Implement search logic here, e.g., call an API or update state
+    console.log("Search triggered with term:", term);
+  };
+
   const { 
     searchTerm, 
     isSearchDisabled, 
     handleInputChange, 
     handleSearch,
     handleClearSearch,
-  } = useSearch();
+  } = useSearch(onSearchTriggered);
 
   return (
     <main
@@ -63,7 +69,7 @@ export default function HomeSearch() {
               border: "none",
               padding: "10px 10px",
               borderRadius: "9px",
-              cursor: isSearchDisabled ? 'not-allowed' : 'pointer', 
+              cursor: 'pointer', 
               paddingLeft: 10,
               paddingRight: 10,
               fontFamily: "Roboto, Arial, sans-serif",
@@ -75,7 +81,7 @@ export default function HomeSearch() {
       {/* Indicador visual basado en el estado del hook */}
       {searchTerm.length > 0 && isSearchDisabled && (
           <p style={{ color: "#888", marginTop: '10px', fontSize: '0.8rem' }}>
-              Mínimo 2 caracteres para buscar. 
+              Mínimo 2 caracteres para buscar 
           </p>
       )}
     </main>

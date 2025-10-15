@@ -79,7 +79,7 @@ export function FilterDrawer({ isOpen, onClose, onFiltersApply }: FilterDrawerPr
       params.append('category', selectedJobs.join(','));
     }
 
-    const url = `http://localhost:3000/api/devmaster/offers/filter?${params.toString()}`;
+    const url = `${process.env.NEXT_PUBLIC_API_URL}/api/devmaster/offers/filter?${params.toString()}`;
     console.log('🔍 URL que se está llamando:', url);
 
     try {
@@ -172,21 +172,28 @@ export function FilterDrawer({ isOpen, onClose, onFiltersApply }: FilterDrawerPr
               </div>
               {openSections.fixer && (
                 <div className="bg-white border border-gray-200 p-4 rounded">
-                  <div className="grid grid-cols-2 gap-2">
-                    {["De (A-C)", "De (D-F)", "De (G-I)", "De (J-L)", "De (M-Ñ)", "De (O-Q)", "De (R-T)", "De (U-W)", "De (X-Z)"].map((range) => (
-                      <label key={range} className="flex items-center gap-2 text-sm cursor-pointer min-w-0">
-                        <input 
-                          type="checkbox" 
-                          className="w-4 h-4 cursor-pointer flex-shrink-0" 
-                          checked={selectedRanges.includes(range)} 
-                          onChange={() => handleRangeChange(range)}
-                        />
+                  <div className="flex gap-8">
+                    {[
+                      ["De (A-C)", "De (D-F)", "De (G-I)", "De (J-L)", "De (M-Ñ)"],
+                      ["De (O-Q)", "De (R-T)", "De (U-W)", "De (X-Z)"]
+                    ].map((column, colIndex) => (
+                     <div key={colIndex} className="flex flex-col gap-2 flex-1">
+                      {column.map((range) => (
+                        <label key={range} className="flex items-center gap-2 text-sm cursor-pointer">
+                          <input 
+                            type="checkbox" 
+                            className="w-4 h-4 cursor-pointer flex-shrink-0" 
+                            checked={selectedRanges.includes(range)} 
+                            onChange={() => handleRangeChange(range)}
+                          />
                         <span className="truncate">{range}</span>
                       </label>
                     ))}
                   </div>
-                </div>
-              )}
+                ))}
+              </div>
+            </div>
+            )}
             </div>
 
             {/* Filtro: Ciudad */}

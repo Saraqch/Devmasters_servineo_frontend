@@ -11,24 +11,27 @@ import PaginationSelector from './components/PaginationSelector';
 import CardJob from './components/CardJob';
 import { api, ApiResponse } from '@/lib/api';
 
-interface JobResponse {
-  total: number;
-  data: JobData[];
-}
-
-interface JobData {
+interface OfferData {
   _id: string;
+  fixerName: string;
   title: string;
   description: string;
-  status: string;
+  category: string;
+  tags: string[];
   price: number;
+  city: string;
+  contactPhone: string;
   createdAt: string;
-  comment?: string;
+}
+
+interface OfferResponse {
+  total: number;
+  data: OfferData[];
 }
 
 export default function JobOffers() {
-  // Estados de la API
-  const [trabajos, setTrabajos] = useState<JobData[]>([]);
+  const [search, setSearch] = useState('');
+  const [trabajos, setTrabajos] = useState<OfferData[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -42,9 +45,8 @@ export default function JobOffers() {
     setError(null);
 
     try {
-      const encoded = encodeURIComponent(searchTerm);
-      const response: ApiResponse<JobResponse> = await api.get(
-        `/api/devmaster/servicios?name=${encoded}&context=job`
+      const response: ApiResponse<OfferResponse> = await api.get(
+        `/api/devmaster/servicios?name=${encodeURIComponent(search)}&context=job_offer`
       );
 
       if (response.success && response.data) {
@@ -166,7 +168,3 @@ export default function JobOffers() {
     </main>
   );
 }
-
-
-
-

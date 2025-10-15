@@ -1,90 +1,48 @@
 'use client';
 
-import React, { useState } from 'react'
-import SearchBar from '@/Components/Offers/SearchBar'
-import FilterBar, { type FilterBarValues } from '@/Components/Offers/FilterBar'
-import OfferTable from '@/Components/Offers/OfferTable'
-import type { OfferItem } from '@/Components/Offers/OfferList'
-import Tabs from '@/Components/Tabs/Tabs'
-import TabsList from '@/Components/Tabs/TabsList'
-import TabsTrigger from '@/Components/Tabs/TabsTrigger'
-import TabsContent from '@/Components/Tabs/TabsContent'
+import React, { useState, useEffect } from 'react';
+import SearchBar from '@/Components/Offers/SearchBar';
+import FilterBar, { type FilterBarValues } from '@/Components/Offers/FilterBar';
+import Tabs from '@/Components/Tabs/Tabs';
+import TabsList from '@/Components/Tabs/TabsList';
+import TabsTrigger from '@/Components/Tabs/TabsTrigger';
+import TabsContent from '@/Components/Tabs/TabsContent';
+import type { OfferItem } from '@/Components/Offers/OfferList';
+import { getJobs } from '@/service/serviceJobs';
+import OfferTable from '@/components/Offers/OfferTable';
 
 const JobOfferListPage = () => {
-  const [activeTab, setActiveTab] = useState('offersJobs')
-  const [search, setSearch] = useState('')
-  const [filters, setFilters] = useState<FilterBarValues>({ category: '', price: '', location: '', rating: '' })
-  const [alphaRange, setAlphaRange] = useState<string>('')
+  const [activeTab, setActiveTab] = useState('offersJobs');
+  const [search, setSearch] = useState('');
+  const [filters, setFilters] = useState<FilterBarValues>({
+    category: '',
+    price: '',
+    location: '',
+    rating: '',
+  });
+  const [alphaRange, setAlphaRange] = useState<string>('');
+  const [items, setItems] = useState<OfferItem[]>([]);
+  const [loading, setLoading] = useState(true);
 
-  // Datos mock; reemplazar con datos de API cuando estén disponibles
-  const items: OfferItem[] = [
-    {
-      id: '1',
-      title: 'Reparación de grifo',
-      description: 'Servicio de reparación y mantenimiento de grifos y llaves de agua',
-      author: 'Juan Pérez',
-      rating: 4.8,
-      price: 150,
-      tag: 'Fontanería',
-      category: 'plomeria',
-      location: 'La Paz',
-    },
-    {
-      id: '2',
-      title: 'Instalación eléctrica',
-      description: 'Instalación y reparación de sistemas eléctricos residenciales',
-      author: 'María García',
-      rating: 4.9,
-      price: 300,
-      tag: 'Electricidad',
-      category: 'electricidad',
-      location: 'Cochabamba',
-    },
-    {
-      id: '3',
-      title: 'Albañilería general',
-      description: 'Construcción y reparación de muros y estructuras',
-      author: 'Carlos López',
-      rating: 4.6,
-      price: 220,
-      tag: 'Albañilería',
-      category: 'albanileria',
-      location: 'Santa Cruz',
-    },
-     {
-      id: '4',
-      title: 'Reparación de grifo',
-      description: 'Servicio de reparación y mantenimiento de grifos y llaves de agua',
-      author: 'Juan Pérez',
-      rating: 4.8,
-      price: 150,
-      tag: 'Fontanería',
-      category: 'plomeria',
-      location: 'La Paz',
-    },
-    {
-      id: '5',
-      title: 'Instalación eléctrica',
-      description: 'Instalación y reparación de sistemas eléctricos residenciales',
-      author: 'María García',
-      rating: 4.9,
-      price: 300,
-      tag: 'Electricidad',
-      category: 'electricidad',
-      location: 'Cochabamba',
-    },
-    {
-      id: '6',
-      title: 'Albañilería general',
-      description: 'Construcción y reparación de muros y estructuras',
-      author: 'Carlos López',
-      rating: 4.6,
-      price: 220,
-      tag: 'Albañilería',
-      category: 'albanileria',
-      location: 'Santa Cruz',
-    },
-  ]
+  // 🔹 Cargar datos desde el backend
+  useEffect(() => {
+    const fetchJobs = async () => {
+      try {
+        const data = await getJobs();
+        setItems(data); // guarda los datos recibidos
+      } catch (error) {
+        console.error('Error al cargar ofertas:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchJobs();
+  }, []);
+
+  if (loading) {
+    return <div className="text-center py-10">Cargando ofertas...</div>;
+  }
 
   return (
     <div className="container mx-auto p-4 max-w-6xl">
@@ -95,7 +53,6 @@ const JobOfferListPage = () => {
           <TabsList className="flex mb-4 gap-[0.1px]">
             <TabsTrigger value="offersJobs">Offers Jobs</TabsTrigger>
             <TabsTrigger value="help">Ayuda</TabsTrigger>
-            
           </TabsList>
         </div>
 
@@ -127,7 +84,12 @@ const JobOfferListPage = () => {
                 </div>
               </div>
 
-              <OfferTable items={items} search={search} filters={filters} alphaRange={alphaRange} />
+              <OfferTable
+                items={items}
+                search={search}
+                filters={filters}
+                alphaRange={alphaRange}
+              />
             </div>
           </TabsContent>
 
@@ -146,7 +108,7 @@ const JobOfferListPage = () => {
         </div>
       </Tabs>
     </div>
-  )
-}
+  );
+};
 
-export default JobOfferListPage
+export default JobOfferListPage;

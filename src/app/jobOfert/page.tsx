@@ -3,10 +3,10 @@
 import { useState, useEffect } from 'react';
 import { InputDemo } from '@/app/search/components/SearchBar';
 import { SearchButton } from '@/app/search/components/SearchButton';
-import Paginacion from './components/Paginacion';
-import PaginationInfo from './components/PaginationInfo';
-import PaginationSelector from './components/PaginationSelector';
-import CardJob from './components/CardJob';
+import Paginacion from '../../components/Offers/Paginacion';
+import PaginationInfo from '../../components/Offers/PaginationInfo';
+import PaginationSelector from '../../components/Offers/PaginationSelector';
+import CardJob from '../../components/Offers/CardJob';
 import { api, ApiResponse } from '@/lib/api';
 
 interface JobResponse {

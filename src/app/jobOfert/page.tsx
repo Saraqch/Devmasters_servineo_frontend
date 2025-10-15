@@ -3,6 +3,8 @@
 import { useState, useEffect } from 'react';
 import { InputDemo } from '@/app/search/components/SearchBar';
 import { SearchButton } from '@/app/search/components/SearchButton';
+import { FilterButton } from '@/app/jobOfert/components/FilterButton';
+import { FilterDrawer } from '@/app/jobOfert/components/FilterDrawer';
 import Paginacion from './components/Paginacion';
 import PaginationInfo from './components/PaginationInfo';
 import PaginationSelector from './components/PaginationSelector';
@@ -10,32 +12,36 @@ import CardJob from './components/CardJob';
 import SortCard from '@/components/sort/SortCard';
 import { api, ApiResponse } from '@/lib/api';
 
-interface JobResponse {
-  total: number;
-  data: JobData[];
-}
-
-interface JobData {
+interface OfferData {
   _id: string;
+  fixerName: string;
   title: string;
   description: string;
-  status: string;
+  category: string;
+  tags: string[];
   price: number;
+  city: string;
+  contactPhone: string;
   createdAt: string;
-  comment?: string;
+  rating: number; // Añadido para el sorting por destacados
+}
+
+interface OfferResponse {
+  total: number;
+  data: OfferData[];
 }
 
 export default function JobOffers() {
   const [search, setSearch] = useState('');
-  const [trabajos, setTrabajos] = useState<JobData[]>([]);
+  const [trabajos, setTrabajos] = useState<OfferData[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [isDrawerOpen, setIsDrawerOpen] = useState(false);
 
   // Estados de paginación
   const [paginaActual, setPaginaActual] = useState(1);
   const [registrosPorPagina, setRegistrosPorPagina] = useState(10);
 
-  // Para prueba: total de registros aunque no haya resultados
   const totalRegistros = trabajos.length > 0 ? trabajos.length : 100;
 
   // 🔹 Manejar búsqueda
@@ -45,8 +51,8 @@ export default function JobOffers() {
     setError(null);
 
     try {
-      const response: ApiResponse<JobResponse> = await api.get(
-        `/api/devmaster/servicios?name=${search}&context=job`,
+      const response: ApiResponse<OfferResponse> = await api.get(
+        `/api/devmaster/servicios?name=${encodeURIComponent(search)}&context=job_offer`
       );
 
       if (response.success && response.data) {
@@ -64,10 +70,17 @@ export default function JobOffers() {
     }
   };
 
+  // Manejar filtros aplicados
+  const handleFiltersApply = (filteredOffers: OfferData[]) => {
+    setTrabajos(filteredOffers);
+    setPaginaActual(1);
+  };
+
   // 🔹 Calcular trabajos visibles según página actual y registros por página
   const indiceInicio = (paginaActual - 1) * registrosPorPagina;
   const indiceFin = indiceInicio + registrosPorPagina;
-  const trabajosVisibles = trabajos.length > 0 ? trabajos.slice(indiceInicio, indiceFin) : [];
+  const trabajosVisibles =
+    trabajos.length > 0 ? trabajos.slice(indiceInicio, indiceFin) : [];
 
   // 🔹 Reiniciar página si el selector cambia
   useEffect(() => {
@@ -78,8 +91,39 @@ export default function JobOffers() {
     <main className="p-10 md:p-20 lg:p-40">
       <h1 className="mb-4 text-center text-3xl font-bold">Ofertas de trabajo</h1>
 
-      {/* Buscador */}
+      {/* Buscador + Botón de Filtros */}
       <div className="flex items-center justify-center gap-2 mb-6">
+        <SortCard
+          onSelect={async (option) => {
+            const sortMap: Record<string, string> = {
+              Destacados: 'rating',
+              'Los más recientes': 'recent',
+              'Los más antiguos': 'oldest',
+              'Nombre A-Z': 'name_asc',
+              'Nombre Z-A': 'name_desc',
+              'Num de contacto asc': 'contact_asc',
+              'Num de contacto desc': 'contact_desc',
+            };
+            const backendSort = sortMap[option];
+
+            setLoading(true);
+            try {
+              const res = await fetch(`/api/devmaster/fixers?sortBy=${backendSort}`);
+              const data = await res.json();
+              if (data.success) {
+                setTrabajos(data.data || []); // Actualiza la lista completa
+                setPaginaActual(1);
+              } else {
+                setTrabajos([]);
+              }
+            } catch {
+              setTrabajos([]);
+            } finally {
+              setLoading(false);
+            }
+          }}
+        />
+        <FilterButton onClick={() => setIsDrawerOpen(true)} />
         <InputDemo
           value={search}
           onChange={(e) => setSearch(e.target.value)}
@@ -88,10 +132,17 @@ export default function JobOffers() {
         <SearchButton onClick={handleSearch} disabled={loading} />
       </div>
 
+      {/* FilterDrawer */}
+      <FilterDrawer
+        isOpen={isDrawerOpen}
+        onClose={() => setIsDrawerOpen(false)}
+        onFiltersApply={handleFiltersApply}
+      />
+
       {/* Error */}
       {error && <p className="text-red-500 text-center mb-4">{error}</p>}
 
-      {/* Info de paginación + Selector + SortCard */}
+      {/* Info de paginación + Selector */}
       <div className="flex justify-between items-center mb-4 w-full max-w-5xl mx-auto">
         <PaginationInfo
           paginaActual={paginaActual}
@@ -99,13 +150,10 @@ export default function JobOffers() {
           totalRegistros={totalRegistros}
         />
 
-        <div className="flex items-center gap-3">
-          <SortCard />
-          <PaginationSelector
-            registrosPorPagina={registrosPorPagina}
-            onChange={(valor) => setRegistrosPorPagina(valor)}
-          />
-        </div>
+        <PaginationSelector
+          registrosPorPagina={registrosPorPagina}
+          onChange={(valor) => setRegistrosPorPagina(valor)}
+        />
       </div>
 
       {/* Resultados */}

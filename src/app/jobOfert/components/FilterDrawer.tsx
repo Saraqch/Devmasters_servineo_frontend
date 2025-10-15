@@ -5,9 +5,10 @@ import React, { useState, useEffect } from "react";
 interface FilterDrawerProps {
   isOpen: boolean;
   onClose: () => void;
+  onFiltersApply?: (offers: any[]) => void;
 }
 
-export function FilterDrawer({ isOpen, onClose }: FilterDrawerProps) {
+export function FilterDrawer({ isOpen, onClose, onFiltersApply }: FilterDrawerProps) {
   const [openSections, setOpenSections] = useState<{[key: string]: boolean}>({
     fixer: false,
     ciudad: false,
@@ -18,7 +19,6 @@ export function FilterDrawer({ isOpen, onClose }: FilterDrawerProps) {
   const [selectedCity, setSelectedCity] = useState<string>("");
   const [selectedJobs, setSelectedJobs] = useState<string[]>([]);
 
-  // Prevenir scroll del body cuando el drawer está abierto
   useEffect(() => {
     if (isOpen) {
       document.body.style.overflow = 'hidden';
@@ -29,6 +29,12 @@ export function FilterDrawer({ isOpen, onClose }: FilterDrawerProps) {
       document.body.style.overflow = 'unset';
     };
   }, [isOpen]);
+
+  useEffect(() => {
+    if (isOpen) {
+      applyFilters();
+    }
+  }, [selectedRanges, selectedCity, selectedJobs]);
 
   const toggleSection = (section: string) => {
     setOpenSections(prev => ({
@@ -57,7 +63,43 @@ export function FilterDrawer({ isOpen, onClose }: FilterDrawerProps) {
     );
   };
 
-  // Función para resetear todos los filtros
+  const applyFilters = async () => {
+    const params = new URLSearchParams();
+    
+    if (selectedRanges.length > 0) {
+      const ranges = selectedRanges.map(r => r.replace('De (', '').replace(')', ''));
+      params.append('range', ranges.join(','));
+    }
+    
+    if (selectedCity) {
+      params.append('city', selectedCity);
+    }
+    
+    if (selectedJobs.length > 0) {
+      params.append('category', selectedJobs.join(','));
+    }
+
+    const url = `http://localhost:3000/api/devmaster/offers/filter?${params.toString()}`;
+    console.log('🔍 URL que se está llamando:', url);
+
+    try {
+      const response = await fetch(url);
+      const result = await response.json();
+      
+      console.log('✅ Respuesta completa del backend:', result);
+      
+      const ofertas = result.data || result || [];
+      
+      console.log('✅ Ofertas extraídas:', ofertas);
+      
+      if (onFiltersApply) {
+        onFiltersApply(ofertas);
+      }
+    } catch (error) {
+      console.error('❌ Error al aplicar filtros:', error);
+    }
+  };
+
   const handleReset = () => {
     setSelectedRanges([]);
     setSelectedCity("");
@@ -66,7 +108,6 @@ export function FilterDrawer({ isOpen, onClose }: FilterDrawerProps) {
 
   return (
     <>
-      {/* Overlay - oscurece el fondo cuando el drawer está abierto */}
       <div
         className={`fixed inset-0 bg-black transition-opacity duration-300 z-40 ${
           isOpen ? "opacity-50" : "opacity-0 pointer-events-none"
@@ -74,13 +115,11 @@ export function FilterDrawer({ isOpen, onClose }: FilterDrawerProps) {
         onClick={onClose}
       />
 
-      {/* Drawer */}
       <div
         className={`fixed top-0 left-0 h-full w-[75%] sm:w-80 bg-white shadow-xl z-50 transform transition-transform duration-300 ease-in-out overflow-hidden ${
           isOpen ? "translate-x-0" : "-translate-x-full"
         }`}
       >
-        {/* Estilos personalizados para scrollbar */}
         <style jsx>{`
           .custom-scrollbar::-webkit-scrollbar {
             width: 8px;
@@ -122,7 +161,6 @@ export function FilterDrawer({ isOpen, onClose }: FilterDrawerProps) {
             </div>
           </div>
 
-          {/* Contenedor con scroll */}
           <div className="flex-1 overflow-y-auto custom-scrollbar">
             {/* Filtro: Nombre de Fixer */}
             <div className="mb-6">

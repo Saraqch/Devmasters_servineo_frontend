@@ -54,7 +54,11 @@ export default function HomeSearch() {
         </div>
         <div style={{ marginTop: 1.5 }}>
           <SearchButton
+<<<<<<< HEAD
             // Pasa la validación y el manejador de búsqueda del hook
+=======
+            // Pasa la validación y el manejador de búsqueda del hooks
+>>>>>>> 7b85d9e65d72eb1ae1d9b423379d684554716e76
             disabled={isSearchDisabled}
             onClick={handleSearch} 
             style={{

@@ -1,120 +1,147 @@
- "use client"; // 🔹 Obligatorio para usar useState y hooks
+'use client';
 
-import React, { useState, useEffect } from "react";
-import { InputDemo } from "@/app/search/components/SearchBar";
-import { FilterButton } from "./components/FilterButton";
-import { SearchButton } from "@/app/search/components/SearchButton";
-import { FilterDrawer } from "./components/FilterDrawer";
-import Paginacion from "./components/Paginacion";
-import CardJob from "./components/CardJob";
-import { fetchServicios } from "@/lib/api";
+import { useState, useEffect } from 'react';
+import { InputDemo } from '@/app/search/components/SearchBar';
+import { SearchButton } from '@/app/search/components/SearchButton';
+import { FilterButton } from '@/app/jobOfert/components/FilterButton';
+import { FilterDrawer } from '@/app/jobOfert/components/FilterDrawer';
+import Paginacion from './components/Paginacion';
+import PaginationInfo from './components/PaginationInfo';
+import PaginationSelector from './components/PaginationSelector';
+import CardJob from './components/CardJob';
+import { api, ApiResponse } from '@/lib/api';
 
-interface Servicio {
-  id?: string;
-  _id?: string;
-  title?: string;
-  description?: string;
-  fixerName?: string;
-  contacto?: string;
-  whatsapp?: string;
-  telefono?: string;
-  tags?: string[];
-  etiquetas?: string[];
+interface OfferData {
+  _id: string;
+  fixerName: string;
+  title: string;
+  description: string;
+  category: string;
+  tags: string[];
+  price: number;
+  city: string;
+  contactPhone: string;
+  createdAt: string;
+}
+
+interface OfferResponse {
+  total: number;
+  data: OfferData[];
 }
 
 export default function JobOffers() {
-  const [servicios, setServicios] = useState([]);
+  const [search, setSearch] = useState('');
+  const [trabajos, setTrabajos] = useState<OfferData[]>([]);
   const [loading, setLoading] = useState(false);
-  const [search, setSearch] = useState("");
-  const [view, setView] = useState<"list" | "grid">("list");
-  const [showFilters, setShowFilters] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [isDrawerOpen, setIsDrawerOpen] = useState(false);
 
-  // Buscar servicios cuando cambia el texto de búsqueda
-  useEffect(() => {
+  // Estados de paginación
+  const [paginaActual, setPaginaActual] = useState(1);
+  const [registrosPorPagina, setRegistrosPorPagina] = useState(10);
+
+  const totalRegistros = trabajos.length > 0 ? trabajos.length : 100;
+
+  // 🔹 Manejar búsqueda
+  const handleSearch = async () => {
+    if (!search.trim()) return;
     setLoading(true);
-    fetchServicios({ name: search, context: "" })
-      .then((data) => setServicios(Array.isArray(data.data) ? data.data : []))
-      .catch(() => setServicios([]))
-      .finally(() => setLoading(false));
-  }, [search]);
+    setError(null);
 
-  return ( 
-  <>
-    <main className="p-40">
-      <h1 className="mb-4 text-center text-3xl font-bold">
-        Ofertas de trabajo
-      </h1>
+    try {
+      const response: ApiResponse<OfferResponse> = await api.get(
+        `/api/devmaster/servicios?name=${encodeURIComponent(search)}&context=job_offer`
+      );
 
+      if (response.success && response.data) {
+        setTrabajos(response.data.data);
+        setPaginaActual(1);
+      } else {
+        setError(response.error || 'Error al buscar servicios');
+        setTrabajos([]);
+      }
+    } catch {
+      setError('Error de conexión con el servidor');
+      setTrabajos([]);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Manejar filtros aplicados
+  const handleFiltersApply = (filteredOffers: OfferData[]) => {
+    setTrabajos(filteredOffers);
+    setPaginaActual(1);
+  };
+
+  // 🔹 Calcular trabajos visibles según página actual y registros por página
+  const indiceInicio = (paginaActual - 1) * registrosPorPagina;
+  const indiceFin = indiceInicio + registrosPorPagina;
+  const trabajosVisibles =
+    trabajos.length > 0 ? trabajos.slice(indiceInicio, indiceFin) : [];
+
+  // 🔹 Reiniciar página si el selector cambia
+  useEffect(() => {
+    setPaginaActual(1);
+  }, [registrosPorPagina]);
+
+  return (
+    <main className="p-10 md:p-20 lg:p-40">
+      <h1 className="mb-4 text-center text-3xl font-bold">Ofertas de trabajo</h1>
+
+      {/* Buscador + Botón de Filtros */}
       <div className="flex items-center justify-center gap-2 mb-6">
-        <FilterButton 
-          title="Filtrar resultados" 
-          onClick={() => setShowFilters(!showFilters)}
-        />
+        <FilterButton onClick={() => setIsDrawerOpen(true)} />
         <InputDemo
           value={search}
           onChange={(e) => setSearch(e.target.value)}
-          onClear={() => setSearch("")}
+          onClear={() => setSearch('')}
         />
-        <SearchButton />
-        <button
-          className="ml-2 px-4 py-2 border rounded"
-          onClick={() => setView(view === "list" ? "grid" : "list")}
-        >
-          {view === "list" ? "Ver en cuadrícula" : "Ver en lista"}
-        </button>
+        <SearchButton onClick={handleSearch} disabled={loading} />
       </div>
 
-      <div className="text-center mb-4">
-        <span className="font-semibold">{servicios.length}</span> ofertas encontradas
+      {/* FilterDrawer */}
+      <FilterDrawer 
+        isOpen={isDrawerOpen}
+        onClose={() => setIsDrawerOpen(false)}
+        onFiltersApply={handleFiltersApply}
+      />
+
+      {/* Error */}
+      {error && <p className="text-red-500 text-center mb-4">{error}</p>}
+
+      {/* Info de paginación + Selector */}
+      <div className="flex justify-between items-center mb-4 w-full max-w-5xl mx-auto">
+        <PaginationInfo
+          paginaActual={paginaActual}
+          registrosPorPagina={registrosPorPagina}
+          totalRegistros={totalRegistros}
+        />
+
+        <PaginationSelector
+          registrosPorPagina={registrosPorPagina}
+          onChange={(valor) => setRegistrosPorPagina(valor)}
+        />
       </div>
 
-      {loading ? (
-        <div className="text-center">Cargando...</div>
-      ) : (
-        <>
-          <div className={view === "grid" ? "grid grid-cols-2 gap-4 justify-center" : "flex flex-col gap-4"}>
-            {Array.isArray(servicios) &&
-              servicios.map((servicio: Servicio) => (
-                <div key={servicio.id || servicio._id} className="border rounded p-4 shadow">
-                  <div className="font-bold">{servicio.title}</div>
-                  <div>{servicio.description}</div>
-                  <div>
-                    <span className="font-semibold">Fixer:</span>{" "}
-                    {servicio.fixerName || servicio.contacto}
-                  </div>
-                  <div>
-                    <span className="font-semibold">WhatsApp:</span>{" "}
-                    {servicio.whatsapp || servicio.telefono}
-                  </div>
-                  <div className="mt-2">
-                    {(Array.isArray(servicio.tags)
-                      ? servicio.tags
-                      : Array.isArray(servicio.etiquetas)
-                      ? servicio.etiquetas
-                      : []
-                    ).map((tag: string, idx: number) => (
-                      <span
-                        key={tag + idx}
-                        className="inline-block bg-blue-100 text-blue-800 px-2 py-1 rounded mr-2 text-xs"
-                      >
-                        {tag}
-                      </span>
-                    ))}
-                  </div>
-                </div>
-              ))}
-          </div>
+      {/* Resultados */}
+      <div className="flex flex-wrap gap-4 justify-center">
+        {trabajosVisibles.length > 0 ? (
+          <CardJob trabajos={trabajosVisibles} />
+        ) : (
+          <p className="text-gray-500">No hay resultados en esta página</p>
+        )}
+      </div>
 
-          <div className="flex flex-wrap gap-4 justify-center mt-6">
-            <CardJob />
-          </div>
-        </>
-      )}
-      <div className="mt-6">
-        <Paginacion />
+      {/* Paginación */}
+      <div className="mt-8 flex justify-center">
+        <Paginacion
+          paginaActual={paginaActual}
+          registrosPorPagina={registrosPorPagina}
+          totalRegistros={totalRegistros}
+          onChange={setPaginaActual}
+        />
       </div>
     </main>
-    <FilterDrawer isOpen={showFilters} onClose={() => setShowFilters(false)} />
-  </>
- );
+  );
 }

@@ -7,24 +7,27 @@ import Paginacion from './components/Paginacion';
 import CardJob from './components/CardJob';
 import { api, ApiResponse } from '@/lib/api';
 
-interface JobResponse {
-  total: number;
-  data: JobData[];
-}
-
-interface JobData {
+interface OfferData {
   _id: string;
+  fixerName: string;
   title: string;
   description: string;
-  status: string;
+  category: string;
+  tags: string[];
   price: number;
+  city: string;
+  contactPhone: string;
   createdAt: string;
-  comment?: string;
+}
+
+interface OfferResponse {
+  total: number;
+  data: OfferData[];
 }
 
 export default function JobOffers() {
   const [search, setSearch] = useState('');
-  const [trabajos, setTrabajos] = useState<JobData[]>([]);
+  const [trabajos, setTrabajos] = useState<OfferData[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -34,8 +37,8 @@ export default function JobOffers() {
     setError(null);
 
     try {
-      const response: ApiResponse<JobResponse> = await api.get(
-        `/api/devmaster/servicios?name=${search}&context=job`
+      const response: ApiResponse<OfferResponse> = await api.get(
+        `/api/devmaster/servicios?name=${encodeURIComponent(search)}&context=job_offer`
       );
 
       if (response.success && response.data) {
@@ -53,10 +56,10 @@ export default function JobOffers() {
   return (
     <main className="p-40">
       <h1 className="mb-4 text-center text-3xl font-bold">
-        Ofertas de trabajo
+        Servicios disponibles
       </h1>
 
-      {/* Buscador usando tus componentes */}
+      {/* Buscador */}
       <div className="flex items-center justify-center gap-2 mb-6">
         <InputDemo
           value={search}
@@ -69,7 +72,7 @@ export default function JobOffers() {
       {/* Mensaje de error */}
       {error && <p className="text-red-500 text-center mb-4">{error}</p>}
 
-      {/* Cards de resultados */}
+      {/* Cards */}
       <div className="flex flex-wrap gap-4 justify-center">
         <CardJob trabajos={trabajos} />
       </div>

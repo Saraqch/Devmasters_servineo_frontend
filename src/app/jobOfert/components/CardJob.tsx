@@ -1,17 +1,21 @@
-import { Card, CardContent } from "@/components/ui/card"
+// src/app/jobOfert/components/CardJob.tsx
+import { Card, CardContent } from "@/components/ui/card";
 
-interface JobData {
+interface OfferData {
   _id: string;
+  fixerName: string;
   title: string;
   description: string;
-  status: string;
+  category: string;
+  tags: string[];
   price: number;
+  city: string;
+  contactPhone: string;
   createdAt: string;
-  comment?: string;
 }
 
 interface CardJobProps {
-  trabajos: JobData[];
+  trabajos: OfferData[];
 }
 
 const CardJob = ({ trabajos }: CardJobProps) => {
@@ -33,16 +37,23 @@ const CardJob = ({ trabajos }: CardJobProps) => {
                 </div>
 
                 <div className="flex-1 text-sm leading-relaxed">
-                  <h2 className="text-center font-semibold text-base mb-1">
+                  <h2 className="text-center font-semibold text-base mb-1 text-gray-800">
                     {t.title}
                   </h2>
+                  <p><strong>Nombre:</strong> {t.fixerName}</p>
+                  <p><strong>Categoría:</strong> {t.category}</p>
                   <p><strong>Descripción:</strong> {t.description}</p>
+                  <p><strong>Ciudad:</strong> {t.city}</p>
                   <p><strong>Precio:</strong> Bs. {t.price}</p>
-                  <p><strong>Estado:</strong> {t.status}</p>
-                  {t.comment && <p><strong>Comentario:</strong> {t.comment}</p>}
-                  <p className="text-xs text-gray-500 mt-1">
+                  <p><strong>Contacto:</strong> {t.contactPhone}</p>
+                  <p className="mt-1 text-gray-500 text-xs">
                     Publicado: {new Date(t.createdAt).toLocaleDateString()}
                   </p>
+                  {t.tags && t.tags.length > 0 && (
+                    <p className="text-xs mt-1">
+                      <strong>Etiquetas:</strong> {t.tags.join(", ")}
+                    </p>
+                  )}
                 </div>
               </CardContent>
             </Card>
@@ -50,7 +61,7 @@ const CardJob = ({ trabajos }: CardJobProps) => {
         </div>
       )}
     </div>
-  )
-}
+  );
+};
 
-export default CardJob
+export default CardJob;

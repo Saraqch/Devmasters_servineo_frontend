@@ -9,7 +9,7 @@ import Paginacion from './components/Paginacion';
 import PaginationInfo from './components/PaginationInfo';
 import PaginationSelector from './components/PaginationSelector';
 import CardJob from './components/CardJob';
-import SortCard from '@/components/sort/SortCard';
+import SortCard from '@/Components/sort/SortCard';
 import { api, ApiResponse } from '@/lib/api';
 
 interface OfferData {
@@ -28,6 +28,7 @@ interface OfferData {
 
 interface OfferResponse {
   total: number;
+  count: number;
   data: OfferData[];
 }
 
@@ -40,7 +41,7 @@ interface FilterState {
 export default function JobOffers() {
   const [search, setSearch] = useState('');
   const [trabajos, setTrabajos] = useState<OfferData[]>([]);
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
   const [filters, setFilters] = useState<FilterState>({
@@ -48,7 +49,7 @@ export default function JobOffers() {
     city: '',
     category: [],
   });
-  const [sortBy, setSortBy] = useState<string>('');
+  const [sortBy, setSortBy] = useState<string>('recent');
 
   // Estados de paginación
   const [paginaActual, setPaginaActual] = useState(1);
@@ -56,7 +57,7 @@ export default function JobOffers() {
 
   const totalRegistros = trabajos.length > 0 ? trabajos.length : 100;
 
-  // 🔹 Función para hacer la llamada al backend con todos los parámetros
+  // Función para hacer la llamada al backend
   const fetchOffers = async (
     searchText: string = '',
     appliedFilters: FilterState = filters,
@@ -72,58 +73,67 @@ export default function JobOffers() {
         params.append('search', searchText);
       }
 
-      // Añadir rangos (múltiples)
-      appliedFilters.range.forEach((r) => {
-        params.append('range', r);
-      });
+      if (appliedFilters.range && appliedFilters.range.length > 0) {
+        appliedFilters.range.forEach((r) => {
+          params.append('range', r);
+        });
+      }
 
-      // Añadir ciudad (single)
       if (appliedFilters.city) {
         params.append('city', appliedFilters.city);
       }
 
-      // Añadir categorías (múltiples)
-      appliedFilters.category.forEach((c) => {
-        params.append('category', c);
-      });
+      if (appliedFilters.category && appliedFilters.category.length > 0) {
+        appliedFilters.category.forEach((c) => {
+          params.append('category', c);
+        });
+      }
 
-      // Añadir sort
       if (appliedSort) {
         params.append('sortBy', appliedSort);
       }
 
-      const response: ApiResponse<OfferResponse> = await api.get(
-        `/api/devmaster/offers?${params.toString()}`,
-      );
+      const url = `/api/devmaster/offers?${params.toString()}`;
+
+      const response: ApiResponse<OfferResponse> = await api.get(url);
 
       if (response.success && response.data) {
         setTrabajos(response.data.data);
         setPaginaActual(1);
       } else {
-        setError(response.error || 'Error al cargar las ofertas');
+        const errorMsg = response.error || 'Error al cargar las ofertas';
+        setError(errorMsg);
         setTrabajos([]);
       }
-    } catch {
-      setError('Error de conexión con el servidor');
+    } catch (err) {
+      const errorMsg = err instanceof Error ? err.message : 'Error de conexión';
+      setError(errorMsg);
       setTrabajos([]);
     } finally {
       setLoading(false);
     }
   };
 
-  // 🔹 Manejar búsqueda
+  // Cargar ofertas iniciales al montar el componente
+  useEffect(() => {
+    fetchOffers('', { range: [], city: '', category: [] }, 'recent');
+  }, []);
+
+  // Manejar búsqueda
   const handleSearch = async () => {
-    if (!search.trim()) return;
+    if (!search.trim()) {
+      return;
+    }
     await fetchOffers(search, filters, sortBy);
   };
 
-  // 🔹 Manejar filtros aplicados
+  // Manejar filtros aplicados
   const handleFiltersApply = async (appliedFilters: FilterState) => {
     setFilters(appliedFilters);
     await fetchOffers(search, appliedFilters, sortBy);
   };
 
-  // 🔹 Manejar cambio de sort
+  // Manejar cambio de sort
   const handleSortChange = async (option: string) => {
     const sortMap: Record<string, string> = {
       Destacados: 'rating',
@@ -134,17 +144,19 @@ export default function JobOffers() {
       'Num de contacto asc': 'contact_asc',
       'Num de contacto desc': 'contact_desc',
     };
-    const backendSort = sortMap[option] || '';
+
+    const backendSort = sortMap[option] || 'recent';
     setSortBy(backendSort);
     await fetchOffers(search, filters, backendSort);
   };
 
-  // 🔹 Calcular trabajos visibles según página actual
+  // Calcular trabajos visibles según página actual
   const indiceInicio = (paginaActual - 1) * registrosPorPagina;
   const indiceFin = indiceInicio + registrosPorPagina;
-  const trabajosVisibles = trabajos.length > 0 ? trabajos.slice(indiceInicio, indiceFin) : [];
+  const trabajosVisibles =
+    trabajos.length > 0 ? trabajos.slice(indiceInicio, indiceFin) : [];
 
-  // 🔹 Reiniciar página si el selector cambia
+  // Reiniciar página si el selector cambia
   useEffect(() => {
     setPaginaActual(1);
   }, [registrosPorPagina]);
@@ -154,7 +166,7 @@ export default function JobOffers() {
       <h1 className="mb-4 text-center text-3xl font-bold">Ofertas de trabajo</h1>
 
       {/* Buscador + Botón de Filtros */}
-      <div className="flex items-center justify-center gap-2 mb-6">
+      <div className="flex items-center justify-center gap-2 mb-6 flex-wrap">
         <SortCard onSelect={handleSortChange} />
         <FilterButton onClick={() => setIsDrawerOpen(true)} />
         <InputDemo
@@ -173,10 +185,18 @@ export default function JobOffers() {
       />
 
       {/* Error */}
-      {error && <p className="text-red-500 text-center mb-4">{error}</p>}
+      {error && (
+        <div className="text-red-500 text-center mb-4 p-3 bg-red-100 rounded">
+          Error: {error}
+        </div>
+      )}
 
       {/* Loading */}
-      {loading && <p className="text-blue-500 text-center mb-4">Cargando...</p>}
+      {loading && (
+        <div className="text-blue-500 text-center mb-4 p-3 bg-blue-100 rounded">
+          Cargando ofertas...
+        </div>
+      )}
 
       {/* Info de paginación + Selector */}
       <div className="flex justify-between items-center mb-4 w-full max-w-5xl mx-auto">
@@ -194,24 +214,26 @@ export default function JobOffers() {
 
       {/* Resultados */}
       <div className="flex flex-wrap gap-4 justify-center">
-        {trabajosVisibles.length > 0 ? (
+        {!loading && trabajosVisibles.length > 0 ? (
           <CardJob trabajos={trabajosVisibles} />
-        ) : (
+        ) : !loading ? (
           <p className="text-gray-500">
             {trabajos.length === 0 ? 'No hay resultados' : 'No hay resultados en esta página'}
           </p>
-        )}
+        ) : null}
       </div>
 
       {/* Paginación */}
-      <div className="mt-8 flex justify-center">
-        <Paginacion
-          paginaActual={paginaActual}
-          registrosPorPagina={registrosPorPagina}
-          totalRegistros={totalRegistros}
-          onChange={setPaginaActual}
-        />
-      </div>
+      {!loading && trabajos.length > 0 && (
+        <div className="mt-8 flex justify-center">
+          <Paginacion
+            paginaActual={paginaActual}
+            registrosPorPagina={registrosPorPagina}
+            totalRegistros={totalRegistros}
+            onChange={setPaginaActual}
+          />
+        </div>
+      )}
     </main>
   );
 }

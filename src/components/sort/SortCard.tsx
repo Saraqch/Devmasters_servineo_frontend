@@ -9,7 +9,6 @@ import {
 } from '@/components/ui/dropdown-menu';
 import React, { useState } from 'react';
 import { ChevronDown } from 'lucide-react';
-import Image from 'next/image';
 
 interface SortCardProps {
   onSelect: (option: string) => void;

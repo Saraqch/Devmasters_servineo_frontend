@@ -23,12 +23,18 @@ interface OfferData {
   city: string;
   contactPhone: string;
   createdAt: string;
-  rating: number; // Añadido para el sorting por destacados
+  rating: number;
 }
 
 interface OfferResponse {
   total: number;
   data: OfferData[];
+}
+
+interface FilterState {
+  range: string[];
+  city: string;
+  category: string[];
 }
 
 export default function JobOffers() {
@@ -37,6 +43,12 @@ export default function JobOffers() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
+  const [filters, setFilters] = useState<FilterState>({
+    range: [],
+    city: '',
+    category: [],
+  });
+  const [sortBy, setSortBy] = useState<string>('');
 
   // Estados de paginación
   const [paginaActual, setPaginaActual] = useState(1);
@@ -44,22 +56,51 @@ export default function JobOffers() {
 
   const totalRegistros = trabajos.length > 0 ? trabajos.length : 100;
 
-  // 🔹 Manejar búsqueda
-  const handleSearch = async () => {
-    if (!search.trim()) return;
+  // 🔹 Función para hacer la llamada al backend con todos los parámetros
+  const fetchOffers = async (
+    searchText: string = '',
+    appliedFilters: FilterState = filters,
+    appliedSort: string = sortBy,
+  ) => {
     setLoading(true);
     setError(null);
 
     try {
+      const params = new URLSearchParams();
+
+      if (searchText.trim()) {
+        params.append('search', searchText);
+      }
+
+      // Añadir rangos (múltiples)
+      appliedFilters.range.forEach((r) => {
+        params.append('range', r);
+      });
+
+      // Añadir ciudad (single)
+      if (appliedFilters.city) {
+        params.append('city', appliedFilters.city);
+      }
+
+      // Añadir categorías (múltiples)
+      appliedFilters.category.forEach((c) => {
+        params.append('category', c);
+      });
+
+      // Añadir sort
+      if (appliedSort) {
+        params.append('sortBy', appliedSort);
+      }
+
       const response: ApiResponse<OfferResponse> = await api.get(
-        `/api/devmaster/servicios?name=${encodeURIComponent(search)}&context=job_offer`
+        `/api/devmaster/offers?${params.toString()}`,
       );
 
       if (response.success && response.data) {
         setTrabajos(response.data.data);
         setPaginaActual(1);
       } else {
-        setError(response.error || 'Error al buscar servicios');
+        setError(response.error || 'Error al cargar las ofertas');
         setTrabajos([]);
       }
     } catch {
@@ -70,17 +111,38 @@ export default function JobOffers() {
     }
   };
 
-  // Manejar filtros aplicados
-  const handleFiltersApply = (filteredOffers: OfferData[]) => {
-    setTrabajos(filteredOffers);
-    setPaginaActual(1);
+  // 🔹 Manejar búsqueda
+  const handleSearch = async () => {
+    if (!search.trim()) return;
+    await fetchOffers(search, filters, sortBy);
   };
 
-  // 🔹 Calcular trabajos visibles según página actual y registros por página
+  // 🔹 Manejar filtros aplicados
+  const handleFiltersApply = async (appliedFilters: FilterState) => {
+    setFilters(appliedFilters);
+    await fetchOffers(search, appliedFilters, sortBy);
+  };
+
+  // 🔹 Manejar cambio de sort
+  const handleSortChange = async (option: string) => {
+    const sortMap: Record<string, string> = {
+      Destacados: 'rating',
+      'Los más recientes': 'recent',
+      'Los más antiguos': 'oldest',
+      'Nombre A-Z': 'name_asc',
+      'Nombre Z-A': 'name_desc',
+      'Num de contacto asc': 'contact_asc',
+      'Num de contacto desc': 'contact_desc',
+    };
+    const backendSort = sortMap[option] || '';
+    setSortBy(backendSort);
+    await fetchOffers(search, filters, backendSort);
+  };
+
+  // 🔹 Calcular trabajos visibles según página actual
   const indiceInicio = (paginaActual - 1) * registrosPorPagina;
   const indiceFin = indiceInicio + registrosPorPagina;
-  const trabajosVisibles =
-    trabajos.length > 0 ? trabajos.slice(indiceInicio, indiceFin) : [];
+  const trabajosVisibles = trabajos.length > 0 ? trabajos.slice(indiceInicio, indiceFin) : [];
 
   // 🔹 Reiniciar página si el selector cambia
   useEffect(() => {
@@ -93,36 +155,7 @@ export default function JobOffers() {
 
       {/* Buscador + Botón de Filtros */}
       <div className="flex items-center justify-center gap-2 mb-6">
-        <SortCard
-          onSelect={async (option) => {
-            const sortMap: Record<string, string> = {
-              Destacados: 'rating',
-              'Los más recientes': 'recent',
-              'Los más antiguos': 'oldest',
-              'Nombre A-Z': 'name_asc',
-              'Nombre Z-A': 'name_desc',
-              'Num de contacto asc': 'contact_asc',
-              'Num de contacto desc': 'contact_desc',
-            };
-            const backendSort = sortMap[option];
-
-            setLoading(true);
-            try {
-              const res = await fetch(`/api/devmaster/fixers?sortBy=${backendSort}`);
-              const data = await res.json();
-              if (data.success) {
-                setTrabajos(data.data || []); // Actualiza la lista completa
-                setPaginaActual(1);
-              } else {
-                setTrabajos([]);
-              }
-            } catch {
-              setTrabajos([]);
-            } finally {
-              setLoading(false);
-            }
-          }}
-        />
+        <SortCard onSelect={handleSortChange} />
         <FilterButton onClick={() => setIsDrawerOpen(true)} />
         <InputDemo
           value={search}
@@ -141,6 +174,9 @@ export default function JobOffers() {
 
       {/* Error */}
       {error && <p className="text-red-500 text-center mb-4">{error}</p>}
+
+      {/* Loading */}
+      {loading && <p className="text-blue-500 text-center mb-4">Cargando...</p>}
 
       {/* Info de paginación + Selector */}
       <div className="flex justify-between items-center mb-4 w-full max-w-5xl mx-auto">
@@ -161,7 +197,9 @@ export default function JobOffers() {
         {trabajosVisibles.length > 0 ? (
           <CardJob trabajos={trabajosVisibles} />
         ) : (
-          <p className="text-gray-500">No hay resultados en esta página</p>
+          <p className="text-gray-500">
+            {trabajos.length === 0 ? 'No hay resultados' : 'No hay resultados en esta página'}
+          </p>
         )}
       </div>
 

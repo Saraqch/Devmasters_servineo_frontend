@@ -79,7 +79,9 @@ export function FilterDrawer({ isOpen, onClose, onFiltersApply }: FilterDrawerPr
       params.append('category', selectedJobs.join(','));
     }
 
-    const url = `${process.env.NEXT_PUBLIC_API_URL}/api/devmaster/offers/filter?${params.toString()}`;
+    //const url = `${process.env.NEXT_PUBLIC_API_URL}/api/devmaster/offers/filter?${params.toString()}`;
+    const url = `http://localhost:3000/api/devmaster/offers/filter?${params.toString()}`;
+    
     console.log('🔍 URL que se está llamando:', url);
 
     try {

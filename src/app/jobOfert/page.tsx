@@ -9,6 +9,7 @@ import Paginacion from './components/Paginacion';
 import PaginationInfo from './components/PaginationInfo';
 import PaginationSelector from './components/PaginationSelector';
 import CardJob from './components/CardJob';
+import SortCard from '@/components/sort/SortCard';
 import { api, ApiResponse } from '@/lib/api';
 
 interface OfferData {
@@ -22,6 +23,7 @@ interface OfferData {
   city: string;
   contactPhone: string;
   createdAt: string;
+  rating: number; // Añadido para el sorting por destacados
 }
 
 interface OfferResponse {
@@ -91,6 +93,36 @@ export default function JobOffers() {
 
       {/* Buscador + Botón de Filtros */}
       <div className="flex items-center justify-center gap-2 mb-6">
+        <SortCard
+          onSelect={async (option) => {
+            const sortMap: Record<string, string> = {
+              Destacados: 'rating',
+              'Los más recientes': 'recent',
+              'Los más antiguos': 'oldest',
+              'Nombre A-Z': 'name_asc',
+              'Nombre Z-A': 'name_desc',
+              'Num de contacto asc': 'contact_asc',
+              'Num de contacto desc': 'contact_desc',
+            };
+            const backendSort = sortMap[option];
+
+            setLoading(true);
+            try {
+              const res = await fetch(`/api/devmaster/fixers?sortBy=${backendSort}`);
+              const data = await res.json();
+              if (data.success) {
+                setTrabajos(data.data || []); // Actualiza la lista completa
+                setPaginaActual(1);
+              } else {
+                setTrabajos([]);
+              }
+            } catch {
+              setTrabajos([]);
+            } finally {
+              setLoading(false);
+            }
+          }}
+        />
         <FilterButton onClick={() => setIsDrawerOpen(true)} />
         <InputDemo
           value={search}

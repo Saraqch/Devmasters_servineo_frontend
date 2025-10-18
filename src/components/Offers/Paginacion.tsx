@@ -27,18 +27,16 @@ const Paginacion: React.FC<PaginacionProps> = ({
 
   return (
     <div className="flex gap-1 flex-wrap justify-center mt-4">
-      {/* Botón Anterior */}
-      <button
-        onClick={() => onChange(Math.max(paginaActual - 1, 1))}
-        disabled={paginaActual === 1}
-        className={`px-3 py-1 rounded ${
-          paginaActual === 1
-            ? 'bg-gray-300 cursor-not-allowed'
-            : 'bg-gray-200 hover:bg-blue-500 hover:text-white'
-        }`}
-      >
-        Anterior
-      </button>
+      {/* Botón Anterior (solo se muestra si no estamos en la primera página) */}
+{paginaActual > 1 && (
+  <button
+    onClick={() => onChange(paginaActual - 1)}
+    className="px-3 py-1 rounded bg-gray-200 hover:bg-blue-500 hover:text-white"
+  >
+    Anterior
+  </button>
+)}
+
 
       {/* Números de página */}
       {paginas.map((num) => (

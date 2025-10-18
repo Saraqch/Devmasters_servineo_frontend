@@ -12,6 +12,7 @@ interface OfferData {
   city: string;
   contactPhone: string;
   createdAt: string;
+  rating: number; // Añadido para el sorting por destacados
 }
 
 interface CardJobProps {
@@ -46,6 +47,7 @@ const CardJob = ({ trabajos }: CardJobProps) => {
                   <p><strong>Ciudad:</strong> {t.city}</p>
                   <p><strong>Precio:</strong> Bs. {t.price}</p>
                   <p><strong>Contacto:</strong> {t.contactPhone}</p>
+                  <p><strong>Calificación:</strong> {t.rating}</p>
                   <p className="mt-1 text-gray-500 text-xs">
                     Publicado: {new Date(t.createdAt).toLocaleDateString()}
                   </p>

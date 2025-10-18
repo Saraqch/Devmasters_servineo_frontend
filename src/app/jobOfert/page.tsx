@@ -11,7 +11,7 @@ import PaginationSelector from './components/PaginationSelector';
 import CardJob from './components/CardJob';
 // NOTA: Usé '@/components/sort/SortCard' en minúsculas por seguridad
 // Si esto causa un error de importación, usa '@/Components/sort/SortCard'
-import SortCard from '@/components/sort/SortCard';
+import SortCard from '@/Components/sort/SortCard';
 import { api, ApiResponse } from '@/lib/api';
 
 interface OfferData {
@@ -156,7 +156,7 @@ export default function JobOffers() {
       return;
     }
 
-    const allowedRegex = /^[A-Za-z0-9,_.-]+$/;
+    const allowedRegex = /^[A-Za-z0-9,_. -]+$/;
     if (!allowedRegex.test(trimmedSearch)) {
       setValidationMessage('Búsqueda inválida');
       return;

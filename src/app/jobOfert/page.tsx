@@ -29,7 +29,13 @@ export default function JobOffers() {
     category: [],
   });
   const [sortBy, setSortBy] = useState<string>('recent');
-  const [isDrawerOpen, setIsDrawerOpen] = useState(false);
+  // Filtros por defecto para estado inicial
+  const defaultFilters: FilterState = { range: [], city: '', category: [] };
+
+  // estado para mensajes de validación (de 'MelCambios')
+  const [validationMessage, setValidationMessage] = useState<string | null>(null);
+
+  // Estados de paginación
   const [paginaActual, setPaginaActual] = useState(1);
   const [registrosPorPagina, setRegistrosPorPagina] = useState(10);
   const [isAdvancedQuery, setIsAdvancedQuery] = useState(false);
@@ -53,11 +59,21 @@ export default function JobOffers() {
       }
     : skipToken;
 
-  const {
-    data: advancedData,
-    isLoading: isLoadingAdvanced,
-    error: errorAdvanced,
-  } = useGetOffersQuery(queryParams as any);
+  // NOTA: Usamos el total real de la API si estuviera disponible, o una constante
+  // En tu código, usaste trabajos.length o 100, mantendremos la lógica.
+  const totalRegistros = trabajos.length > 0 ? trabajos.length : 100;
+
+  // --- Función central para hacer la llamada al backend (Unificada de 'dev') ---
+  const fetchOffers = useCallback(async (
+    searchText: string,
+    appliedFilters: FilterState,
+    appliedSort: string,
+  ) => {
+    setLoading(true);
+    setError(null);
+
+    try {
+      const params = new URLSearchParams();
 
   // --- Determinar qué trabajos mostrar ---
   const trabajos = isAdvancedQuery
@@ -83,10 +99,34 @@ export default function JobOffers() {
       } else {
         setShowTopButton(false);
       }
-    };
-    window.addEventListener('scroll', handleScroll);
-    return () => window.removeEventListener('scroll', handleScroll);
+    } catch (err) {
+      const errorMsg = err instanceof Error ? err.message : 'Error de conexión';
+      setError(errorMsg);
+      setTrabajos([]);
+    } finally {
+      setLoading(false);
+    }
   }, []);
+
+  // Helper: volver al estado inicial (lista por defecto)
+  const resetToInitial = () => {
+    setFilters(defaultFilters);
+    setSortBy('recent');
+    setValidationMessage(null);
+    // llamar la carga inicial
+    fetchOffers('', defaultFilters, 'recent');
+  };
+
+
+  // --- Manejar el cambio de input y límite de 100 caracteres (de 'MelCambios') ---
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value;
+
+    if (value.length > 100) {
+      setSearch(value.slice(0, 100));
+      setValidationMessage('Límite máximo de 100 caracteres');
+      return;
+    }
 
   const scrollToTop = () => {
     window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -108,26 +148,27 @@ export default function JobOffers() {
       return;
     }
 
-    const allowedRegex = /^[A-Za-z0-9,_. -]+$/;
+    const allowedRegex = /^[A-Za-z0-9áéíóúÁÉÍÓÚüÜñÑ,_. -]+$/;
     if (!allowedRegex.test(trimmedSearch)) {
       setValidationMessage('Búsqueda inválida');
       return;
     }
 
-    setValidationMessage(null);
-    setSearch(trimmedSearch);
-    setIsAdvancedQuery(true);
-    setPaginaActual(1);
+    // 2. Si pasa, llama al fetcher (de 'dev')
+  await fetchOffers(trimmedSearch, filters, sortBy);
   };
 
-  const handleFiltersApply = (appliedFilters: FilterState) => {
+  // Cargar ofertas iniciales al montar el componente
+  // Carga inicial de ofertas al montar el componente
+  useEffect(() => {
+    // Llama al fetcher sin búsqueda, con filtros por defecto y sort 'recent'
+  fetchOffers('', { range: [], city: '', category: [] }, 'recent');
+  }, [fetchOffers]);
+
+  // Manejar filtros aplicados (de 'dev')
+  const handleFiltersApply = async (appliedFilters: FilterState) => {
     setFilters(appliedFilters);
-    const hasFilters =
-      appliedFilters.city !== '' ||
-      appliedFilters.category.length > 0 ||
-      appliedFilters.range.length > 0;
-    setIsAdvancedQuery(hasFilters || search.trim() !== '');
-    setPaginaActual(1);
+  await fetchOffers(search, appliedFilters, sortBy);
   };
 
   const handleSortChange = (option: string) => {
@@ -140,7 +181,20 @@ export default function JobOffers() {
       'Num de contacto asc': 'contact_asc',
       'Num de contacto desc': 'contact_desc',
     };
-    setSortBy(sortMap[option] || 'recent');
+
+    const backendSort = sortMap[option] || 'recent';
+    setSortBy(backendSort);
+  await fetchOffers(search, filters, backendSort);
+  };
+
+  // Calcular trabajos visibles según página actual
+  const indiceInicio = (paginaActual - 1) * registrosPorPagina;
+  const indiceFin = indiceInicio + registrosPorPagina;
+  const trabajosVisibles =
+    trabajos.length > 0 ? trabajos.slice(indiceInicio, indiceFin) : [];
+
+  // Reiniciar página si el selector cambia
+  useEffect(() => {
     setPaginaActual(1);
   };
 
@@ -170,38 +224,36 @@ export default function JobOffers() {
       }`;
 
   return (
-    <main className="p-6 md:p-12 lg:p-24">
+  <main className={`p-2 sm:p-6 md:p-12 lg:p-24 ${isDrawerOpen ? 'overflow-hidden' : ''}`}>
       <h1 className="mb-4 text-center text-3xl font-bold">Ofertas de trabajo</h1>
 
-      {/* Barra superior: Filtro + Buscador + Botón */}
-      <div className="w-full max-w-5xl mx-auto px-6 mb-4">
-        <div className="flex items-stretch gap-2">
-          <div className="self-stretch">
+      {/* Barra superior: Filtros + Búsqueda + Botón Buscar */}
+      <div className="w-full max-w-5xl mx-auto px-2 sm:px-6 mb-4">
+        <div className="flex flex-col gap-2 sm:flex-row items-stretch">
+          {/* Filtro, input y botón */}
+          {/* Filtro a la izquierda */}
+          <div className="self-stretch w-full sm:w-auto">
             <FilterButton onClick={() => setIsDrawerOpen(true)} />
           </div>
-          <div className="flex-1">
+
+          {/* Buscador expandible */}
+          <div className="flex-1 w-full">
             <InputDemo
-              value={inputValue}
-              onChange={(e) => {
-                setInputValue(e.target.value);
-                setValidationMessage(null); // limpiar mensaje al escribir
-              }}
-              onBlur={() => {
-                if (inputValue.trim() === '') {
-                  setValidationMessage(null); // limpiar mensaje al salir del input vacío
-                }
-              }}
+              value={search}
+              onChange={handleInputChange}
               onClear={() => {
-                setInputValue('');
                 setSearch('');
-                setFilters({ range: [], city: '', category: [] });
-                setIsAdvancedQuery(false);
-                setValidationMessage(null);
+                // Al borrar con la X, volvemos al estado inicial
+                resetToInitial();
               }}
               onKeyDown={handleKeyDown}
             />
           </div>
-          <SearchButton onClick={handleSearch} disabled={isLoading} />
+
+          {/* Botón Buscar */}
+          <div className="w-full sm:w-auto">
+            <SearchButton onClick={handleSearch} disabled={loading} className="w-full sm:w-auto" />
+          </div>
         </div>
       </div>
 
@@ -229,51 +281,46 @@ export default function JobOffers() {
         onFiltersApply={handleFiltersApply}
       />
 
-      {/* Selector de registros y sort (layout uniforme) */}
-      {!isLoading && trabajos.length > 0 && (
-        <div className="w-full max-w-5xl mx-auto px-6 flex justify-between items-center">
-          {/* Sort siempre visible */}
-          <SortCard onSelect={handleSortChange} />
-
-          {/* Selector de registros, solo si query avanzada */}
-          <div className="transition-all duration-300">
-            {isAdvancedQuery ? (
+      {/* Fila 2: Selector "Mostrar X" (izq) + Ordenamiento (der) */}
+      {!loading && trabajos.length > 0 && (
+        <div className="w-full max-w-5xl mx-auto px-2 sm:px-6 mb-4">
+          <div className="flex flex-col gap-2 sm:flex-row justify-between items-stretch">
+            <div className="w-full sm:w-auto">
               <PaginationSelector
                 registrosPorPagina={registrosPorPagina}
                 onChange={(valor) => setRegistrosPorPagina(valor)}
               />
-            ) : (
-              // Placeholder para mantener altura/alineación
-              <div className="w-[120px] h-[40px]" />
-            )}
+            </div>
+            <div className="w-full sm:w-auto">
+              <SortCard onSelect={handleSortChange} />
+            </div>
           </div>
         </div>
       )}
 
-      {/* Info de paginación */}
-      {!isLoading && trabajos.length > 0 && isAdvancedQuery && (
-        <div className="w-full max-w-5xl mx-auto px-6 flex justify-center">
-          <PaginationInfo
-            paginaActual={paginaActual}
-            registrosPorPagina={registrosPorPagina}
-            totalRegistros={totalRegistros}
-          />
+      {/* Info de resultados centrada */}
+      {!loading && trabajos.length > 0 && (
+        <div className="w-full max-w-5xl mx-auto px-2 sm:px-6 mb-4">
+          <div className="flex justify-center">
+            <PaginationInfo
+              paginaActual={paginaActual}
+              registrosPorPagina={registrosPorPagina}
+              totalRegistros={totalRegistros}
+            />
+          </div>
         </div>
       )}
 
       {/* Resultados */}
-      <div className="w-full max-w-5xl mx-auto px-6">
-        {!isLoading && trabajosVisibles.length > 0 ? (
-          <CardJob trabajos={trabajosVisibles} title={tituloResultados} />
-        ) : !isLoading ? (
+  <div className="w-full max-w-5xl mx-auto px-2 sm:px-6">
+        {!loading && trabajosVisibles.length > 0 ? (
+          <CardJob trabajos={trabajosVisibles} />
+        ) : !loading ? (
           <div className="text-center py-12">
             <p className="text-gray-500 text-xl font-roboto font-normal">
               No se encontraron resultados
               {search.trim() && (
-                <>
-                  {' '}
-                  para <span className="font-bold">&quot;{search.trim()}&quot;</span>
-                </>
+                <> para <span className="font-bold">&quot;{search.trim()}&quot;</span></>
               )}
             </p>
           </div>

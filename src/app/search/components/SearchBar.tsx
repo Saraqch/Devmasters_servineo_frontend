@@ -1,5 +1,5 @@
 // src/app/search/SearchBar.tsx
-import { Input } from "../../../Components/ui/input";
+import { Input } from "@/Components/ui/input";
 import React from "react";
 
 // Define las props que recibirá el componente
@@ -54,7 +54,13 @@ export function InputDemo({ value = "", onChange, onClear, onKeyDown, onBlur }: 
       <Input
         type="text"
         placeholder="¿Qué servicio necesitas?"
-        style={{ paddingLeft: 35, paddingRight, width: '100%', minWidth: 300, maxWidth: 1000 }}
+        style={{
+          paddingLeft: 35,
+          paddingRight,
+          width: '100%',
+          minWidth: 320,
+          // sin maxWidth para permitir que el contenedor controle el tamaño
+        }}
         value={value}
         onChange={onChange}
         onKeyDown={onKeyDown} // <-- aquí pasamos el handler

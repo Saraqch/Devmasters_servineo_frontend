@@ -8,10 +8,11 @@ interface InputDemoProps {
   onChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
   onClear: () => void;
   onKeyDown?: (e: React.KeyboardEvent<HTMLInputElement>) => void; // <-- agregado
+  onBlur?: (e: React.FocusEvent<HTMLInputElement>) => void; // <-- agregado
 }
 
 // Cambia la firma de la función para recibir las props
-export function InputDemo({ value = "", onChange, onClear, onKeyDown }: InputDemoProps) {
+export function InputDemo({ value = "", onChange, onClear, onKeyDown, onBlur }: InputDemoProps) {
   const ClearButton = () => (
     <button 
       onClick={onClear}
@@ -57,6 +58,7 @@ export function InputDemo({ value = "", onChange, onClear, onKeyDown }: InputDem
         value={value}
         onChange={onChange}
         onKeyDown={onKeyDown} // <-- aquí pasamos el handler
+        onBlur={onBlur} // <-- aquí se pasa
       />
       {value.length > 0 && <ClearButton />}
     </div>

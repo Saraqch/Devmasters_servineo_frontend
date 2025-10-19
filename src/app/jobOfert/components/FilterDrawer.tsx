@@ -159,7 +159,7 @@ export function FilterDrawer({ isOpen, onClose, onFiltersApply, onReset }: Filte
             {/* Filtro: Nombre de Fixer */}
             <div className="mb-6">
               <div
-                className="bg-[#2B6AE0] text-white px-4 py-2 font-semibold mb-3 cursor-pointer hover:bg-[#2B31E0] rounded-lg sm:rounded-none transition-colors"
+                className="bg-[#2B6AE0] text-white px-4 py-2 font-semibold mb-3 cursor-pointer hover:bg-[#2B31E0] rounded-none transition-colors"
                 onClick={() => toggleSection('fixer')}
               >
                 <span className="truncate">Nombre de Fixer</span>
@@ -196,7 +196,7 @@ export function FilterDrawer({ isOpen, onClose, onFiltersApply, onReset }: Filte
             {/* Filtro: Ciudad */}
             <div className="mb-6">
               <div
-                className="bg-[#2B6AE0] text-white px-4 py-2 font-semibold mb-3 cursor-pointer hover:bg-[#2B31E0] rounded-lg sm:rounded-none transition-colors"
+                className="bg-[#2B6AE0] text-white px-4 py-2 font-semibold mb-3 cursor-pointer hover:bg-[#2B31E0] rounded-none transition-colors"
                 onClick={() => toggleSection('ciudad')}
               >
                 <span className="truncate">Ciudad</span>
@@ -236,7 +236,7 @@ export function FilterDrawer({ isOpen, onClose, onFiltersApply, onReset }: Filte
             {/* Filtro: Tipo de Trabajo */}
             <div className="mb-6">
               <div
-                className="bg-[#2B6AE0] text-white px-4 py-2 font-semibold mb-3 cursor-pointer hover:bg-[#2B31E0] rounded-lg sm:rounded-none transition-colors"
+                className="bg-[#2B6AE0] text-white px-4 py-2 font-semibold mb-3 cursor-pointer hover:bg-[#2B31E0] rounded-none transition-colors"
                 onClick={() => toggleSection('trabajo')}
               >
                 <span className="truncate">Tipo de Trabajo</span>

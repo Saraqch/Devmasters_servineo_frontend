@@ -227,19 +227,20 @@ export default function JobOffers() {
   };
 
   return (
-    <main className={`p-6 md:p-12 lg:p-24 ${isDrawerOpen ? 'overflow-hidden' : ''}`}>
+  <main className={`p-2 sm:p-6 md:p-12 lg:p-24 ${isDrawerOpen ? 'overflow-hidden' : ''}`}>
       <h1 className="mb-4 text-center text-3xl font-bold">Ofertas de trabajo</h1>
 
       {/* Barra superior: Filtros + Búsqueda + Botón Buscar */}
-      <div className="w-full max-w-5xl mx-auto px-6 mb-4">
-        <div className="flex items-stretch gap-2">
+      <div className="w-full max-w-5xl mx-auto px-2 sm:px-6 mb-4">
+        <div className="flex flex-col gap-2 sm:flex-row items-stretch">
+          {/* Filtro, input y botón */}
           {/* Filtro a la izquierda */}
-          <div className="self-stretch">
+          <div className="self-stretch w-full sm:w-auto">
             <FilterButton onClick={() => setIsDrawerOpen(true)} />
           </div>
 
           {/* Buscador expandible */}
-          <div className="flex-1">
+          <div className="flex-1 w-full">
             <InputDemo
               value={search}
               onChange={handleInputChange}
@@ -253,7 +254,9 @@ export default function JobOffers() {
           </div>
 
           {/* Botón Buscar */}
-          <SearchButton onClick={handleSearch} disabled={loading} />
+          <div className="w-full sm:w-auto">
+            <SearchButton onClick={handleSearch} disabled={loading} className="w-full sm:w-auto" />
+          </div>
         </div>
       </div>
 
@@ -287,20 +290,24 @@ export default function JobOffers() {
 
       {/* Fila 2: Selector "Mostrar X" (izq) + Ordenamiento (der) */}
       {!loading && trabajos.length > 0 && (
-        <div className="w-full max-w-5xl mx-auto px-6 mb-4">
-          <div className="flex justify-between items-center">
-            <PaginationSelector
-              registrosPorPagina={registrosPorPagina}
-              onChange={(valor) => setRegistrosPorPagina(valor)}
-            />
-            <SortCard onSelect={handleSortChange} />
+        <div className="w-full max-w-5xl mx-auto px-2 sm:px-6 mb-4">
+          <div className="flex flex-col gap-2 sm:flex-row justify-between items-stretch">
+            <div className="w-full sm:w-auto">
+              <PaginationSelector
+                registrosPorPagina={registrosPorPagina}
+                onChange={(valor) => setRegistrosPorPagina(valor)}
+              />
+            </div>
+            <div className="w-full sm:w-auto">
+              <SortCard onSelect={handleSortChange} />
+            </div>
           </div>
         </div>
       )}
 
       {/* Info de resultados centrada */}
       {!loading && trabajos.length > 0 && (
-        <div className="w-full max-w-5xl mx-auto px-6 mb-4">
+        <div className="w-full max-w-5xl mx-auto px-2 sm:px-6 mb-4">
           <div className="flex justify-center">
             <PaginationInfo
               paginaActual={paginaActual}
@@ -313,7 +320,7 @@ export default function JobOffers() {
 
 
       {/* Resultados */}
-      <div className="w-full max-w-5xl mx-auto px-6">
+  <div className="w-full max-w-5xl mx-auto px-2 sm:px-6">
         {!loading && trabajosVisibles.length > 0 ? (
           <CardJob trabajos={trabajosVisibles} />
         ) : !loading ? (

@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
+import { roboto } from '../../fonts';
 
 interface FilterState {
   range: string[];
@@ -89,7 +90,7 @@ export function FilterDrawer({ isOpen, onClose, onFiltersApply }: FilterDrawerPr
 
       {/* Drawer */}
       <div
-        className={`fixed top-0 left-0 h-full w-[75%] sm:w-80 bg-white shadow-xl z-50 transform transition-transform duration-300 ease-in-out overflow-hidden ${
+        className={`${roboto.variable} font-sans fixed top-0 left-0 h-full w-[75%] sm:w-80 bg-white shadow-xl z-50 transform transition-transform duration-300 ease-in-out overflow-hidden ${
           isOpen ? 'translate-x-0' : '-translate-x-full'
         }`}
       >
@@ -117,7 +118,7 @@ export function FilterDrawer({ isOpen, onClose, onFiltersApply }: FilterDrawerPr
             <div className="flex items-center gap-2">
               <button
                 onClick={handleReset}
-                className="bg-[#2B6AE0] text-white px-3 sm:px-4 py-2 rounded-lg text-sm font-semibold hover:bg-[#062a7a] transition-colors"
+                className="bg-[#2B6AE0] text-white px-3 sm:px-4 py-2 rounded-lg text-sm font-semibold hover:bg-[#2B31E0] transition-colors"
               >
                 Resetear
               </button>
@@ -139,7 +140,7 @@ export function FilterDrawer({ isOpen, onClose, onFiltersApply }: FilterDrawerPr
             {/* Filtro: Nombre de Fixer */}
             <div className="mb-6">
               <div
-                className="bg-[#2B6AE0] text-white px-4 py-2 font-semibold mb-3 cursor-pointer hover:bg-[#1e5bc6] rounded-lg sm:rounded-none transition-colors"
+                className="bg-[#2B6AE0] text-white px-4 py-2 font-semibold mb-3 cursor-pointer hover:bg-[#2B31E0] rounded-lg sm:rounded-none transition-colors"
                 onClick={() => toggleSection('fixer')}
               >
                 <span className="truncate">Nombre de Fixer</span>
@@ -176,7 +177,7 @@ export function FilterDrawer({ isOpen, onClose, onFiltersApply }: FilterDrawerPr
             {/* Filtro: Ciudad */}
             <div className="mb-6">
               <div
-                className="bg-[#2B6AE0] text-white px-4 py-2 font-semibold mb-3 cursor-pointer hover:bg-[#1e5bc6] rounded-lg sm:rounded-none transition-colors"
+                className="bg-[#2B6AE0] text-white px-4 py-2 font-semibold mb-3 cursor-pointer hover:bg-[#2B31E0] rounded-lg sm:rounded-none transition-colors"
                 onClick={() => toggleSection('ciudad')}
               >
                 <span className="truncate">Ciudad</span>
@@ -216,7 +217,7 @@ export function FilterDrawer({ isOpen, onClose, onFiltersApply }: FilterDrawerPr
             {/* Filtro: Tipo de Trabajo */}
             <div className="mb-6">
               <div
-                className="bg-[#2B6AE0] text-white px-4 py-2 font-semibold mb-3 cursor-pointer hover:bg-[#1e5bc6] rounded-lg sm:rounded-none transition-colors"
+                className="bg-[#2B6AE0] text-white px-4 py-2 font-semibold mb-3 cursor-pointer hover:bg-[#2B31E0] rounded-lg sm:rounded-none transition-colors"
                 onClick={() => toggleSection('trabajo')}
               >
                 <span className="truncate">Tipo de Trabajo</span>
@@ -267,7 +268,7 @@ export function FilterDrawer({ isOpen, onClose, onFiltersApply }: FilterDrawerPr
           <div className="mt-4 pt-4 border-t border-gray-200">
             <button
               onClick={handleApply}
-              className="w-full bg-[#2B6AE0] text-white py-3 rounded-lg font-semibold hover:bg-[#1e5bc6] transition-colors"
+              className="w-full bg-[#2B6AE0] text-white py-3 rounded-lg font-semibold hover:bg-[#2B31E0] transition-colors"
             >
               Aplicar Filtros
             </button>

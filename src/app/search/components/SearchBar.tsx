@@ -1,5 +1,5 @@
 // src/app/search/SearchBar.tsx
-import { Input } from "../../../components/ui/input";
+import { Input } from "../../../Components/ui/input";
 import React from "react";
 
 // Define las props que recibirá el componente

@@ -156,7 +156,7 @@ export default function JobOffers() {
       return;
     }
 
-    const allowedRegex = /^[A-Za-z0-9,_. -]+$/;
+    const allowedRegex = /^[A-Za-z0-9áéíóúÁÉÍÓÚüÜñÑ,_. -]+$/;
     if (!allowedRegex.test(trimmedSearch)) {
       setValidationMessage('Búsqueda inválida');
       return;

@@ -53,6 +53,8 @@ export default function JobOffers() {
     category: [],
   });
   const [sortBy, setSortBy] = useState<string>('recent');
+  // Filtros por defecto para estado inicial
+  const defaultFilters: FilterState = { range: [], city: '', category: [] };
 
   // estado para mensajes de validación (de 'MelCambios')
   const [validationMessage, setValidationMessage] = useState<string | null>(null);
@@ -123,6 +125,15 @@ export default function JobOffers() {
     }
   }, []);
 
+  // Helper: volver al estado inicial (lista por defecto)
+  const resetToInitial = () => {
+    setFilters(defaultFilters);
+    setSortBy('recent');
+    setValidationMessage(null);
+    // llamar la carga inicial
+    fetchOffers('', defaultFilters, 'recent');
+  };
+
 
   // --- Manejar el cambio de input y límite de 100 caracteres (de 'MelCambios') ---
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -147,7 +158,8 @@ export default function JobOffers() {
     const trimmedSearch = search.trim();
 
     if (trimmedSearch.length === 0) {
-      setValidationMessage('Debe ingresar un término de búsqueda válido');
+      // Si no hay texto, volvemos al estado inicial (lista por defecto)
+      resetToInitial();
       return;
     }
 
@@ -234,7 +246,8 @@ export default function JobOffers() {
               onChange={handleInputChange}
               onClear={() => {
                 setSearch('');
-                setValidationMessage(null);
+                // Al borrar con la X, volvemos al estado inicial
+                resetToInitial();
               }}
               onKeyDown={handleKeyDown}
             />

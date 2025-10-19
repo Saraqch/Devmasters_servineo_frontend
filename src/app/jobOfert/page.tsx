@@ -216,7 +216,7 @@ export default function JobOffers() {
   };
 
   return (
-    <main className="p-6 md:p-12 lg:p-24">
+    <main className={`p-6 md:p-12 lg:p-24 ${isDrawerOpen ? 'overflow-hidden' : ''}`}>
       <h1 className="mb-4 text-center text-3xl font-bold">Ofertas de trabajo</h1>
 
       {/* Barra superior: Filtros + Búsqueda + Botón Buscar */}

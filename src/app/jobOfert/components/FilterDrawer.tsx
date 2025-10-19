@@ -13,9 +13,10 @@ interface FilterDrawerProps {
   isOpen: boolean;
   onClose: () => void;
   onFiltersApply?: (filters: FilterState) => void;
+  onReset?: () => void; // Nuevo: callback para resetear a resultados iniciales
 }
 
-export function FilterDrawer({ isOpen, onClose, onFiltersApply }: FilterDrawerProps) {
+export function FilterDrawer({ isOpen, onClose, onFiltersApply, onReset }: FilterDrawerProps) {
   const [openSections, setOpenSections] = useState<{ [key: string]: boolean }>({
     fixer: false,
     ciudad: false,
@@ -26,17 +27,17 @@ export function FilterDrawer({ isOpen, onClose, onFiltersApply }: FilterDrawerPr
   const [selectedCity, setSelectedCity] = useState<string>('');
   const [selectedJobs, setSelectedJobs] = useState<string[]>([]);
 
-  // Bloquear scroll cuando el drawer esté abierto
   useEffect(() => {
-    if (isOpen) {
-      document.body.style.overflow = 'hidden';
-    } else {
-      document.body.style.overflow = 'unset';
-    }
-    return () => {
-      document.body.style.overflow = 'unset';
-    };
-  }, [isOpen]);
+  if (isOpen) {
+    // En lugar de 'hidden', usa 'scroll' para mantener el espacio de la scrollbar
+    document.body.style.overflowY = 'scroll';
+  } else {
+    document.body.style.overflowY = 'unset';
+  }
+  return () => {
+    document.body.style.overflowY = 'unset';
+  };
+}, [isOpen]);
 
   const toggleSection = (section: string) => {
     setOpenSections((prev) => ({
@@ -45,50 +46,70 @@ export function FilterDrawer({ isOpen, onClose, onFiltersApply }: FilterDrawerPr
     }));
   };
 
+  // Aplicar filtro automáticamente cuando cambia un rango
   const handleRangeChange = (range: string) => {
-    setSelectedRanges((prev) =>
-      prev.includes(range) ? prev.filter((r) => r !== range) : [...prev, range],
-    );
+    const newRanges = selectedRanges.includes(range)
+      ? selectedRanges.filter((r) => r !== range)
+      : [...selectedRanges, range];
+    
+    setSelectedRanges(newRanges);
+    applyFilters(newRanges, selectedCity, selectedJobs);
   };
 
+  // Aplicar filtro automáticamente cuando cambia la ciudad
   const handleCityChange = (city: string) => {
-    setSelectedCity(selectedCity === city ? '' : city);
+    const newCity = selectedCity === city ? '' : city;
+    setSelectedCity(newCity);
+    applyFilters(selectedRanges, newCity, selectedJobs);
   };
 
+  // Aplicar filtro automáticamente cuando cambia el trabajo
   const handleJobChange = (job: string) => {
-    setSelectedJobs((prev) =>
-      prev.includes(job) ? prev.filter((j) => j !== job) : [...prev, job],
-    );
+    const newJobs = selectedJobs.includes(job)
+      ? selectedJobs.filter((j) => j !== job)
+      : [...selectedJobs, job];
+    
+    setSelectedJobs(newJobs);
+    applyFilters(selectedRanges, selectedCity, newJobs);
   };
 
+  // Función para aplicar filtros
+  const applyFilters = (ranges: string[], city: string, jobs: string[]) => {
+    if (onFiltersApply) {
+      onFiltersApply({
+        range: ranges,
+        city: city,
+        category: jobs,
+      });
+    }
+  };
+
+  // Resetear y aplicar los resultados iniciales
   const handleReset = () => {
     setSelectedRanges([]);
     setSelectedCity('');
     setSelectedJobs([]);
-  };
-
-  const handleApply = () => {
-    if (onFiltersApply) {
+    
+    if (onReset) {
+      onReset(); // Restaura los resultados iniciales
+    } else if (onFiltersApply) {
       onFiltersApply({
-        range: selectedRanges,
-        city: selectedCity,
-        category: selectedJobs,
+        range: [],
+        city: '',
+        category: [],
       });
     }
-    onClose();
   };
 
   return (
     <>
-      {/* Overlay */}
       <div
-        className={`fixed inset-0 bg-black transition-opacity duration-300 z-40 ${
+        className={`fixed inset-0 duration-300 z-40 ${
           isOpen ? 'opacity-50' : 'opacity-0 pointer-events-none'
         }`}
         onClick={onClose}
       />
 
-      {/* Drawer */}
       <div
         className={`${roboto.variable} font-sans fixed top-0 left-0 h-full w-[75%] sm:w-80 bg-white shadow-xl z-50 transform transition-transform duration-300 ease-in-out overflow-hidden ${
           isOpen ? 'translate-x-0' : '-translate-x-full'
@@ -112,7 +133,6 @@ export function FilterDrawer({ isOpen, onClose, onFiltersApply }: FilterDrawerPr
         `}</style>
 
         <div className="p-4 sm:p-6 h-full flex flex-col">
-          {/* Header */}
           <div className="flex justify-between items-center mb-6">
             <h2 className="text-lg sm:text-xl font-bold">Filtros</h2>
             <div className="flex items-center gap-2">
@@ -135,7 +155,6 @@ export function FilterDrawer({ isOpen, onClose, onFiltersApply }: FilterDrawerPr
             </div>
           </div>
 
-          {/* Contenido scrollable */}
           <div className="flex-1 overflow-y-auto custom-scrollbar">
             {/* Filtro: Nombre de Fixer */}
             <div className="mb-6">
@@ -156,7 +175,7 @@ export function FilterDrawer({ isOpen, onClose, onFiltersApply }: FilterDrawerPr
                         {column.map((range) => (
                           <label
                             key={range}
-                            className="flex items-center gap-2 text-sm cursor-pointer hover:text-blue-600 transition-colors"
+                            className="flex items-center gap-2 text-sm cursor-pointer hover:text-[#2B31E0] transition-colors"
                           >
                             <input
                               type="checkbox"
@@ -198,7 +217,7 @@ export function FilterDrawer({ isOpen, onClose, onFiltersApply }: FilterDrawerPr
                     ].map((city) => (
                       <label
                         key={city}
-                        className="flex items-center gap-2 text-sm cursor-pointer min-w-0 hover:text-blue-600 transition-colors"
+                        className="flex items-center gap-2 text-sm cursor-pointer min-w-0 hover:text-[#2B31E0] transition-colors"
                       >
                         <input
                           type="checkbox"
@@ -247,7 +266,7 @@ export function FilterDrawer({ isOpen, onClose, onFiltersApply }: FilterDrawerPr
                     ].map((job) => (
                       <label
                         key={job}
-                        className="flex items-center gap-2 text-sm cursor-pointer min-w-0 hover:text-blue-600 transition-colors"
+                        className="flex items-center gap-2 text-sm cursor-pointer min-w-0 hover:text-[#2B31E0] transition-colors"
                       >
                         <input
                           type="checkbox"
@@ -262,16 +281,6 @@ export function FilterDrawer({ isOpen, onClose, onFiltersApply }: FilterDrawerPr
                 </div>
               )}
             </div>
-          </div>
-
-          {/* Botón Aplicar (fijo en el footer) */}
-          <div className="mt-4 pt-4 border-t border-gray-200">
-            <button
-              onClick={handleApply}
-              className="w-full bg-[#2B6AE0] text-white py-3 rounded-lg font-semibold hover:bg-[#2B31E0] transition-colors"
-            >
-              Aplicar Filtros
-            </button>
           </div>
         </div>
       </div>

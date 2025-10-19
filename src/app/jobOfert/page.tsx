@@ -158,8 +158,7 @@ export default function JobOffers() {
     const trimmedSearch = search.trim();
 
     if (trimmedSearch.length === 0) {
-      // Si no hay texto, volvemos al estado inicial (lista por defecto)
-      resetToInitial();
+      setValidationMessage('Debe ingresar un término de búsqueda válido');
       return;
     }
 

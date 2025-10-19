@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { InputDemo } from '@/app/search/components/SearchBar';
 import { SearchButton } from '@/app/search/components/SearchButton';
 import { FilterButton } from '@/app/jobOfert/components/FilterButton';
@@ -66,10 +66,10 @@ export default function JobOffers() {
   const totalRegistros = trabajos.length > 0 ? trabajos.length : 100;
 
   // --- Función central para hacer la llamada al backend (Unificada de 'dev') ---
-  const fetchOffers = async (
-    searchText: string = '',
-    appliedFilters: FilterState = filters,
-    appliedSort: string = sortBy,
+  const fetchOffers = useCallback(async (
+    searchText: string,
+    appliedFilters: FilterState,
+    appliedSort: string,
   ) => {
     setLoading(true);
     setError(null);
@@ -121,7 +121,7 @@ export default function JobOffers() {
     } finally {
       setLoading(false);
     }
-  };
+  }, []);
 
 
   // --- Manejar el cambio de input y límite de 100 caracteres (de 'MelCambios') ---
@@ -163,19 +163,20 @@ export default function JobOffers() {
     }
 
     // 2. Si pasa, llama al fetcher (de 'dev')
-    await fetchOffers(trimmedSearch, filters, sortBy);
+  await fetchOffers(trimmedSearch, filters, sortBy);
   };
 
   // Cargar ofertas iniciales al montar el componente
+  // Carga inicial de ofertas al montar el componente
   useEffect(() => {
     // Llama al fetcher sin búsqueda, con filtros por defecto y sort 'recent'
-    fetchOffers('', { range: [], city: '', category: [] }, 'recent');
-  }, []);
+  fetchOffers('', { range: [], city: '', category: [] }, 'recent');
+  }, [fetchOffers]);
 
   // Manejar filtros aplicados (de 'dev')
   const handleFiltersApply = async (appliedFilters: FilterState) => {
     setFilters(appliedFilters);
-    await fetchOffers(search, appliedFilters, sortBy);
+  await fetchOffers(search, appliedFilters, sortBy);
   };
 
   // Manejar cambio de sort (de 'dev')
@@ -192,7 +193,7 @@ export default function JobOffers() {
 
     const backendSort = sortMap[option] || 'recent';
     setSortBy(backendSort);
-    await fetchOffers(search, filters, backendSort);
+  await fetchOffers(search, filters, backendSort);
   };
 
   // Calcular trabajos visibles según página actual
@@ -215,23 +216,33 @@ export default function JobOffers() {
   };
 
   return (
-    <main className="p-10 md:p-20 lg:p-40">
+    <main className="p-6 md:p-12 lg:p-24">
       <h1 className="mb-4 text-center text-3xl font-bold">Ofertas de trabajo</h1>
 
-      {/* Buscador + Botón de Filtros */}
-      <div className="flex items-center justify-center gap-2 mb-6 flex-wrap">
-        <SortCard onSelect={handleSortChange} />
-        <FilterButton onClick={() => setIsDrawerOpen(true)} />
-        <InputDemo
-          value={search}
-          onChange={handleInputChange}
-          onClear={() => {
-            setSearch('');
-            setValidationMessage(null);
-          }}
-          onKeyDown={handleKeyDown}
-        />
-        <SearchButton onClick={handleSearch} disabled={loading} />
+      {/* Barra superior: Filtros + Búsqueda + Botón Buscar */}
+      <div className="w-full max-w-5xl mx-auto px-6 mb-4">
+        <div className="flex items-stretch gap-2">
+          {/* Filtro a la izquierda */}
+          <div className="self-stretch">
+            <FilterButton onClick={() => setIsDrawerOpen(true)} />
+          </div>
+
+          {/* Buscador expandible */}
+          <div className="flex-1">
+            <InputDemo
+              value={search}
+              onChange={handleInputChange}
+              onClear={() => {
+                setSearch('');
+                setValidationMessage(null);
+              }}
+              onKeyDown={handleKeyDown}
+            />
+          </div>
+
+          {/* Botón Buscar */}
+          <SearchButton onClick={handleSearch} disabled={loading} />
+        </div>
       </div>
 
       {/* Mensaje de validación (debajo del buscador) */}
@@ -262,31 +273,46 @@ export default function JobOffers() {
         onFiltersApply={handleFiltersApply}
       />
 
-      {/* Info de paginación + Selector */}
+      {/* Fila 2: Selector "Mostrar X" (izq) + Ordenamiento (der) */}
       {!loading && trabajos.length > 0 && (
-        <div className="flex justify-between items-center mb-4 w-full max-w-5xl mx-auto">
-          <PaginationInfo
-            paginaActual={paginaActual}
-            registrosPorPagina={registrosPorPagina}
-            totalRegistros={totalRegistros}
-          />
+        <div className="w-full max-w-5xl mx-auto px-6 mb-4">
+          <div className="flex justify-between items-center">
+            <PaginationSelector
+              registrosPorPagina={registrosPorPagina}
+              onChange={(valor) => setRegistrosPorPagina(valor)}
+            />
+            <SortCard onSelect={handleSortChange} />
+          </div>
+        </div>
+      )}
 
-          <PaginationSelector
-            registrosPorPagina={registrosPorPagina}
-            onChange={(valor) => setRegistrosPorPagina(valor)}
-          />
+      {/* Info de resultados centrada */}
+      {!loading && trabajos.length > 0 && (
+        <div className="w-full max-w-5xl mx-auto px-6 mb-4">
+          <div className="flex justify-center">
+            <PaginationInfo
+              paginaActual={paginaActual}
+              registrosPorPagina={registrosPorPagina}
+              totalRegistros={totalRegistros}
+            />
+          </div>
         </div>
       )}
 
 
       {/* Resultados */}
-      <div className="flex flex-wrap gap-4 justify-center">
+      <div className="w-full max-w-5xl mx-auto px-6">
         {!loading && trabajosVisibles.length > 0 ? (
           <CardJob trabajos={trabajosVisibles} />
         ) : !loading ? (
-          <p className="text-gray-500">
-            {trabajos.length === 0 ? 'No hay resultados' : 'No hay resultados en esta página'}
-          </p>
+          <div className="text-center py-12">
+            <p className="text-gray-500 text-xl font-roboto font-normal">
+              No se encontraron resultados
+              {search.trim() && (
+                <> para <span className="font-bold">&quot;{search.trim()}&quot;</span></>
+              )}
+            </p>
+          </div>
         ) : null}
       </div>
 

@@ -1,5 +1,5 @@
 // src/app/jobOfert/components/CardJob.tsx
-import { Card, CardContent } from "@/Components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 
 interface OfferData {
   _id: string;

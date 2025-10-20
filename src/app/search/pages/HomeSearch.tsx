@@ -1,7 +1,7 @@
 "use client"; 
 
-import { InputDemo } from "../components/SearchBar";
-import { SearchButton } from "../components/SearchButton";
+import { InputDemo } from "../components_se/SearchBar";
+import { SearchButton } from "../components_se/SearchButton";
 // Importa el hook usesearch
 import { useSearch } from "../hooks/useSearch"; 
 

@@ -1,6 +1,6 @@
 import React, { useState } from 'react'
-import { Field, Label, Input, Select } from '.'
-import { Modal } from '@/Components/Modal'
+import { Field, Input, Select } from '.'
+import { Modal } from '@/components/Modal'
 
 export type FieldOption = { label: string; value: string }
 export type FieldKind = 'text' | 'email' | 'phone' | 'select' | 'file'

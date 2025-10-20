@@ -1,17 +1,17 @@
 'use client';
 
 import React, { useState, useEffect, useCallback } from 'react';
-import { InputDemo } from '@/app/search/components/SearchBar';
-import { SearchButton } from '@/app/search/components/SearchButton';
-import { FilterButton } from '@/app/jobOfert/components/FilterButton';
-import { FilterDrawer } from '@/app/jobOfert/components/FilterDrawer';
-import Paginacion from './components/Paginacion';
-import PaginationInfo from './components/PaginationInfo';
-import PaginationSelector from './components/PaginationSelector';
-import CardJob from './components/CardJob';
+import { InputDemo } from '@/app/search/components_se/SearchBar';
+import { SearchButton } from '@/app/search/components_se/SearchButton';
+import { FilterButton } from '@/app/jobOfert/components_jo/FilterButton';
+import { FilterDrawer } from '@/app/jobOfert/components_jo/FilterDrawer';
+import Paginacion from './components_jo/Paginacion';
+import PaginationInfo from './components_jo/PaginationInfo';
+import PaginationSelector from './components_jo/PaginationSelector';
+import CardJob from './components_jo/CardJob';
 // NOTA: Usé '@/components/sort/SortCard' en minúsculas por seguridad
 // Si esto causa un error de importación, usa '@/Components/sort/SortCard'
-import SortCard from '@/Components/sort/SortCard';
+import SortCard from '@/components/sort/SortCard';
 import { api, ApiResponse } from '@/lib/api';
 
 interface OfferData {

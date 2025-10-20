@@ -169,7 +169,7 @@ export default function JobOffers() {
 
     const allowedRegex = /^[A-Za-z0-9áéíóúÁÉÍÓÚüÜñÑ,_. -]+$/;
     if (!allowedRegex.test(trimmedSearch)) {
-      setValidationMessage('Búsqueda inválida');
+      setValidationMessage('Búsqueda invalida por contener caracteres especiales no permitidos. Solo se permiten los carateres especiales "," , “_” , " ." y "-"');
       return;
     }
 
@@ -250,6 +250,7 @@ export default function JobOffers() {
                 resetToInitial();
               }}
               onKeyDown={handleKeyDown}
+              hasError={!!validationMessage}
             />
           </div>
 
@@ -262,8 +263,8 @@ export default function JobOffers() {
 
       {/* Mensaje de validación (debajo del buscador) */}
       {validationMessage && (
-        <div className="w-full max-w-5xl mx-auto mb-3 text-center">
-          <p className="text-gray-500">{validationMessage}</p>
+        <div className="w-full max-w-5xl mx-auto mb-3 text-left">
+          <p className="text-red-500 ml-16">{validationMessage}</p>
         </div>
       )}
 

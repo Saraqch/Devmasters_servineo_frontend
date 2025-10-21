@@ -9,7 +9,7 @@ import Paginacion from './components_jo/Paginacion';
 import PaginationInfo from './components_jo/PaginationInfo';
 import PaginationSelector from './components_jo/PaginationSelector';
 import CardJob from './components_jo/CardJob';
-import SortCard from '@/Components/sort/SortCard';
+import SortCard from '@/components/sort/SortCard';
 import { api, ApiResponse } from '@/lib/api';
 
 interface OfferData {

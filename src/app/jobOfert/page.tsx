@@ -89,15 +89,54 @@ export default function JobOffers() {
     <main className="p-10 md:p-20 lg:p-40">
       <h1 className="mb-4 text-center text-3xl font-bold">Ofertas de trabajo</h1>
 
-      {/* Buscador + Botón de Filtros */}
-      <div className="flex items-center justify-center gap-2 mb-6">
-        <FilterButton onClick={() => setIsDrawerOpen(true)} />
-        <InputDemo
-          value={search}
-          onChange={(e) => setSearch(e.target.value)}
-          onClear={() => setSearch('')}
-        />
-        <SearchButton onClick={handleSearch} disabled={loading} />
+      {/* Barra sticky */}
+      <div className="`w-full mx-auto px-3 sm:px-4 md:px-6 lg:max-w-5xl sticky top-0 bg-white py-2 sm:py-3 md:py-4 shadow-md mb-1 sm:mb-2 ${
+        isDrawerOpen ? 'z-10' : 'z-50'">
+        {/* Fila 1: Filtro + Búsqueda + Botón + Ordenacion */}
+        <div className="flex flex-col gap-2 sm:flex-row items-stretch mb-3 sm:mb-4">
+          <div className="self-stretch w-full sm:w-auto">
+            <FilterButton onClick={toggleDrawer} />
+          </div>
+
+          <div className="flex-1 w-full">
+            <InputDemo
+              value={search}
+              onChange={handleInputChange}
+              onClear={() => {
+                setSearch('');
+                resetToInitial();
+              }}
+              onKeyDown={handleKeyDown}
+              hasError={!!validationMessage}
+            />
+          </div>
+
+          <div className="w-full sm:w-auto">
+            <SearchButton onClick={handleSearch} disabled={loading} className="w-full sm:w-auto" />
+          </div>
+        </div>
+
+        {/* Mensaje de validación dentro del sticky */}
+        {validationMessage && (
+          <div className="mb-2 sm:mb-3 text-left">
+            <p className="text-red-500 text-sm sm:text-base">{validationMessage}</p>
+          </div>
+        )}
+
+        {/* Fila 2: Selector de paginación + Ordenamiento */}
+        {!loading && trabajos.length > 0 && (
+          <div className="flex flex-col gap-2 sm:flex-row justify-between items-stretch">
+            <div className="w-full sm:w-auto">
+              <PaginationSelector
+                registrosPorPagina={registrosPorPagina}
+                onChange={(valor) => setRegistrosPorPagina(valor)}
+              />
+            </div>
+            <div className="w-full sm:w-auto">
+              <SortCard value={sortMapInverse[sortBy]} onSelect={handleSortChange} />
+            </div>
+          </div>
+        )}
       </div>
 
       {/* FilterDrawer */}

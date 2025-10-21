@@ -1,5 +1,5 @@
 // lib/api.ts
-export const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'https://devmastersservineobackend-ashy.vercel.app/';
+export const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'https://devmastersservineobackend-ashy.vercel.app';
 
 export interface ApiResponse<T> {
   success: boolean;

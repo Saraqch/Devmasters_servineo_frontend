@@ -111,7 +111,7 @@ export function FilterDrawer({ isOpen, onClose, onFiltersApply, onReset }: Filte
       />
 
       <div
-        className={`${roboto.variable} font-sans fixed top-0 left-0 h-full w-[75%] sm:w-80 bg-white shadow-xl z-50 transform transition-transform duration-300 ease-in-out overflow-hidden ${
+        className={`${roboto.variable} font-sans fixed top-0 left-0 h-full w-[75%] sm:w-80 bg-white shadow-xl z-80 transform transition-transform duration-300 ease-in-out overflow-hidden ${
           isOpen ? 'translate-x-0' : '-translate-x-full'
         }`}
       >
@@ -247,22 +247,22 @@ export function FilterDrawer({ isOpen, onClose, onFiltersApply, onReset }: Filte
                     {[
                       'Albañil',
                       'Carpintero',
-                      'Fontanero',
-                      'Electricista',
-                      'Pintor',
-                      'Soldador',
-                      'Jardinero',
                       'Cerrajero',
+                      'Decorador',
+                      'Electricista',
+                      'Fontanero',
+                      'Fumigador',
+                      'Instalador',
+                      'Jardinero',
+                      'Limpiador',
                       'Mecánico',
+                      'Montador',
+                      'Pintor',
+                      'Pulidor',
+                      'Soldador',
+                      'Techador',
                       'Vidriero',
                       'Yesero',
-                      'Fumigador',
-                      'Limpiador',
-                      'Instalador',
-                      'Montador',
-                      'Decorador',
-                      'Pulidor',
-                      'Techador',
                     ].map((job) => (
                       <label
                         key={job}

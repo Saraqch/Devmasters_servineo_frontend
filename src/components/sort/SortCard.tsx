@@ -1,12 +1,12 @@
 'use client';
 
-import { Button } from '@/components/ui/button';
+import { Button } from '@/Components/ui/button';
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu';
+} from '@/Components/ui/dropdown-menu';
 import React from 'react';
 import { ChevronDown } from 'lucide-react';
 
@@ -39,7 +39,7 @@ export default function SortCard({ value, onSelect }: SortCardProps) {
       </DropdownMenuTrigger>
       <DropdownMenuContent
         align="start"
-        className="!bg-white !border-black !shadow-md !rounded-lg z-50"
+        className="!bg-white !border-black !shadow-md !rounded-lg z-70"
       >
         {sortOptions.map((option) => (
           <DropdownMenuItem

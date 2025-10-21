@@ -9,9 +9,7 @@ import Paginacion from './components_jo/Paginacion';
 import PaginationInfo from './components_jo/PaginationInfo';
 import PaginationSelector from './components_jo/PaginationSelector';
 import CardJob from './components_jo/CardJob';
-// NOTA: Usé '@/components/sort/SortCard' en minúsculas por seguridad
-// Si esto causa un error de importación, usa '@/Components/sort/SortCard'
-import SortCard from '@/components/sort/SortCard';
+import SortCard from '@/Components/sort/SortCard';
 import { api, ApiResponse } from '@/lib/api';
 
 interface OfferData {
@@ -46,28 +44,18 @@ export default function JobOffers() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
-  // Estados de filtro y ordenamiento agregados de 'dev'
   const [filters, setFilters] = useState<FilterState>({
     range: [],
     city: '',
     category: [],
   });
   const [sortBy, setSortBy] = useState<string>('recent');
-  // Filtros por defecto para estado inicial
   const defaultFilters: FilterState = { range: [], city: '', category: [] };
-
-  // estado para mensajes de validación (de 'MelCambios')
   const [validationMessage, setValidationMessage] = useState<string | null>(null);
-
-  // Estados de paginación
   const [paginaActual, setPaginaActual] = useState(1);
   const [registrosPorPagina, setRegistrosPorPagina] = useState(10);
-
-  // NOTA: Usamos el total real de la API si estuviera disponible, o una constante
-  // En tu código, usaste trabajos.length o 100, mantendremos la lógica.
   const totalRegistros = trabajos.length > 0 ? trabajos.length : 100;
 
-  // --- Función central para hacer la llamada al backend (Unificada de 'dev') ---
   const fetchOffers = useCallback(async (
     searchText: string,
     appliedFilters: FilterState,
@@ -83,7 +71,6 @@ export default function JobOffers() {
         params.append('search', searchText);
       }
 
-      // Lógica de filtros
       if (appliedFilters.range && appliedFilters.range.length > 0) {
         appliedFilters.range.forEach((r) => {
           params.append('range', r);
@@ -98,12 +85,11 @@ export default function JobOffers() {
         });
       }
 
-      // Lógica de ordenamiento
       if (appliedSort) {
         params.append('sortBy', appliedSort);
       }
       
-      params.append('context', 'job_offer'); // Asegura que el endpoint sea correcto
+      params.append('context', 'job_offer');
 
       const url = `/api/devmaster/offers?${params.toString()}`;
       const response: ApiResponse<OfferResponse> = await api.get(url);
@@ -125,17 +111,13 @@ export default function JobOffers() {
     }
   }, []);
 
-  // Helper: volver al estado inicial (lista por defecto)
   const resetToInitial = () => {
     setFilters(defaultFilters);
     setSortBy('recent');
     setValidationMessage(null);
-    // llamar la carga inicial
     fetchOffers('', defaultFilters, 'recent');
   };
 
-
-  // --- Manejar el cambio de input y límite de 100 caracteres (de 'MelCambios') ---
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
 
@@ -151,9 +133,7 @@ export default function JobOffers() {
     }
   };
 
-  // --- Manejar Búsqueda (Combinación de validación y llamada a fetchOffers) ---
   const handleSearch = async () => {
-    // 1. Limpieza y validaciones (de 'MelCambios')
     setValidationMessage(null);
     const trimmedSearch = search.trim();
 
@@ -169,60 +149,51 @@ export default function JobOffers() {
 
     const allowedRegex = /^[A-Za-z0-9ÁáÀàÂâÄäÃãÅåĀāĂăǍǎȦȧÉéÈèÊêËëĒēĔĕĚěĖėÍíÌìÎîÏïĨĩĪīĬĭǏǐÓóÒòÔôÖöÕõŌōŎŏǑǒȮȯÚúÙùÛûÜüŨũŮůŪūŬŭǓǔU̇u̇ñÑ,_. -]+$/;
     if (!allowedRegex.test(trimmedSearch)) {
-      setValidationMessage('Búsqueda invalida por contener caracteres especiales no permitidos. Solo se permiten los carateres especiales "," , “_” , " ." y "-"');
+      setValidationMessage('Búsqueda invalida por contener caracteres especiales no permitidos. Solo se permiten los carateres especiales "," , "_" , " ." y "-"');
       return;
     }
 
-    // 2. Si pasa, llama al fetcher (de 'dev')
-  await fetchOffers(trimmedSearch, filters, sortBy);
+    await fetchOffers(trimmedSearch, filters, sortBy);
   };
 
-  // Cargar ofertas iniciales al montar el componente
-  // Carga inicial de ofertas al montar el componente
   useEffect(() => {
-    // Llama al fetcher sin búsqueda, con filtros por defecto y sort 'recent'
-  fetchOffers('', { range: [], city: '', category: [] }, 'recent');
+    fetchOffers('', { range: [], city: '', category: [] }, 'recent');
   }, [fetchOffers]);
 
-  // Manejar filtros aplicados (de 'dev')
   const handleFiltersApply = async (appliedFilters: FilterState) => {
     setFilters(appliedFilters);
-  await fetchOffers(search, appliedFilters, sortBy);
+    await fetchOffers(search, appliedFilters, sortBy);
   };
 
-  // Manejar cambio de sort (de 'dev')
-    const sortMap: Record<string, string> = {
-      Destacados: 'rating',
-      'Los más recientes': 'recent',
-      'Los más antiguos': 'oldest',
-      'Nombre A-Z': 'name_asc',
-      'Nombre Z-A': 'name_desc',
-      'Num de contacto asc': 'contact_asc',
-      'Num de contacto desc': 'contact_desc',
-    };
+  const sortMap: Record<string, string> = {
+    Destacados: 'rating',
+    'Los más recientes': 'recent',
+    'Los más antiguos': 'oldest',
+    'Nombre A-Z': 'name_asc',
+    'Nombre Z-A': 'name_desc',
+    'Num de contacto asc': 'contact_asc',
+    'Num de contacto desc': 'contact_desc',
+  };
 
-    const sortMapInverse: Record<string, string> = Object.fromEntries(
-  Object.entries(sortMap).map(([key, value]) => [value, key])
-    );
+  const sortMapInverse: Record<string, string> = Object.fromEntries(
+    Object.entries(sortMap).map(([key, value]) => [value, key])
+  );
 
-    const handleSortChange = async (option: string) => {
+  const handleSortChange = async (option: string) => {
     const backendSort = sortMap[option] || 'recent';
     setSortBy(backendSort);
     await fetchOffers(search, filters, backendSort);
   };
 
-  // Calcular trabajos visibles según página actual
   const indiceInicio = (paginaActual - 1) * registrosPorPagina;
   const indiceFin = indiceInicio + registrosPorPagina;
   const trabajosVisibles =
     trabajos.length > 0 ? trabajos.slice(indiceInicio, indiceFin) : [];
 
-  // Reiniciar página si el selector cambia
   useEffect(() => {
     setPaginaActual(1);
   }, [registrosPorPagina]);
 
-  // Manejar Enter
   const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key === 'Enter') {
       e.preventDefault();
@@ -230,72 +201,87 @@ export default function JobOffers() {
     }
   };
 
+  const toggleDrawer = () => {
+    setIsDrawerOpen(!isDrawerOpen);
+  };
+
   return (
-    <main className={`${isDrawerOpen ? 'overflow-hidden' : ''}`}>
-      {/* Header sticky - compacto y completo */}
-      <div className="sticky top-0 z-40 bg-white shadow-sm py-3 px-2 sm:px-6 md:px-12 lg:px-24">
-        <h1 className="mb-3 text-center text-2xl font-bold">Ofertas de trabajo</h1>
+    <>
+      <h1 className="mt-8 sm:mt-12 md:mt-16 lg:mt-18 mb-0 sm:mb-0 text-center text-xl sm:text-2xl md:text-3xl font-bold pt-3 sm:pt-4 md:pt-6 px-3 sm:px-6 md:px-12 lg:px-24">
+        Ofertas de trabajo
+      </h1>
 
-        {/* Barra de búsqueda: Filtros + Búsqueda + Botón Buscar */}
-        <div className="w-full max-w-5xl mx-auto mb-3">
-          <div className="flex flex-col gap-2 sm:flex-row items-stretch">
-            {/* Filtro a la izquierda */}
-            <div className="self-stretch w-full sm:w-auto">
-              <FilterButton onClick={() => setIsDrawerOpen(true)} />
-            </div>
-
-            {/* Buscador expandible */}
-            <div className="flex-1 w-full">
-              <InputDemo
-                value={search}
-                onChange={handleInputChange}
-                onClear={() => {
-                  setSearch('');
-                  resetToInitial();
-                }}
-                onKeyDown={handleKeyDown}
-                hasError={!!validationMessage}
-              />
-            </div>
-
-            {/* Botón Buscar */}
-            <div className="w-full sm:w-auto">
-              <SearchButton onClick={handleSearch} disabled={loading} className="w-full sm:w-auto" />
-            </div>
+      {/* Barra sticky */}
+      <div className="`w-full mx-auto px-3 sm:px-4 md:px-6 lg:max-w-5xl sticky top-0 bg-white py-2 sm:py-3 md:py-4 shadow-md mb-1 sm:mb-2 ${
+        isDrawerOpen ? 'z-10' : 'z-50'">
+        {/* Fila 1: Filtro + Búsqueda + Botón */}
+        <div className="flex flex-col gap-2 sm:flex-row items-stretch mb-3 sm:mb-4">
+          <div className="self-stretch w-full sm:w-auto">
+            <FilterButton onClick={toggleDrawer} />
           </div>
 
-          {/* Mensaje de validación (debajo del buscador) */}
-          {validationMessage && (
-            <div className="mt-2 text-left">
-              <p className="text-red-500 text-sm">{validationMessage}</p>
-            </div>
-          )}
+          <div className="flex-1 w-full">
+            <InputDemo
+              value={search}
+              onChange={handleInputChange}
+              onClear={() => {
+                setSearch('');
+                resetToInitial();
+              }}
+              onKeyDown={handleKeyDown}
+              hasError={!!validationMessage}
+            />
+          </div>
+
+          <div className="w-full sm:w-auto">
+            <SearchButton onClick={handleSearch} disabled={loading} className="w-full sm:w-auto" />
+          </div>
         </div>
 
-        {/* Selector "Mostrar X" (izq) + Ordenamiento (der) - dentro del sticky */}
+        {/* Mensaje de validación dentro del sticky */}
+        {validationMessage && (
+          <div className="mb-2 sm:mb-3 text-left">
+            <p className="text-red-500 text-sm sm:text-base">{validationMessage}</p>
+          </div>
+        )}
+
+        {/* Fila 2: Selector de paginación + Ordenamiento */}
         {!loading && trabajos.length > 0 && (
-          <div className="w-full max-w-5xl mx-auto">
-            <div className="flex flex-col gap-2 sm:flex-row justify-between items-center">
-              <div className="w-full sm:w-auto">
-                <PaginationSelector
-                  registrosPorPagina={registrosPorPagina}
-                  onChange={(valor) => setRegistrosPorPagina(valor)}
-                />
-              </div>
-              <div className="w-full sm:w-auto">
-                <SortCard value={sortMapInverse[sortBy]} onSelect={handleSortChange} />
-              </div>
+          <div className="flex flex-col gap-2 sm:flex-row justify-between items-stretch">
+            <div className="w-full sm:w-auto">
+              <PaginationSelector
+                registrosPorPagina={registrosPorPagina}
+                onChange={(valor) => setRegistrosPorPagina(valor)}
+              />
+            </div>
+            <div className="w-full sm:w-auto">
+              <SortCard value={sortMapInverse[sortBy]} onSelect={handleSortChange} />
             </div>
           </div>
         )}
       </div>
 
-      {/* Contenido scrollable */}
-      <div className="px-2 sm:px-6 md:px-12 lg:px-24">
+      <main className="px-4 sm:px-6 md:px-12 lg:px-24">
+        {error && (
+        <div className="text-red-500 text-center mb-4 p-3 bg-red-100 rounded text-sm sm:text-base">
+          Error: {error}
+        </div>
+      )}
 
-      {/* Info de resultados centrada - fuera del sticky */}
+      {loading && (
+        <div className="text-blue-500 text-center mb-4 p-3 bg-blue-100 rounded text-sm sm:text-base">
+          Cargando ofertas...
+        </div>
+      )}
+      
+      <FilterDrawer 
+        isOpen={isDrawerOpen}
+        onClose={() => setIsDrawerOpen(false)}
+        onFiltersApply={handleFiltersApply}
+      />
+
       {!loading && trabajos.length > 0 && (
-        <div className="w-full max-w-5xl mx-auto mb-4">
+        <div className="w-full max-w-5xl mx-auto px-4 sm:px-6 mb-3 sm:mb-4">
           <div className="flex justify-center">
             <PaginationInfo
               paginaActual={paginaActual}
@@ -306,26 +292,6 @@ export default function JobOffers() {
         </div>
       )}
 
-      {/* Error de la API */}
-      {error && (
-        <div className="text-red-500 text-center mb-4 p-3 bg-red-100 rounded">Error: {error}</div>
-      )}
-
-      {/* Loading */}
-      {loading && (
-        <div className="text-blue-500 text-center mb-4 p-3 bg-blue-100 rounded">
-          Cargando ofertas...
-        </div>
-      )}
-
-      {/* FilterDrawer */}
-      <FilterDrawer
-        isOpen={isDrawerOpen}
-        onClose={() => setIsDrawerOpen(false)}
-        onFiltersApply={handleFiltersApply}
-      />
-
-      {/* Resultados */}
       <div className="w-full max-w-5xl mx-auto px-2 sm:px-6">
         {!loading && trabajosVisibles.length > 0 ? (
           <CardJob trabajos={trabajosVisibles} />
@@ -334,19 +300,15 @@ export default function JobOffers() {
             <p className="text-gray-500 text-xl font-roboto font-normal">
               No se encontraron resultados
               {search.trim() && (
-                <>
-                  {' '}
-                  para <span className="font-bold">&quot;{search.trim()}&quot;</span>
-                </>
+                <> para <span className="font-bold">&quot;{search.trim()}&quot;</span></>
               )}
             </p>
           </div>
         ) : null}
       </div>
 
-      {/* Paginación */}
       {!loading && trabajos.length > 0 && (
-        <div className="mt-8 flex justify-center">
+        <div className="mt-8 mb-24 flex justify-center">
           <Paginacion
             paginaActual={paginaActual}
             registrosPorPagina={registrosPorPagina}
@@ -355,7 +317,7 @@ export default function JobOffers() {
           />
         </div>
       )}
-      </div>
     </main>
+    </>
   );
 }

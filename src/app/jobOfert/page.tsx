@@ -231,44 +231,78 @@ export default function JobOffers() {
   };
 
   return (
-    <main className={`p-2 sm:p-6 md:p-12 lg:p-24 ${isDrawerOpen ? 'overflow-hidden' : ''}`}>
-      <h1 className="mb-4 text-center text-3xl font-bold">Ofertas de trabajo</h1>
+    <main className={`${isDrawerOpen ? 'overflow-hidden' : ''}`}>
+      {/* Header sticky - compacto y completo */}
+      <div className="sticky top-0 z-40 bg-white shadow-sm py-3 px-2 sm:px-6 md:px-12 lg:px-24">
+        <h1 className="mb-3 text-center text-2xl font-bold">Ofertas de trabajo</h1>
 
-      {/* Barra superior: Filtros + Búsqueda + Botón Buscar */}
-      <div className="w-full max-w-5xl mx-auto px-2 sm:px-6 mb-4">
-        <div className="flex flex-col gap-2 sm:flex-row items-stretch">
-          {/* Filtro, input y botón */}
-          {/* Filtro a la izquierda */}
-          <div className="self-stretch w-full sm:w-auto">
-            <FilterButton onClick={() => setIsDrawerOpen(true)} />
+        {/* Barra de búsqueda: Filtros + Búsqueda + Botón Buscar */}
+        <div className="w-full max-w-5xl mx-auto mb-3">
+          <div className="flex flex-col gap-2 sm:flex-row items-stretch">
+            {/* Filtro a la izquierda */}
+            <div className="self-stretch w-full sm:w-auto">
+              <FilterButton onClick={() => setIsDrawerOpen(true)} />
+            </div>
+
+            {/* Buscador expandible */}
+            <div className="flex-1 w-full">
+              <InputDemo
+                value={search}
+                onChange={handleInputChange}
+                onClear={() => {
+                  setSearch('');
+                  resetToInitial();
+                }}
+                onKeyDown={handleKeyDown}
+                hasError={!!validationMessage}
+              />
+            </div>
+
+            {/* Botón Buscar */}
+            <div className="w-full sm:w-auto">
+              <SearchButton onClick={handleSearch} disabled={loading} className="w-full sm:w-auto" />
+            </div>
           </div>
 
-          {/* Buscador expandible */}
-          <div className="flex-1 w-full">
-            <InputDemo
-              value={search}
-              onChange={handleInputChange}
-              onClear={() => {
-                setSearch('');
-                // Al borrar con la X, volvemos al estado inicial
-                resetToInitial();
-              }}
-              onKeyDown={handleKeyDown}
-              hasError={!!validationMessage}
-            />
-          </div>
-
-          {/* Botón Buscar */}
-          <div className="w-full sm:w-auto">
-            <SearchButton onClick={handleSearch} disabled={loading} className="w-full sm:w-auto" />
-          </div>
+          {/* Mensaje de validación (debajo del buscador) */}
+          {validationMessage && (
+            <div className="mt-2 text-left">
+              <p className="text-red-500 text-sm">{validationMessage}</p>
+            </div>
+          )}
         </div>
+
+        {/* Selector "Mostrar X" (izq) + Ordenamiento (der) - dentro del sticky */}
+        {!loading && trabajos.length > 0 && (
+          <div className="w-full max-w-5xl mx-auto">
+            <div className="flex flex-col gap-2 sm:flex-row justify-between items-center">
+              <div className="w-full sm:w-auto">
+                <PaginationSelector
+                  registrosPorPagina={registrosPorPagina}
+                  onChange={(valor) => setRegistrosPorPagina(valor)}
+                />
+              </div>
+              <div className="w-full sm:w-auto">
+                <SortCard value={sortMapInverse[sortBy]} onSelect={handleSortChange} />
+              </div>
+            </div>
+          </div>
+        )}
       </div>
 
-      {/* Mensaje de validación (debajo del buscador) */}
-      {validationMessage && (
-        <div className="w-full max-w-5xl mx-auto mb-3 text-left">
-          <p className="text-red-500 ml-16">{validationMessage}</p>
+      {/* Contenido scrollable */}
+      <div className="px-2 sm:px-6 md:px-12 lg:px-24">
+
+      {/* Info de resultados centrada - fuera del sticky */}
+      {!loading && trabajos.length > 0 && (
+        <div className="w-full max-w-5xl mx-auto mb-4">
+          <div className="flex justify-center">
+            <PaginationInfo
+              paginaActual={paginaActual}
+              registrosPorPagina={registrosPorPagina}
+              totalRegistros={totalRegistros}
+            />
+          </div>
         </div>
       )}
 
@@ -290,36 +324,6 @@ export default function JobOffers() {
         onClose={() => setIsDrawerOpen(false)}
         onFiltersApply={handleFiltersApply}
       />
-
-      {/* Fila 2: Selector "Mostrar X" (izq) + Ordenamiento (der) */}
-      {!loading && trabajos.length > 0 && (
-        <div className="w-full max-w-5xl mx-auto px-2 sm:px-6 mb-4">
-          <div className="flex flex-col gap-2 sm:flex-row justify-between items-stretch">
-            <div className="w-full sm:w-auto">
-              <PaginationSelector
-                registrosPorPagina={registrosPorPagina}
-                onChange={(valor) => setRegistrosPorPagina(valor)}
-              />
-            </div>
-            <div className="w-full sm:w-auto">
-              <SortCard value={sortMapInverse[sortBy]} onSelect={handleSortChange} />
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* Info de resultados centrada */}
-      {!loading && trabajos.length > 0 && (
-        <div className="w-full max-w-5xl mx-auto px-2 sm:px-6 mb-4">
-          <div className="flex justify-center">
-            <PaginationInfo
-              paginaActual={paginaActual}
-              registrosPorPagina={registrosPorPagina}
-              totalRegistros={totalRegistros}
-            />
-          </div>
-        </div>
-      )}
 
       {/* Resultados */}
       <div className="w-full max-w-5xl mx-auto px-2 sm:px-6">
@@ -351,6 +355,7 @@ export default function JobOffers() {
           />
         </div>
       )}
+      </div>
     </main>
   );
 }

@@ -7,16 +7,15 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
-import React, { useState } from 'react';
+import React from 'react';
 import { ChevronDown } from 'lucide-react';
 
 interface SortCardProps {
-  onSelect: (option: string) => void;
+  value: string; // valor actual seleccionado desde el padre
+  onSelect: (option: string) => void; // callback al cambiar
 }
 
-export default function SortCard({ onSelect }: SortCardProps) {
-  const [selectedSort, setSelectedSort] = useState('Los más recientes');
-
+export default function SortCard({ value, onSelect }: SortCardProps) {
   const sortOptions = [
     'Destacados',
     'Los más recientes',
@@ -32,21 +31,9 @@ export default function SortCard({ onSelect }: SortCardProps) {
       <DropdownMenuTrigger asChild>
         <Button
           variant="outline"
-          className="flex items-center gap-2 !border-black hover:!bg-[#2B6AE0] hover:!text-white !transition-colors"
+          className="flex font-bold items-center gap-2 !border-black hover:!bg-[#2B6AE0] hover:!text-white !transition-colors"
         >
-          {/* Ícono de sort inline */}
-          {/* <div className="flex items-center justify-center scale-[1.4]">
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              viewBox="0 0 24 24"
-              fill="#000000"
-              className="w-6 h-6"
-            >
-              <path d="M18 21L14 17H17V7H14L18 3L22 7H19V17H22M2 19V17H12V19M2 13V11H9V13M2 7V5H6V7H2Z" />
-            </svg>
-          </div> */}
-          {/* Para mostrar el texto seleccionado en lugar del ícono */}
-          {selectedSort}
+          {value}
           <ChevronDown className="h-4 w-4" />
         </Button>
       </DropdownMenuTrigger>
@@ -57,12 +44,9 @@ export default function SortCard({ onSelect }: SortCardProps) {
         {sortOptions.map((option) => (
           <DropdownMenuItem
             key={option}
-            onClick={() => {
-              setSelectedSort(option);
-              onSelect(option); // Notificar al padre
-            }}
+            onClick={() => onSelect(option)} // Solo notificamos al padre
             className={`cursor-pointer !px-3 !py-2 !rounded-md !transition-colors ${
-              selectedSort === option
+              value === option
                 ? '!bg-[#2B6AE0] !text-white'
                 : 'hover:!bg-[#1AA7ED] hover:!text-white'
             }`}

@@ -191,7 +191,6 @@ export default function JobOffers() {
   };
 
   // Manejar cambio de sort (de 'dev')
-  const handleSortChange = async (option: string) => {
     const sortMap: Record<string, string> = {
       Destacados: 'rating',
       'Los más recientes': 'recent',
@@ -202,9 +201,14 @@ export default function JobOffers() {
       'Num de contacto desc': 'contact_desc',
     };
 
+    const sortMapInverse: Record<string, string> = Object.fromEntries(
+  Object.entries(sortMap).map(([key, value]) => [value, key])
+    );
+
+    const handleSortChange = async (option: string) => {
     const backendSort = sortMap[option] || 'recent';
     setSortBy(backendSort);
-  await fetchOffers(search, filters, backendSort);
+    await fetchOffers(search, filters, backendSort);
   };
 
   // Calcular trabajos visibles según página actual
@@ -227,7 +231,7 @@ export default function JobOffers() {
   };
 
   return (
-  <main className={`p-2 sm:p-6 md:p-12 lg:p-24 ${isDrawerOpen ? 'overflow-hidden' : ''}`}>
+    <main className={`p-2 sm:p-6 md:p-12 lg:p-24 ${isDrawerOpen ? 'overflow-hidden' : ''}`}>
       <h1 className="mb-4 text-center text-3xl font-bold">Ofertas de trabajo</h1>
 
       {/* Barra superior: Filtros + Búsqueda + Botón Buscar */}
@@ -270,9 +274,7 @@ export default function JobOffers() {
 
       {/* Error de la API */}
       {error && (
-        <div className="text-red-500 text-center mb-4 p-3 bg-red-100 rounded">
-          Error: {error}
-        </div>
+        <div className="text-red-500 text-center mb-4 p-3 bg-red-100 rounded">Error: {error}</div>
       )}
 
       {/* Loading */}
@@ -281,9 +283,9 @@ export default function JobOffers() {
           Cargando ofertas...
         </div>
       )}
-      
+
       {/* FilterDrawer */}
-      <FilterDrawer 
+      <FilterDrawer
         isOpen={isDrawerOpen}
         onClose={() => setIsDrawerOpen(false)}
         onFiltersApply={handleFiltersApply}
@@ -300,7 +302,7 @@ export default function JobOffers() {
               />
             </div>
             <div className="w-full sm:w-auto">
-              <SortCard onSelect={handleSortChange} />
+              <SortCard value={sortMapInverse[sortBy]} onSelect={handleSortChange} />
             </div>
           </div>
         </div>
@@ -319,9 +321,8 @@ export default function JobOffers() {
         </div>
       )}
 
-
       {/* Resultados */}
-  <div className="w-full max-w-5xl mx-auto px-2 sm:px-6">
+      <div className="w-full max-w-5xl mx-auto px-2 sm:px-6">
         {!loading && trabajosVisibles.length > 0 ? (
           <CardJob trabajos={trabajosVisibles} />
         ) : !loading ? (
@@ -329,7 +330,10 @@ export default function JobOffers() {
             <p className="text-gray-500 text-xl font-roboto font-normal">
               No se encontraron resultados
               {search.trim() && (
-                <> para <span className="font-bold">&quot;{search.trim()}&quot;</span></>
+                <>
+                  {' '}
+                  para <span className="font-bold">&quot;{search.trim()}&quot;</span>
+                </>
               )}
             </p>
           </div>

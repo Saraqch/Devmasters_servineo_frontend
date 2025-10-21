@@ -1,5 +1,7 @@
-import { InputDemo as SearchBar } from "../components/SearchBar";
-import { SearchButton } from "../components/SearchButton";
+"use client";
+
+import { InputDemo as SearchBar } from "../components_se/SearchBar";
+import { SearchButton } from "../components_se/SearchButton";
 
 export default function SearchPage() {
 	return (

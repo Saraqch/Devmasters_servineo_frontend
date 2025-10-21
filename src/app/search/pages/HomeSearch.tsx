@@ -1,7 +1,7 @@
 "use client"; 
 
-import { InputDemo } from "../components/SearchBar";
-import { SearchButton } from "../components/SearchButton";
+import { InputDemo } from "../components_se/SearchBar";
+import { SearchButton } from "../components_se/SearchButton";
 // Importa el hook usesearch
 import { useSearch } from "../hooks/useSearch"; 
 
@@ -54,11 +54,7 @@ export default function HomeSearch() {
         </div>
         <div style={{ marginTop: 1.5 }}>
           <SearchButton
-<<<<<<< HEAD
             // Pasa la validación y el manejador de búsqueda del hook
-=======
-            // Pasa la validación y el manejador de búsqueda del hooks
->>>>>>> 7b85d9e65d72eb1ae1d9b423379d684554716e76
             disabled={isSearchDisabled}
             onClick={handleSearch} 
             style={{

@@ -1,13 +1,7 @@
-<<<<<<< HEAD
 "use client";
 
-import { InputDemo as SearchBar } from "./components/SearchBar";
-import { SearchButton } from "./components/SearchButton";
-=======
-import { InputDemo as SearchBar } from "./components/SearchBar";
-import { SearchButton } from "./components/SearchButton";
-"use client";
->>>>>>> 7b85d9e65d72eb1ae1d9b423379d684554716e76
+import { InputDemo as SearchBar } from "./components_se/SearchBar";
+import { SearchButton } from "./components_se/SearchButton";
 import React, { useState } from "react";
 
 export default function SearchPage() {
@@ -15,12 +9,6 @@ export default function SearchPage() {
 	const minChars = 2;
 
 	const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => setQuery(e.target.value);
-	const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
-		if (e.key === "Enter" && query.trim().length >= minChars) {
-			// TODO: trigger search action (navigate or fetch)
-			console.log("Search for:", query);
-		}
-	};
 
 	const canSearch = query.trim().length >= minChars;
 

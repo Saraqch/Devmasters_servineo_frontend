@@ -8,8 +8,8 @@ interface InputDemoProps {
   value?: string;
   onChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
   onClear: () => void;
-  onKeyDown?: (e: React.KeyboardEvent<HTMLInputElement>) => void; // <-- agregado
-hasError?: boolean; 
+  onKeyDown?: (e: React.KeyboardEvent<HTMLInputElement>) => void;
+  hasError?: boolean; 
 }
 
 // Cambia la firma de la función para recibir las props
@@ -18,51 +18,29 @@ export function InputDemo({ value = "", onChange, onClear, onKeyDown, hasError =
     <button 
       onClick={onClear}
       type="button"
-      style={{
-        position: 'absolute',
-        right: 8,
-        zIndex: 2,
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        width: 20,
-        height: 20,
-        backgroundColor: 'transparent',
-        border: 'none',
-        cursor: 'pointer',
-        padding: 0,
-      }}
+      className="absolute right-2 z-[2] flex items-center justify-center w-5 h-5 bg-transparent border-none cursor-pointer p-0"
       aria-label="Limpiar búsqueda"
     >
-      {/* Icono simple de "X" (SVG) */}
       <X size={16} color="#888" />
     </button>
   );
-
-  const paddingRight = value.length > 0 ? 55 : 35; // 35 (icono) + 20 (botón "X")
         
   return (
-    <div style={{ position: 'relative', display: 'flex', alignItems: 'center' }}>
-      <span style={{ position: 'absolute', left: 8, zIndex: 2, display: 'flex', alignItems: 'center' }}>
+    <div className="relative flex items-center w-full">
+      <span className="absolute left-2 z-[2] flex items-center">
         <Search size={20} color={hasError ? 'red' : '#888'} />
       </span>
       <Input
         type="text"
         placeholder="¿Qué servicio necesitas?"
-        style={{
-          paddingLeft: 35,
-          paddingRight,
-          width: '100%',
-          minWidth: 320,
-          border: hasError ? '1.5px solid red' : undefined, // <= resaltado rojo
-          outline: hasError ? 'none' : undefined,
-          boxShadow: hasError ? '0 0 0 1px red' : undefined,
-          borderRadius: 4
-          // sin maxWidth para permitir que el contenedor controle el tamaño
-        }}
+        className={`pl-9 ${value.length > 0 ? 'pr-14' : 'pr-9'} w-full sm:min-w-80 rounded ${
+          hasError 
+            ? 'border-red-500 border-[1.5px] outline-none shadow-[0_0_0_1px_red]' 
+            : ''
+        }`}
         value={value}
         onChange={onChange}
-        onKeyDown={onKeyDown} // <-- aquí pasamos el handler
+        onKeyDown={onKeyDown}
       />
       {value.length > 0 && <ClearButton />}
     </div>

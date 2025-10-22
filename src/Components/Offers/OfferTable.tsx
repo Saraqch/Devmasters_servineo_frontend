@@ -1,7 +1,7 @@
 import React, { useMemo, useState } from 'react'
 import type { OfferItem } from './OfferList'
 import type { FilterBarValues } from './FilterBar'
-import { Pagination } from '../ui/pagination'
+import Pagination from '@/Components/Shared/Pagination'
 
 export interface OfferTableProps {
   items: OfferItem[]

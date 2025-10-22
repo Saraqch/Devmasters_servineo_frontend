@@ -1,4 +1,5 @@
-import { Input } from "../../../components/ui/input";
+// src/app/search/SearchBar.tsx
+import { Input } from "@/Components/ui/input";
 import React from "react";
 
 // Define las props que recibirá el componente
@@ -6,13 +7,15 @@ interface InputDemoProps {
   value?: string;
   onChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
   onClear: () => void;
+  onKeyDown?: (e: React.KeyboardEvent<HTMLInputElement>) => void; // <-- agregado
 }
 
 // Cambia la firma de la función para recibir las props
-export function InputDemo({ value = "", onChange, onClear }: InputDemoProps) {
+export function InputDemo({ value = "", onChange, onClear, onKeyDown }: InputDemoProps) {
   const ClearButton = () => (
     <button 
       onClick={onClear}
+      type="button"
       style={{
         position: 'absolute',
         right: 8,
@@ -50,9 +53,16 @@ export function InputDemo({ value = "", onChange, onClear }: InputDemoProps) {
       <Input
         type="text"
         placeholder="¿Qué servicio necesitas?"
-        style={{ paddingLeft: 35, paddingRight, width: '100%', minWidth: 300, maxWidth: 1000 }}
+        style={{
+          paddingLeft: 35,
+          paddingRight,
+          width: '100%',
+          minWidth: 320,
+          // sin maxWidth para permitir que el contenedor controle el tamaño
+        }}
         value={value}
         onChange={onChange}
+        onKeyDown={onKeyDown} // <-- aquí pasamos el handler
       />
       {value.length > 0 && <ClearButton />}
     </div>

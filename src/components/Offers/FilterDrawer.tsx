@@ -1,7 +1,7 @@
 'use client';
 
+import { roboto } from '@/app/fonts';
 import React, { useState, useEffect } from 'react';
-import { roboto } from '../../fonts';
 
 interface FilterState {
   range: string[];

@@ -53,20 +53,18 @@ const Paginacion: React.FC<PaginacionProps> = ({
         </button>
       ))}
 
-      {/* Botón Siguiente solo si no llegó al final */}
-      {!yaLlegoAlFinal && (
-        <button
-          onClick={() => onChange(Math.min(paginaActual + 1, totalPaginas))}
-          disabled={paginaActual === totalPaginas}
-          className={`px-3 py-1 rounded ${
-            paginaActual === totalPaginas
-              ? 'bg-gray-300 cursor-not-allowed'
-              : 'bg-gray-200 hover:bg-blue-500 hover:text-white'
+      {/* Botón Siguiente (siempre visible, pero deshabilitado en la última página) */}
+      <button
+        onClick={() => onChange(Math.min(paginaActual + 1, totalPaginas))}
+        disabled={paginaActual === totalPaginas}
+        className={`px-3 py-1 rounded ${paginaActual === totalPaginas
+            ? 'bg-gray-300 cursor-not-allowed'
+            : 'bg-gray-200 hover:bg-blue-500 hover:text-white'
           }`}
-        >
-          Siguiente
-        </button>
-      )}
+      >
+        Siguiente
+      </button>
+
     </div>
   );
 };

@@ -3,16 +3,17 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { InputDemo } from '@/app/search/components/SearchBar';
 import { SearchButton } from '@/app/search/components/SearchButton';
-import { FilterButton } from '@/app/jobOfert/components/FilterButton';
-import { FilterDrawer } from '@/app/jobOfert/components/FilterDrawer';
-import Paginacion from './components/Paginacion';
-import PaginationInfo from './components/PaginationInfo';
-import PaginationSelector from './components/PaginationSelector';
-import CardJob from './components/CardJob';
+
 // NOTA: Usé '@/components/sort/SortCard' en minúsculas por seguridad
 // Si esto causa un error de importación, usa '@/Components/sort/SortCard'
 import SortCard from '@/Components/sort/SortCard';
 import { api, ApiResponse } from '@/lib/api';
+import { FilterButton } from '@/Components/Offers/FilterButton';
+import { FilterDrawer } from '@/Components/Offers/FilterDrawer';
+import PaginationSelector from '@/Components/Offers/PaginationSelector';
+import PaginationInfo from '@/Components/Offers/PaginationInfo';
+import CardJob from '@/Components/Offers/CardJob';
+import Paginacion from '@/Components/Offers/Paginacion';
 
 interface OfferData {
   _id: string;
@@ -106,6 +107,7 @@ export default function JobOffers() {
       params.append('context', 'job_offer'); // Asegura que el endpoint sea correcto
 
       const url = `/api/devmaster/offers?${params.toString()}`;
+      console.log("url", url)
       const response: ApiResponse<OfferResponse> = await api.get(url);
 
       if (response.success && response.data) {
@@ -295,7 +297,7 @@ export default function JobOffers() {
             <div className="w-full sm:w-auto">
               <PaginationSelector
                 registrosPorPagina={registrosPorPagina}
-                onChange={(valor) => setRegistrosPorPagina(valor)}
+                onChange={(valor:any) => setRegistrosPorPagina(valor)}
               />
             </div>
             <div className="w-full sm:w-auto">

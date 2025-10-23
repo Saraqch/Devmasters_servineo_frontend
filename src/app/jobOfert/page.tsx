@@ -9,7 +9,7 @@ import Paginacion from './components_jo/Paginacion';
 import PaginationInfo from './components_jo/PaginationInfo';
 import PaginationSelector from './components_jo/PaginationSelector';
 import CardJob from './components_jo/CardJob';
-import SortCard from '@/Components/sort/SortCard';
+import SortCard from '@/components/sort/SortCard';
 import { api, ApiResponse } from '@/lib/api';
 
 interface OfferData {
@@ -212,8 +212,9 @@ export default function JobOffers() {
       </h1>
 
       {/* Barra sticky */}
-      <div className="`w-full mx-auto px-3 sm:px-4 md:px-6 lg:max-w-5xl sticky top-0 bg-white py-2 sm:py-3 md:py-4 shadow-md mb-1 sm:mb-2 ${
-        isDrawerOpen ? 'z-10' : 'z-50'">
+      <div className={`w-full mx-auto px-3 sm:px-4 md:px-6 lg:max-w-5xl sticky top-0 bg-white py-2 sm:py-3 md:py-4 shadow-md mb-1 sm:mb-2 ${
+        isDrawerOpen ? 'z-10' : 'z-50'
+      }`}>
         {/* Fila 1: Filtro + Búsqueda + Botón */}
         <div className="flex flex-col gap-2 sm:flex-row items-stretch mb-3 sm:mb-4">
           <div className="self-stretch w-full sm:w-auto">

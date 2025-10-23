@@ -287,8 +287,8 @@ const trabajosVisibles = trabajos;
       <div className="`w-full mx-auto px-3 sm:px-4 md:px-6 lg:max-w-5xl sticky top-0 bg-white py-2 sm:py-3 md:py-4 shadow-md mb-1 sm:mb-2 ${
         isDrawerOpen ? 'z-10' : 'z-50'">
         {/* Fila 1: Filtro + Búsqueda + Botón */}
-        <div className="flex flex-col gap-2 sm:flex-row items-stretch mb-3 sm:mb-4">
-          <div className="self-stretch w-full sm:w-auto">
+        <div className="flex flex-row items-center gap-2 sm:gap-3 mb-3 sm:mb-4">
+          <div className="flex-shrink-0">
             <FilterButton onClick={toggleDrawer} />
           </div>
 

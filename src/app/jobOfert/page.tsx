@@ -109,8 +109,6 @@ const Footer = () => (
 );
 
 export default function JobOffers() {
-// ... (tu lógica de estado y funciones) ...
-
   const [search, setSearch] = useState('');
   const [trabajos, setTrabajos] = useState<OfferData[]>([]);
   const [loading, setLoading] = useState(true);
@@ -283,16 +281,19 @@ export default function JobOffers() {
         Ofertas de trabajo
       </h1>
 
-      {/* Barra sticky */}
+      {/* Barra sticky - CORREGIDO RESPONSIVE */}
       <div className={`w-full mx-auto px-3 sm:px-4 md:px-6 lg:max-w-5xl sticky top-0 bg-white py-2 sm:py-3 md:py-4 shadow-md mb-1 sm:mb-2 ${
         isDrawerOpen ? 'z-10' : 'z-50'}`}>
-        {/* Fila 1: Filtro + Búsqueda + Botón */}
-        <div className="flex flex-col gap-2 sm:flex-row items-stretch mb-3 sm:mb-4">
-          <div className="self-stretch w-full sm:w-auto">
+        
+        {/* Fila 1: Filtro + Búsqueda + Botón - SIEMPRE EN FILA HORIZONTAL */}
+        <div className="flex flex-row items-center gap-2 sm:gap-3 mb-3 sm:mb-4">
+          {/* Botón de Filtros - tamaño fijo */}
+          <div className="flex-shrink-0">
             <FilterButton onClick={toggleDrawer} />
           </div>
 
-          <div className="flex-1 w-full">
+          {/* Barra de búsqueda - crece para llenar espacio */}
+          <div className="flex-1 min-w-0">
             <InputDemo
               value={search}
               onChange={handleInputChange}
@@ -305,8 +306,9 @@ export default function JobOffers() {
             />
           </div>
 
-          <div className="w-full sm:w-auto">
-            <SearchButton onClick={handleSearch} disabled={loading} className="w-full sm:w-auto" />
+          {/* Botón de Buscar - ancho fijo responsive */}
+          <div className="flex-shrink-0 w-20 sm:w-24 md:w-28">
+            <SearchButton onClick={handleSearch} disabled={loading} />
           </div>
         </div>
 
@@ -363,7 +365,7 @@ export default function JobOffers() {
               /*
               indiceInicio={indiceInicio} 
               indiceFin={indiceFin}
-              */ 
+              */
             />
           </div>
         </div>

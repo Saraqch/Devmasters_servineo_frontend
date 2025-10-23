@@ -169,11 +169,13 @@ export default function JobOffers() {
       const url = `/api/devmaster/offers?${params.toString()}`;
       const response: ApiResponse<OfferResponse> = await api.get(url);
       
+      
       if (response.success && response.data) {
           setTrabajos(response.data.data);
           setPaginaActual(page);
           setRegistrosPorPagina(limit);
            setTotalRegistros(response.data.total);
+           console.log(`📄 Página ${page} | Se recibieron ${response.data.data.length} registros de un total de ${response.data.total}`);
       } else {
         const errorMsg = response.error || 'Error al cargar las ofertas';
         setError(errorMsg);
@@ -187,6 +189,9 @@ export default function JobOffers() {
       setLoading(false);
     }
   }, []);
+
+
+
 
   const resetToInitial = () => {
     setFilters(defaultFilters);
@@ -278,7 +283,10 @@ const trabajosVisibles = trabajos;
   const toggleDrawer = () => {
     setIsDrawerOpen(!isDrawerOpen);
   };
-
+useEffect(() => {
+    // Fetch offers when page or page size changes using current search, filters and sort state
+    fetchOffers(search, filters, sortBy, paginaActual, registrosPorPagina);
+  }, [fetchOffers, search, filters, sortBy, paginaActual, registrosPorPagina]);
   return (
     <>
       <h1 className="mt-8 sm:mt-12 md:mt-16 lg:mt-18 mb-0 sm:mb-0 text-center text-xl sm:text-2xl md:text-3xl font-bold pt-3 sm:pt-4 md:pt-6 px-3 sm:px-6 md:px-12 lg:px-24">

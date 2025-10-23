@@ -126,12 +126,14 @@ export default function JobOffers() {
   const [validationMessage, setValidationMessage] = useState<string | null>(null);
   const [paginaActual, setPaginaActual] = useState(1);
   const [registrosPorPagina, setRegistrosPorPagina] = useState(10);
-  const totalRegistros = trabajos.length > 0 ? trabajos.length : 100;
+  const [totalRegistros, setTotalRegistros] = useState(0);
 
   const fetchOffers = useCallback(async (
     searchText: string,
     appliedFilters: FilterState,
     appliedSort: string,
+    page: number = 1,
+    limit: number = registrosPorPagina
   ) => {
     setLoading(true);
     setError(null);
@@ -161,14 +163,17 @@ export default function JobOffers() {
         params.append('sortBy', appliedSort);
       }
       
-      params.append('context', 'job_offer');
+       params.append('page', page.toString());
+       params.append('limit', limit.toString());
 
       const url = `/api/devmaster/offers?${params.toString()}`;
       const response: ApiResponse<OfferResponse> = await api.get(url);
-
+      
       if (response.success && response.data) {
-        setTrabajos(response.data.data);
-        setPaginaActual(1);
+          setTrabajos(response.data.data);
+          setPaginaActual(page);
+          setRegistrosPorPagina(limit);
+           setTotalRegistros(response.data.total);
       } else {
         const errorMsg = response.error || 'Error al cargar las ofertas';
         setError(errorMsg);
@@ -257,11 +262,8 @@ export default function JobOffers() {
     await fetchOffers(search, filters, backendSort);
   };
 
-  const indiceInicio = (paginaActual - 1) * registrosPorPagina;
-  const indiceFin = indiceInicio + registrosPorPagina;
-  const trabajosVisibles =
-    trabajos.length > 0 ? trabajos.slice(indiceInicio, indiceFin) : [];
-
+ 
+const trabajosVisibles = trabajos;
   useEffect(() => {
     setPaginaActual(1);
   }, [registrosPorPagina]);
@@ -370,8 +372,8 @@ export default function JobOffers() {
       )}
 
       <div className="w-full max-w-5xl mx-auto px-2 sm:px-6">
-        {!loading && trabajosVisibles.length > 0 ? (
-          <CardJob trabajos={trabajosVisibles} />
+        {!loading && trabajos.length > 0 ? (
+          <CardJob trabajos={trabajos} />
         ) : !loading ? (
           <div className="text-center py-12">
             <p className="text-gray-500 text-xl font-roboto font-normal">
@@ -390,8 +392,9 @@ export default function JobOffers() {
             paginaActual={paginaActual}
             registrosPorPagina={registrosPorPagina}
             totalRegistros={totalRegistros}
-            onChange={setPaginaActual}
-          />
+ onChange={(newPage) =>
+    fetchOffers(search, filters, sortBy, newPage, registrosPorPagina)
+  }          />
         </div>
       )}
     </main>

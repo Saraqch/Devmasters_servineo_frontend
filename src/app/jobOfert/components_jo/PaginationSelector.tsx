@@ -20,7 +20,7 @@ const PaginationSelector: React.FC<PaginationSelectorProps> = ({
       <span className="text-sm text-gray-600">Mostrar:</span>
       <Listbox value={registrosPorPagina} onChange={onChange}>
         <div className="relative">
-          <Listbox.Button className="relative w-20 cursor-pointer border border-gray-300 rounded-lg bg-white px-2 py-1 text-left text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+          <Listbox.Button aria-label="Seleccionar registros por página" className="relative w-20 cursor-pointer border border-gray-300 rounded-lg bg-white px-2 py-1 text-left text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
             {registrosPorPagina}
             <span className="absolute inset-y-0 right-0 flex items-center pr-2">
               <ChevronDown size={16} />

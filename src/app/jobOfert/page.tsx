@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { InputDemo } from '@/app/search/components_se/SearchBar';
 import { SearchButton } from '@/app/search/components_se/SearchButton';
 import { FilterButton } from '@/app/jobOfert/components_jo/FilterButton';
@@ -11,6 +11,7 @@ import PaginationSelector from './components_jo/PaginationSelector';
 import CardJob from './components_jo/CardJob';
 import SortCard from '@/components/sort/SortCard';
 import { api, ApiResponse } from '@/lib/api';
+import Header from './components_jo/Header';
 
 interface OfferData {
   _id: string;
@@ -125,6 +126,7 @@ export default function JobOffers() {
   const [paginaActual, setPaginaActual] = useState(1);
   const [registrosPorPagina, setRegistrosPorPagina] = useState(10);
   const [totalRegistros, setTotalRegistros] = useState(0);
+  const stickyRef = useRef<HTMLDivElement | null>(null);
  
   const fetchOffers = useCallback(async (
     searchText: string,
@@ -248,6 +250,34 @@ const handleRegistrosPorPaginaChange = (valor: number) => {
     fetchOffers('', { range: [], city: '', category: [] }, 'recent');
   }, [fetchOffers]);
 
+  // Mantener la barra sticky visible debajo del header fijo.
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+
+    const update = () => {
+      const hdr = document.querySelector('header');
+      const h = hdr ? (hdr as HTMLElement).getBoundingClientRect().height : 0;
+      if (stickyRef.current) {
+        stickyRef.current.style.top = `${h}px`;
+        // aseguramos que la barra sticky quede por debajo del header (header usa z-50)
+        stickyRef.current.style.zIndex = '40';
+      }
+    };
+
+    update();
+    window.addEventListener('resize', update);
+
+    // Observamos cambios en header (ej. imagen cargada que altera alturas)
+    const hdrEl = document.querySelector('header');
+    const mo = hdrEl ? new MutationObserver(update) : null;
+    if (mo && hdrEl) mo.observe(hdrEl, { attributes: true, childList: true, subtree: true });
+
+    return () => {
+      window.removeEventListener('resize', update);
+      if (mo) mo.disconnect();
+    };
+  }, []);
+
   const handleFiltersApply = async (appliedFilters: FilterState) => {
     setFilters(appliedFilters);
     await fetchOffers(search, appliedFilters, sortBy);
@@ -292,12 +322,15 @@ const trabajosVisibles = trabajos;
 
   return (
     <>
-      <h1 className="mt-8 sm:mt-12 md:mt-16 lg:mt-18 mb-0 sm:mb-0 text-center text-xl sm:text-2xl md:text-3xl font-bold pt-3 sm:pt-4 md:pt-6 px-3 sm:px-6 md:px-12 lg:px-24">
+      {/* Site header component (fixed) - no borraremos la barra sticky existente */}
+      <Header />
+
+      <h1 className="mt-20 mt-8 sm:mt-24 md:mt-28 lg:mt-32 mb-0 sm:mb-0 text-center text-xl sm:text-2xl md:text-3xl font-bold pt-3 sm:pt-4 md:pt-6 px-3 sm:px-6 md:px-12 lg:px-24">
         Ofertas de trabajo
       </h1>
 
       {/* Barra sticky */}
-      <div className="`w-full mx-auto px-3 sm:px-4 md:px-6 lg:max-w-5xl sticky top-0 bg-white py-2 sm:py-3 md:py-4 shadow-md mb-1 sm:mb-2 ${
+      <div ref={stickyRef} className="`w-full mx-auto px-3 sm:px-4 md:px-6 lg:max-w-5xl sticky top-0 bg-white py-2 sm:py-3 md:py-4 shadow-md mb-1 sm:mb-2 ${
         isDrawerOpen ? 'z-10' : 'z-50'">
         {/* Fila 1: Filtro + Búsqueda + Botón */}
         <div className="flex flex-row items-center gap-2 sm:gap-3 mb-3 sm:mb-4">

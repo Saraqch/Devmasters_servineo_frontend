@@ -22,6 +22,7 @@ const PaginationInfo: React.FC<PaginationInfoProps> = ({
   return (
     <div className="text-sm text-gray-600 mt-3">
       Mostrando {inicioRegistro} - {finRegistro} de {totalRegistros} resultados
+      <span className="ml-2 text-gray-400">(sincronizado con selector)</span>
     </div>
   );
 };

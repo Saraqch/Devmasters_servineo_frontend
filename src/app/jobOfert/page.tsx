@@ -109,8 +109,6 @@ const Footer = () => (
 );
 
 export default function JobOffers() {
-// ... (tu lógica de estado y funciones) ...
-
   const [search, setSearch] = useState('');
   const [trabajos, setTrabajos] = useState<OfferData[]>([]);
   const [loading, setLoading] = useState(true);
@@ -127,7 +125,7 @@ export default function JobOffers() {
   const [paginaActual, setPaginaActual] = useState(1);
   const [registrosPorPagina, setRegistrosPorPagina] = useState(10);
   const [totalRegistros, setTotalRegistros] = useState(0);
-
+ 
   const fetchOffers = useCallback(async (
     searchText: string,
     appliedFilters: FilterState,
@@ -167,15 +165,14 @@ export default function JobOffers() {
        params.append('limit', limit.toString());
 
       const url = `/api/devmaster/offers?${params.toString()}`;
+      console.log('Fetching URL:', url);
       const response: ApiResponse<OfferResponse> = await api.get(url);
-      
       
       if (response.success && response.data) {
           setTrabajos(response.data.data);
           setPaginaActual(page);
           setRegistrosPorPagina(limit);
            setTotalRegistros(response.data.total);
-           console.log(`📄 Página ${page} | Se recibieron ${response.data.data.length} registros de un total de ${response.data.total}`);
       } else {
         const errorMsg = response.error || 'Error al cargar las ofertas';
         setError(errorMsg);
@@ -190,6 +187,12 @@ export default function JobOffers() {
     }
   }, []);
 
+  useEffect(() => {
+  // Resetear a página 1 cuando cambia registrosPorPagina
+  const newPage = 1;
+  setPaginaActual(newPage);
+  fetchOffers(search, filters, sortBy, newPage, registrosPorPagina);
+}, [registrosPorPagina, fetchOffers]);
 
 
 
@@ -199,7 +202,10 @@ export default function JobOffers() {
     setValidationMessage(null);
     fetchOffers('', defaultFilters, 'recent');
   };
-
+  
+const handleRegistrosPorPaginaChange = (valor: number) => {
+  setRegistrosPorPagina(valor);
+};
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
 
@@ -283,10 +289,7 @@ const trabajosVisibles = trabajos;
   const toggleDrawer = () => {
     setIsDrawerOpen(!isDrawerOpen);
   };
-useEffect(() => {
-    // Fetch offers when page or page size changes using current search, filters and sort state
-    fetchOffers(search, filters, sortBy, paginaActual, registrosPorPagina);
-  }, [fetchOffers, search, filters, sortBy, paginaActual, registrosPorPagina]);
+
   return (
     <>
       <h1 className="mt-8 sm:mt-12 md:mt-16 lg:mt-18 mb-0 sm:mb-0 text-center text-xl sm:text-2xl md:text-3xl font-bold pt-3 sm:pt-4 md:pt-6 px-3 sm:px-6 md:px-12 lg:px-24">
@@ -294,15 +297,16 @@ useEffect(() => {
       </h1>
 
       {/* Barra sticky */}
-      <div className={`w-full mx-auto px-3 sm:px-4 md:px-6 lg:max-w-5xl sticky top-0 bg-white py-2 sm:py-3 md:py-4 shadow-md mb-1 sm:mb-2 ${
-        isDrawerOpen ? 'z-10' : 'z-50'}`}>
+      <div className="`w-full mx-auto px-3 sm:px-4 md:px-6 lg:max-w-5xl sticky top-0 bg-white py-2 sm:py-3 md:py-4 shadow-md mb-1 sm:mb-2 ${
+        isDrawerOpen ? 'z-10' : 'z-50'">
         {/* Fila 1: Filtro + Búsqueda + Botón */}
-        <div className="flex flex-col gap-2 sm:flex-row items-stretch mb-3 sm:mb-4">
-          <div className="self-stretch w-full sm:w-auto">
+        <div className="flex flex-row items-center gap-2 sm:gap-3 mb-3 sm:mb-4">
+          <div className="flex-shrink-0">
             <FilterButton onClick={toggleDrawer} />
           </div>
 
-          <div className="flex-1 w-full">
+          {/* Barra de búsqueda - crece para llenar espacio */}
+          <div className="flex-1 min-w-0">
             <InputDemo
               value={search}
               onChange={handleInputChange}
@@ -315,8 +319,9 @@ useEffect(() => {
             />
           </div>
 
-          <div className="w-full sm:w-auto">
-            <SearchButton onClick={handleSearch} disabled={loading} className="w-full sm:w-auto" />
+          {/* Botón de Buscar - ancho fijo responsive */}
+          <div className="flex-shrink-0 w-20 sm:w-24 md:w-28">
+            <SearchButton onClick={handleSearch} disabled={loading} />
           </div>
         </div>
 
@@ -333,7 +338,7 @@ useEffect(() => {
             <div className="w-full sm:w-auto">
               <PaginationSelector
                 registrosPorPagina={registrosPorPagina}
-                onChange={(valor) => setRegistrosPorPagina(valor)}
+               onChange={handleRegistrosPorPaginaChange}
               />
             </div>
             <div className="w-full sm:w-auto">
@@ -373,7 +378,7 @@ useEffect(() => {
               /*
               indiceInicio={indiceInicio} 
               indiceFin={indiceFin}
-              */ 
+              */
             />
           </div>
         </div>

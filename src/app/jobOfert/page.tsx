@@ -96,7 +96,7 @@ const Footer = () => (
             </div>
             <div className="border-t border-gray-700"></div>
             <div className="flex flex-col sm:flex-row items-center justify-between gap-4 text-white text-sm pt-8">
-                <div>© 2024 Servineo. Todos los derechos reservados.</div>
+                <div>© 2025 Servineo. Todos los derechos reservados.</div>
                 <div className="flex items-center space-x-4">
                     <span>Hecho con ❤️ en Cochabamba</span>
                     <div className="flex items-center space-x-2">
@@ -325,7 +325,7 @@ const trabajosVisibles = trabajos;
       {/* Site header component (fixed) - no borraremos la barra sticky existente */}
       <Header />
 
-      <h1 className="mt-20 mt-8 sm:mt-24 md:mt-28 lg:mt-32 mb-0 sm:mb-0 text-center text-xl sm:text-2xl md:text-3xl font-bold pt-3 sm:pt-4 md:pt-6 px-3 sm:px-6 md:px-12 lg:px-24">
+      <h1 className="mt-20 sm:mt-24 md:mt-28 lg:mt-32 mb-0 sm:mb-0 text-center text-xl sm:text-2xl md:text-3xl font-bold pt-3 sm:pt-4 md:pt-6 px-3 sm:px-6 md:px-12 lg:px-24">
         Ofertas de trabajo
       </h1>
 

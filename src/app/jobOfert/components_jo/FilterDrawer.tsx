@@ -111,7 +111,7 @@ export function FilterDrawer({ isOpen, onClose, onFiltersApply, onReset }: Filte
       />
 
       <div
-        className={`${roboto.variable} font-sans fixed top-0 left-0 h-full w-[75%] sm:w-80 bg-white shadow-xl z-80 transform transition-transform duration-300 ease-in-out overflow-hidden ${
+        className={`${roboto.variable} font-sans fixed top-0 left-0 h-full w-[75%] sm:w-63 bg-white shadow-xl z-80 transform transition-transform duration-300 ease-in-out overflow-hidden ${
           isOpen ? 'translate-x-0' : '-translate-x-full'
         }`}
       >
@@ -134,11 +134,13 @@ export function FilterDrawer({ isOpen, onClose, onFiltersApply, onReset }: Filte
 
         <div className="p-4 sm:p-6 h-full flex flex-col">
           <div className="flex justify-between items-center mb-6">
-            <h2 className="text-lg sm:text-xl font-bold">Filtros</h2>
+            <h2 className="text-base sm:text-lg font-bold">Filtros</h2>
+          
             <div className="flex items-center gap-2">
               <button
                 onClick={handleReset}
                 className="bg-[#2B6AE0] text-white px-3 sm:px-4 py-2 rounded-lg text-sm font-semibold hover:bg-[#2B31E0] transition-colors"
+
               >
                 Resetear
               </button>
@@ -159,14 +161,15 @@ export function FilterDrawer({ isOpen, onClose, onFiltersApply, onReset }: Filte
             {/* Filtro: Nombre de Fixer */}
             <div className="mb-6">
               <div
-                className="bg-[#2B6AE0] text-white px-4 py-2 font-semibold mb-3 cursor-pointer hover:bg-[#2B31E0] rounded-none transition-colors"
+                className="bg-[#2B6AE0] text-white px-4 py-2 text-sm font-semibold mb-3 cursor-pointer hover:bg-[#2B31E0] rounded-none transition-colors"
+                                          
                 onClick={() => toggleSection('fixer')}
               >
                 <span className="truncate">Nombre de Fixer</span>
               </div>
               {openSections.fixer && (
                 <div className="bg-white border border-gray-200 p-4 rounded">
-                  <div className="flex gap-8">
+                  <div className="flex gap-2">
                     {[
                       ['De (A-C)', 'De (D-F)', 'De (G-I)', 'De (J-L)', 'De (M-Ñ)'],
                       ['De (O-Q)', 'De (R-T)', 'De (U-W)', 'De (X-Z)'],
@@ -175,7 +178,7 @@ export function FilterDrawer({ isOpen, onClose, onFiltersApply, onReset }: Filte
                         {column.map((range) => (
                           <label
                             key={range}
-                            className="flex items-center gap-2 text-sm cursor-pointer hover:text-[#2B31E0] transition-colors"
+                            className="flex items-center gap-2 text-xs cursor-pointer hover:text-[#2B31E0] transition-colors"
                           >
                             <input
                               type="checkbox"
@@ -196,13 +199,14 @@ export function FilterDrawer({ isOpen, onClose, onFiltersApply, onReset }: Filte
             {/* Filtro: Ciudad */}
             <div className="mb-6">
               <div
-                className="bg-[#2B6AE0] text-white px-4 py-2 font-semibold mb-3 cursor-pointer hover:bg-[#2B31E0] rounded-none transition-colors"
+                className="bg-[#2B6AE0] text-white px-4 py-2 text-sm font-semibold mb-3 cursor-pointer hover:bg-[#2B31E0] rounded-none transition-colors"
+                                         
                 onClick={() => toggleSection('ciudad')}
               >
                 <span className="truncate">Ciudad</span>
               </div>
               {openSections.ciudad && (
-                <div className="bg-white border border-gray-200 p-4 rounded max-h-[160px] overflow-y-auto custom-scrollbar">
+                <div className="bg-white border border-gray-200 p-4 rounded max-h-[130px] overflow-y-auto custom-scrollbar">
                   <div className="flex flex-col gap-2">
                     {[
                       'Beni',
@@ -217,7 +221,7 @@ export function FilterDrawer({ isOpen, onClose, onFiltersApply, onReset }: Filte
                     ].map((city) => (
                       <label
                         key={city}
-                        className="flex items-center gap-2 text-sm cursor-pointer min-w-0 hover:text-[#2B31E0] transition-colors"
+                        className="flex items-center gap-2 text-xs cursor-pointer min-w-0 hover:text-[#2B31E0] transition-colors"
                       >
                         <input
                           type="checkbox"
@@ -236,13 +240,14 @@ export function FilterDrawer({ isOpen, onClose, onFiltersApply, onReset }: Filte
             {/* Filtro: Tipo de Trabajo */}
             <div className="mb-6">
               <div
-                className="bg-[#2B6AE0] text-white px-4 py-2 font-semibold mb-3 cursor-pointer hover:bg-[#2B31E0] rounded-none transition-colors"
+                className="bg-[#2B6AE0] text-white px-4 py-2 text-sm font-semibold mb-3 cursor-pointer hover:bg-[#2B31E0] rounded-none transition-colors"
+                                          
                 onClick={() => toggleSection('trabajo')}
               >
                 <span className="truncate">Tipo de Trabajo</span>
               </div>
               {openSections.trabajo && (
-                <div className="bg-white border border-gray-200 p-4 rounded max-h-[160px] overflow-y-auto custom-scrollbar">
+                <div className="bg-white border border-gray-200 p-4 rounded max-h-[130px] overflow-y-auto custom-scrollbar">
                   <div className="flex flex-col gap-2">
                     {[
                       'Albañil',
@@ -266,7 +271,7 @@ export function FilterDrawer({ isOpen, onClose, onFiltersApply, onReset }: Filte
                     ].map((job) => (
                       <label
                         key={job}
-                        className="flex items-center gap-2 text-sm cursor-pointer min-w-0 hover:text-[#2B31E0] transition-colors"
+                        className="flex items-center gap-2 text-xs cursor-pointer min-w-0 hover:text-[#2B31E0] transition-colors"
                       >
                         <input
                           type="checkbox"

@@ -264,6 +264,7 @@ export default function JobOffers() {
 const trabajosVisibles = trabajos;
   useEffect(() => {
     setPaginaActual(1);
+    fetchOffers(search, filters, sortBy, 1, registrosPorPagina);
   }, [registrosPorPagina]);
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {

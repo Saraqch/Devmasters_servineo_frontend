@@ -326,7 +326,7 @@ const trabajosVisibles = trabajos;
       <Header />
 
       <h1 className="mt-20 sm:mt-24 md:mt-28 lg:mt-32 mb-0 sm:mb-0 text-center text-xl sm:text-2xl md:text-3xl font-bold pt-3 sm:pt-4 md:pt-6 px-3 sm:px-6 md:px-12 lg:px-24">
-        Ofertas de trabajo
+        Ofertas de Trabajo
       </h1>
 
       {/* Barra sticky */}

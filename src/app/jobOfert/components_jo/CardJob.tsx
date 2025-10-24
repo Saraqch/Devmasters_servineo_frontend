@@ -1,5 +1,6 @@
-// src/app/jobOfert/components/CardJob.tsx
-import { Card, CardContent } from "@/components/ui/card";
+"use client"
+
+import React, { useMemo } from 'react';
 
 interface OfferData {
   _id: string;
@@ -12,7 +13,8 @@ interface OfferData {
   city: string;
   contactPhone: string;
   createdAt: string;
-  rating: number; // Añadido para el sorting por destacados
+  rating: number;
+  imagenUrl?: string;
 }
 
 interface CardJobProps {
@@ -20,46 +22,131 @@ interface CardJobProps {
 }
 
 const CardJob = ({ trabajos }: CardJobProps) => {
+  const handleCardClick = (id: string) => {
+    console.log('Card clicked:', id);
+  };
+
+  // Mapeo de imágenes por categoría (3 imágenes por cada una)
+  const categoryImages: {[key: string]: string[]} = {
+    "Albañil": ["/img/albañil1.jpg", "/img/albañil2.jpg", "/img/albañil3.jpg"],
+    "Carpintero": ["/img/carpintero1.jpg", "/img/carpintero2.jpg", "/img/carpintero3.jpg"],
+    "Fontanero": ["/img/fontanero1.jpg", "/img/fontanero2.jpg", "/img/fontanero3.jpg"],
+    "Electricista": ["/img/electricista1.jpg", "/img/electricista2.jpg", "/img/electricista3.jpg"],
+    "Pintor": ["/img/pintor1.jpg", "/img/pintor2.jpg", "/img/pintor3.jpg"],
+    "Soldador": ["/img/soldador1.jpg", "/img/soldador2.jpg", "/img/soldador3.jpg"],
+    "Jardinero": ["/img/jardinero1.jpg", "/img/jardinero2.jpg", "/img/jardinero3.jpg"],
+    "Cerrajero": ["/img/cerrajero1.jpg", "/img/cerrajero2.jpg", "/img/cerrajero3.jpg"],
+    "Mecánico": ["/img/mecanico1.jpg", "/img/mecanico2.jpg", "/img/mecanico3.jpg"],
+    "Vidriero": ["/img/vidriero1.jpg", "/img/vidriero2.jpg", "/img/vidriero3.jpg"],
+    "Yesero": ["/img/yesero1.jpg", "/img/yesero2.jpg", "/img/yesero3.jpg"],
+    "Fumigador": ["/img/fumigador1.jpg", "/img/fumigador2.jpg", "/img/fumigador3.jpg"],
+    "Limpiador": ["/img/limpiador1.jpg", "/img/limpiador2.jpg", "/img/limpiador3.jpg"],
+    "Instalador": ["/img/instalador1.jpg", "/img/instalador2.jpg", "/img/instalador3.jpg"],
+    "Montador": ["/img/montador1.jpg", "/img/montador2.jpg", "/img/montador3.jpg"],
+    "Decorador": ["/img/decorador1.jpg", "/img/decorador2.jpg", "/img/decorador3.jpg"],
+    "Pulidor": ["/img/pulidor1.jpg", "/img/pulidor2.jpg", "/img/pulidor3.jpg"],
+    "Techador": ["/img/techador1.jpg", "/img/techador2.jpg", "/img/techador3.jpg"],
+    "Default": ["/img/default1.jpg", "/img/default2.jpg", "/img/default3.jpg"]
+  };
+
+  // Función para obtener una imagen basada en el ID (determinística)
+  const getImageForJob = (jobId: string, category: string): string => {
+    const images = categoryImages[category] || categoryImages["Default"];
+    // Usar el ID para generar un índice consistente
+    let hash = 0;
+    for (let i = 0; i < jobId.length; i++) {
+      hash = jobId.charCodeAt(i) + ((hash << 5) - hash);
+    }
+    const index = Math.abs(hash) % images.length;
+    return images[index];
+  };
+
+  // Memorizar las imágenes asignadas para cada trabajo
+  const trabajosConImagenes = useMemo(() => {
+    return trabajos.map(trabajo => ({
+      ...trabajo,
+      imagenAsignada: trabajo.imagenUrl || getImageForJob(trabajo._id, trabajo.category)
+    }));
+  }, [trabajos]);
+
   return (
-  <div className="w-full">
+    <div className="w-full">
       <h1 className="text-lg font-semibold mb-4 border-b border-gray-400 pb-2">
         Resultados de la búsqueda
       </h1>
 
-      {trabajos.length === 0 ? (
+      {trabajosConImagenes.length === 0 ? (
         <p className="text-gray-500 text-center">No se encontraron resultados</p>
       ) : (
         <div className="flex flex-col gap-4">
-          {trabajos.map((t) => (
-            <Card key={t._id} className="border border-gray-400">
-              <CardContent className="flex flex-col sm:flex-row items-center p-2 sm:p-4 gap-2 sm:gap-0">
-                <div className="w-full sm:w-28 h-28 border border-gray-400 flex items-center justify-center mb-2 sm:mb-0 sm:mr-4">
-                  <span className="text-gray-400 text-xs text-center">Imagen</span>
+          {trabajosConImagenes.map((t) => {
+            return (
+              <button
+                key={t._id}
+                onClick={() => handleCardClick(t._id)}
+                className="group relative w-full overflow-hidden rounded-xl border border-[#2B6AE0] bg-white transition-all duration-300 hover:shadow-lg flex"
+              >
+                {/* Imagen a la izquierda */}
+                <div className="relative w-48 h-50 flex-shrink-0 overflow-hidden bg-gray-200">
+                  <img 
+                    src={t.imagenAsignada} 
+                    alt={`Trabajo de ${t.fixerName}`}
+                    className="w-full h-full object-cover"
+                  />
+                  
+                  {/* Ciudad - Dentro de la imagen */}
+                  <div className="absolute left-3 top-3 inline-flex items-center gap-2 rounded-full bg-white/90 px-3 py-1 text-xs text-slate-700 border border-gray-200 shadow-sm z-10">
+                    <span className="font-medium text-[#2B6AE0]">{t.city}</span>
+                  </div>
                 </div>
 
-                <div className="flex-1 text-sm leading-relaxed w-full">
-                  <h2 className="text-center font-semibold text-base mb-1 text-gray-800">
-                    {t.title}
-                  </h2>
-                  <p><strong>Nombre:</strong> {t.fixerName}</p>
-                  <p><strong>Categoría:</strong> {t.category}</p>
-                  <p><strong>Descripción:</strong> {t.description}</p>
-                  <p><strong>Ciudad:</strong> {t.city}</p>
-                  <p><strong>Precio:</strong> Bs. {t.price}</p>
-                  <p><strong>Contacto:</strong> {t.contactPhone}</p>
-                  <p><strong>Calificación:</strong> {t.rating}</p>
-                  <p className="mt-1 text-gray-500 text-xs">
-                    Publicado: {new Date(t.createdAt).toLocaleDateString()}
-                  </p>
-                  {t.tags && t.tags.length > 0 && (
-                    <p className="text-xs mt-1">
-                      <strong>Etiquetas:</strong> {t.tags.join(", ")}
+                {/* Contenido a la derecha */}
+                <div className="flex-1 p-4 flex flex-col justify-between relative">
+                  {/* Precio - Arriba derecha */}
+                  <div className="absolute right-3 top-3 rounded-xl bg-white/95 px-3 py-2 text-sm font-bold text-[#2B6AE0] shadow-lg border border-[#2B6AE0]/20">
+                    {t.price} Bs
+                  </div>
+
+                  {/* Título */}
+                  <div>
+                    <h3 className="text-base font-semibold text-gray-800 mb-2 pr-20">
+                      {t.title}
+                    </h3>
+                    <p className="text-sm text-gray-600 line-clamp-2 text-left">
+                      {t.description}
                     </p>
-                  )}
+                  </div>
+
+                  {/* Información inferior */}
+                  <div className="flex items-end justify-between mt-3">
+                    <div className="text-left flex-1">
+                      <div className="text-sm font-medium text-gray-700">{t.fixerName}</div>
+                      <div className="text-xs text-gray-500 mt-1"><strong>Contacto:</strong> {t.contactPhone}</div>
+                      <div className="text-xs text-gray-400 mt-1">
+                        <strong>Publicado:</strong> {new Date(t.createdAt).toLocaleDateString()}
+                      </div>
+                      {t.tags && t.tags.length > 0 && (
+                        <div className="text-xs text-gray-500 mt-1">
+                          <strong>Etiquetas:</strong> {t.tags.join(", ")}
+                        </div>
+                      )}
+                    </div>
+                    <div className="flex flex-col items-end gap-2">
+                      <div className="flex items-center gap-2 text-xs bg-[#2B6AE0] px-3 py-1 rounded-full text-white font-medium">
+                        {t.category}
+                      </div>
+                      <div className="flex items-center gap-1 text-xs bg-yellow-50 px-2 py-1 rounded-full text-gray-700 border border-yellow-200">
+                        <svg className="w-3 h-3 text-yellow-400" fill="currentColor" viewBox="0 0 20 20">
+                          <path d="M10 15l-5.878 3.09 1.123-6.545L.489 6.91l6.572-.955L10 0l2.939 5.955 6.572.955-4.756 4.635 1.123 6.545z"/>
+                        </svg>
+                        <span>{t.rating}</span>
+                      </div>
+                    </div>
+                  </div>
                 </div>
-              </CardContent>
-            </Card>
-          ))}
+              </button>
+            );
+          })}
         </div>
       )}
     </div>

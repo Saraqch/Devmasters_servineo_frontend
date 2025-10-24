@@ -125,7 +125,7 @@ export default function JobOffers() {
   const [paginaActual, setPaginaActual] = useState(1);
   const [registrosPorPagina, setRegistrosPorPagina] = useState(10);
   const [totalRegistros, setTotalRegistros] = useState(0);
-
+ 
   const fetchOffers = useCallback(async (
     searchText: string,
     appliedFilters: FilterState,
@@ -165,6 +165,7 @@ export default function JobOffers() {
        params.append('limit', limit.toString());
 
       const url = `/api/devmaster/offers?${params.toString()}`;
+      console.log('Fetching URL:', url);
       const response: ApiResponse<OfferResponse> = await api.get(url);
       
       if (response.success && response.data) {
@@ -186,13 +187,25 @@ export default function JobOffers() {
     }
   }, []);
 
+  useEffect(() => {
+  // Resetear a página 1 cuando cambia registrosPorPagina
+  const newPage = 1;
+  setPaginaActual(newPage);
+  fetchOffers(search, filters, sortBy, newPage, registrosPorPagina);
+}, [registrosPorPagina, fetchOffers]);
+
+
+
   const resetToInitial = () => {
     setFilters(defaultFilters);
     setSortBy('recent');
     setValidationMessage(null);
     fetchOffers('', defaultFilters, 'recent');
   };
-
+  
+const handleRegistrosPorPaginaChange = (valor: number) => {
+  setRegistrosPorPagina(valor);
+};
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
 
@@ -325,7 +338,7 @@ const trabajosVisibles = trabajos;
             <div className="w-full sm:w-auto">
               <PaginationSelector
                 registrosPorPagina={registrosPorPagina}
-                onChange={(valor) => setRegistrosPorPagina(valor)}
+               onChange={handleRegistrosPorPaginaChange}
               />
             </div>
             <div className="w-full sm:w-auto">

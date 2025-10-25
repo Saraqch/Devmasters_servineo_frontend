@@ -84,10 +84,10 @@ const CardJob = ({ trabajos }: CardJobProps) => {
               <button
                 key={t._id}
                 onClick={() => handleCardClick(t._id)}
-                className="group relative w-full overflow-hidden rounded-xl border border-[#2B6AE0] bg-white transition-all duration-300 hover:shadow-lg flex"
+                className="group relative w-full overflow-hidden rounded-xl border border-[#2B6AE0] bg-white transition-all duration-300 hover:shadow-lg flex flex-col sm:flex-row"
               >
-                {/* Imagen a la izquierda */}
-                <div className="relative w-48 h-50 flex-shrink-0 overflow-hidden bg-gray-200">
+                {/* Imagen */}
+                <div className="relative w-full sm:w-48 h-48 sm:h-50 flex-shrink-0 overflow-hidden bg-gray-200">
                   <img 
                     src={t.imagenAsignada} 
                     alt={`Trabajo de ${t.fixerName}`}
@@ -100,7 +100,7 @@ const CardJob = ({ trabajos }: CardJobProps) => {
                   </div>
                 </div>
 
-                {/* Contenido a la derecha */}
+                {/* Contenido */}
                 <div className="flex-1 p-4 flex flex-col justify-between relative">
                   {/* Precio - Arriba derecha */}
                   <div className="absolute right-3 top-3 rounded-xl bg-white/95 px-3 py-2 text-sm font-bold text-[#2B6AE0] shadow-lg border border-[#2B6AE0]/20">
@@ -118,8 +118,8 @@ const CardJob = ({ trabajos }: CardJobProps) => {
                   </div>
 
                   {/* Información inferior */}
-                  <div className="flex items-end justify-between mt-3">
-                    <div className="text-left flex-1">
+                  <div className="flex flex-col sm:flex-row items-start sm:items-end justify-between mt-3 gap-3">
+                    <div className="text-left flex-1 w-full">
                       <div className="text-sm font-medium text-gray-700">{t.fixerName}</div>
                       <div className="text-xs text-gray-500 mt-1"><strong>Contacto:</strong> {t.contactPhone}</div>
                       <div className="text-xs text-gray-400 mt-1">
@@ -131,11 +131,11 @@ const CardJob = ({ trabajos }: CardJobProps) => {
                         </div>
                       )}
                     </div>
-                    <div className="flex flex-col items-end gap-2">
-                      <div className="flex items-center gap-2 text-xs bg-[#2B6AE0] px-3 py-1 rounded-full text-white font-medium">
+                    <div className="flex flex-row sm:flex-col items-center sm:items-end gap-2 w-full sm:w-auto">
+                      <div className="flex items-center gap-2 text-xs bg-[#2B6AE0] px-3 py-1 rounded-full text-white font-medium whitespace-nowrap">
                         {t.category}
                       </div>
-                      <div className="flex items-center gap-1 text-xs bg-yellow-50 px-2 py-1 rounded-full text-gray-700 border border-yellow-200">
+                      <div className="flex items-center gap-1 text-xs bg-yellow-50 px-2 py-1 rounded-full text-gray-700 border border-yellow-200 whitespace-nowrap">
                         <svg className="w-3 h-3 text-yellow-400" fill="currentColor" viewBox="0 0 20 20">
                           <path d="M10 15l-5.878 3.09 1.123-6.545L.489 6.91l6.572-.955L10 0l2.939 5.955 6.572.955-4.756 4.635 1.123 6.545z"/>
                         </svg>

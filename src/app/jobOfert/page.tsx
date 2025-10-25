@@ -339,7 +339,7 @@ const trabajosVisibles = trabajos;
           </div>
 
           {/* Barra de búsqueda - crece para llenar espacio */}
-          <div className="flex-1 min-w-0">
+          <div className="flex-1 min-w-0 relative">
             <InputDemo
               value={search}
               onChange={handleInputChange}
@@ -350,6 +350,12 @@ const trabajosVisibles = trabajos;
               onKeyDown={handleKeyDown}
               hasError={!!validationMessage}
             />
+            {/* Mensaje de validación: absoluto para no empujar otros elementos y alineado al inicio del input */}
+            {validationMessage && (
+              <div className="absolute left-0 top-full mt-1 w-full z-50">
+                <p className="text-red-500 text-sm sm:text-base">{validationMessage}</p>
+              </div>
+            )}
           </div>
 
           {/* Botón de Buscar - ancho fijo responsive */}
@@ -358,12 +364,7 @@ const trabajosVisibles = trabajos;
           </div>
         </div>
 
-        {/* Mensaje de validación dentro del sticky */}
-        {validationMessage && (
-          <div className="mb-2 sm:mb-3 text-left">
-            <p className="text-red-500 text-sm sm:text-base">{validationMessage}</p>
-          </div>
-        )}
+        {/* mensaje de validación movido dentro del contenedor del input para evitar que empuje layout */}
 
         {/* Fila 2: Selector de paginación + Ordenamiento */}
         {!loading && trabajos.length > 0 && (

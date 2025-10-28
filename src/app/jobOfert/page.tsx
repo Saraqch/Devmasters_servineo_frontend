@@ -40,31 +40,25 @@ export default function JobOffers() {
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
   const [validationMessage, setValidationMessage] = useState<string | null>(null);
   const stickyRef = useRef<HTMLDivElement | null>(null);
+  const isInitialMount = useRef(true);
 
+  // Carga inicial solo una vez
   useEffect(() => {
-    dispatch(
-      fetchOffers({
-        searchText: '',
-        filters: { range: [], city: '', category: [] },
-        sortBy: 'recent',
-        page: 1,
-        limit: 10,
-      }),
-    );
+    if (isInitialMount.current) {
+      dispatch(
+        fetchOffers({
+          searchText: '',
+          filters: { range: [], city: '', category: [] },
+          sortBy: 'recent',
+          page: 1,
+          limit: 10,
+        }),
+      );
+      isInitialMount.current = false;
+    }
   }, [dispatch]);
 
-  useEffect(() => {
-    dispatch(
-      fetchOffers({
-        searchText: search,
-        filters,
-        sortBy,
-        page: 1,
-        limit: registrosPorPagina,
-      }),
-    );
-  }, [registrosPorPagina, dispatch]);
-
+  // Sticky header setup
   useEffect(() => {
     if (typeof window === 'undefined') return;
 
@@ -106,6 +100,15 @@ export default function JobOffers() {
 
   const handleRegistrosPorPaginaChange = (valor: number) => {
     dispatch(setRegistrosPorPagina(valor));
+    dispatch(
+      fetchOffers({
+        searchText: search,
+        filters,
+        sortBy,
+        page: 1,
+        limit: valor,
+      }),
+    );
   };
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -118,34 +121,39 @@ export default function JobOffers() {
     }
 
     dispatch(setSearch(value));
-    if (validationMessage === 'Límite máximo de 100 caracteres') {
+    if (validationMessage) {
       setValidationMessage(null);
     }
   };
 
-  const handleSearch = async () => {
-    setValidationMessage(null);
-    const trimmedSearch = search.trim();
-
+  const validateSearch = (trimmedSearch: string): string | null => {
     if (trimmedSearch.length === 0) {
-      setValidationMessage('Debe ingresar un término de búsqueda válido');
-      return;
+      return 'Debe ingresar un término de búsqueda válido';
     }
 
     if (trimmedSearch.length < 2) {
-      setValidationMessage('Introduce al menos dos caracteres para buscar.');
-      return;
+      return 'Introduce al menos dos caracteres para buscar.';
     }
 
     const allowedRegex =
       /^[A-Za-z0-9ÁáÀàÂâÄäÃãÅåĀāĂăǍǎȦȧÉéÈèÊêËëĒēĔĕĚěĖėÍíÌìÎîÏïĨĩĪīĬĭǏǐÓóÒòÔôÖöÕõŌōŎŏǑǒȮȯÚúÙùÛûÜüŨũŮůŪūŬŭǓǔU̇u̇ñÑ,_. -]+$/;
     if (!allowedRegex.test(trimmedSearch)) {
-      setValidationMessage(
-        'Búsqueda invalida por contener caracteres especiales no permitidos. Solo se permiten los carateres especiales "," , "_" , " ." y "-"',
-      );
+      return 'Búsqueda invalida por contener caracteres especiales no permitidos. Solo se permiten los carateres especiales "," , "_" , " ." y "-"';
+    }
+
+    return null;
+  };
+
+  const handleSearch = async () => {
+    const trimmedSearch = search.trim();
+    const validationError = validateSearch(trimmedSearch);
+
+    if (validationError) {
+      setValidationMessage(validationError);
       return;
     }
 
+    setValidationMessage(null);
     dispatch(
       fetchOffers({
         searchText: trimmedSearch,

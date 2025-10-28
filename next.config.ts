@@ -8,7 +8,6 @@ const nextConfig: NextConfig = {
   
   // Configuración de imágenes si usas next/image
   images: {
-    domains: ['localhost'],
     remotePatterns: [
       {
         protocol: 'http',

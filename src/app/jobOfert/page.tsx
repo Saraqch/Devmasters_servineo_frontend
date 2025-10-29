@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect, useRef } from 'react';
 import { useAppDispatch, useAppSelector } from './hooks/hook';
+import { useRouter } from 'next/navigation';
 import {
   fetchOffers,
   setSearch,
@@ -41,6 +42,21 @@ export default function JobOffers() {
   const [validationMessage, setValidationMessage] = useState<string | null>(null);
   const stickyRef = useRef<HTMLDivElement | null>(null);
   const isInitialMount = useRef(true);
+  const router = useRouter();
+
+  useEffect(() => {
+    const params = new URLSearchParams();
+
+    if (search) params.set('search', search);
+    if (filters.city) params.set('city', filters.city);
+    if (filters.category?.length) params.set('category', filters.category.join(','));
+    if (sortBy) params.set('sort', sortBy);
+    if (paginaActual) params.set('page', String(paginaActual));
+    if (registrosPorPagina) params.set('limit', String(registrosPorPagina));
+
+    const queryString = params.toString();
+    router.replace(queryString ? `?${queryString}` : '', { scroll: false });
+  }, [search, filters, sortBy, paginaActual, registrosPorPagina, router]);
 
   // Carga inicial solo una vez
   useEffect(() => {

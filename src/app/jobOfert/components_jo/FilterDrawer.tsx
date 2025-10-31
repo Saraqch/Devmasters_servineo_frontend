@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { roboto } from '../../fonts';
+import { validateFilters } from '../validators/filter.validator';
 
 interface FilterState {
   range: string[];
@@ -75,13 +76,18 @@ export function FilterDrawer({ isOpen, onClose, onFiltersApply, onReset }: Filte
 
   // Función para aplicar filtros
   const applyFilters = (ranges: string[], city: string, jobs: string[]) => {
+    const filtersToValidate = { range: ranges, city, category: jobs };
+    const { isValid, data } = validateFilters(filtersToValidate);
+
+    if (!isValid || !data) return; // ignoramos filtros inválidos
+
     if (onFiltersApply) {
       onFiltersApply({
-        range: ranges,
-        city: city,
-        category: jobs,
+        ...data,
+        city: data.city || '',
       });
     }
+
   };
 
   // Resetear y aplicar los resultados iniciales

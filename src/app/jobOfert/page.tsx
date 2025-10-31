@@ -12,8 +12,8 @@ import {
   resetFilters,
   FilterState,
 } from './lib/jobOfert.api';
-import { InputDemo } from '@/app/search/components_se/SearchBar';
-import { SearchButton } from '@/app/search/components_se/SearchButton';
+import { SearchBar } from '@/app/jobOfert/components_jo/Search/SearchBar';
+import { NoResultsMessage } from './components_jo/Search/NoResultsMessage';
 import { FilterButton } from '@/app/jobOfert/components_jo/FilterButton';
 import { FilterDrawer } from '@/app/jobOfert/components_jo/FilterDrawer';
 import Paginacion from './components_jo/Paginacion';
@@ -39,14 +39,12 @@ export default function JobOffers() {
   } = useAppSelector((state) => state.jobOffers);
 
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
-  const [validationMessage, setValidationMessage] = useState<string | null>(null);
   const stickyRef = useRef<HTMLDivElement | null>(null);
   const isInitialMount = useRef(true);
   const router = useRouter();
 
   useEffect(() => {
     const params = new URLSearchParams();
-
     if (search) params.set('search', search);
     if (filters.city) params.set('city', filters.city);
     if (filters.category?.length) params.set('category', filters.category.join(','));
@@ -102,7 +100,6 @@ export default function JobOffers() {
 
   const resetToInitial = () => {
     dispatch(resetFilters());
-    setValidationMessage(null);
     dispatch(
       fetchOffers({
         searchText: '',
@@ -127,52 +124,11 @@ export default function JobOffers() {
     );
   };
 
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const value = e.target.value;
-
-    if (value.length > 100) {
-      dispatch(setSearch(value.slice(0, 100)));
-      setValidationMessage('Límite máximo de 100 caracteres');
-      return;
-    }
-
-    dispatch(setSearch(value));
-    if (validationMessage) {
-      setValidationMessage(null);
-    }
-  };
-
-  const validateSearch = (trimmedSearch: string): string | null => {
-    if (trimmedSearch.length === 0) {
-      return 'Debe ingresar un término de búsqueda válido';
-    }
-
-    if (trimmedSearch.length < 2) {
-      return 'Introduce al menos dos caracteres para buscar.';
-    }
-
-    const allowedRegex =
-      /^[A-Za-z0-9ÁáÀàÂâÄäÃãÅåĀāĂăǍǎȦȧÉéÈèÊêËëĒēĔĕĚěĖėÍíÌìÎîÏïĨĩĪīĬĭǏǐÓóÒòÔôÖöÕõŌōŎŏǑǒȮȯÚúÙùÛûÜüŨũŮůŪūŬŭǓǔU̇u̇ñÑ,_. -]+$/;
-    if (!allowedRegex.test(trimmedSearch)) {
-      return 'Búsqueda invalida por contener caracteres especiales no permitidos. Solo se permiten los carateres especiales "," , "_" , " ." y "-"';
-    }
-
-    return null;
-  };
-
-  const handleSearch = async () => {
-    const trimmedSearch = search.trim();
-    const validationError = validateSearch(trimmedSearch);
-
-    if (validationError) {
-      setValidationMessage(validationError);
-      return;
-    }
-
-    setValidationMessage(null);
+    //const handleSearch = async () => {
+  const handleSearch = () => {
     dispatch(
       fetchOffers({
-        searchText: trimmedSearch,
+        searchText: search,
         filters,
         sortBy,
         page: 1,
@@ -180,8 +136,8 @@ export default function JobOffers() {
       }),
     );
   };
-
-  const handleFiltersApply = async (appliedFilters: FilterState) => {
+  //  const handleFiltersApply = async (appliedFilters: FilterState) => {
+  const handleFiltersApply = (appliedFilters: FilterState) => {
     dispatch(setFilters(appliedFilters));
     dispatch(
       fetchOffers({
@@ -208,7 +164,8 @@ export default function JobOffers() {
     Object.entries(sortMap).map(([key, value]) => [value, key]),
   );
 
-  const handleSortChange = async (option: string) => {
+  //  const handleSortChange = async (option: string) => {
+  const handleSortChange = (option: string) => {
     const backendSort = sortMap[option] || 'recent';
     dispatch(setSortBy(backendSort));
     dispatch(
@@ -222,11 +179,16 @@ export default function JobOffers() {
     );
   };
 
-  const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
-    if (e.key === 'Enter') {
-      e.preventDefault();
-      handleSearch();
-    }
+  const handleSearchSubmit = (query: string) => {
+    dispatch(
+      fetchOffers({
+        searchText: query,
+        filters,
+        sortBy,
+        page: 1,
+        limit: registrosPorPagina,
+      }),
+    );
   };
 
   const toggleDrawer = () => {
@@ -260,57 +222,29 @@ export default function JobOffers() {
         }`}
       >
         <div className="flex flex-row items-center gap-2 sm:gap-3 mb-3 sm:mb-4">
-          <div className="flex-shrink-0">
-            <FilterButton onClick={toggleDrawer} />
-          </div>
-
-          <div className="flex-1 min-w-0 relative">
-            <InputDemo
-              value={search}
-              onChange={handleInputChange}
-              onClear={() => {
-                dispatch(setSearch(''));
-                resetToInitial();
-              }}
-              onKeyDown={handleKeyDown}
-              hasError={!!validationMessage}
-            />
-            {validationMessage && (
-              <div className="absolute left-0 top-full mt-1 w-full z-50">
-                <p className="text-red-500 text-sm sm:text-base">{validationMessage}</p>
-              </div>
-            )}
-          </div>
-
-          <div className="flex-shrink-0 w-20 sm:w-24 md:w-28">
-            <SearchButton onClick={handleSearch} disabled={loading} />
+          <FilterButton onClick={toggleDrawer} />
+          <div className="flex-1 min-w-0">
+            <SearchBar onSearch={handleSearchSubmit} />
           </div>
         </div>
 
         {!loading && trabajos.length > 0 && (
           <div className="flex flex-col gap-2 sm:flex-row justify-between items-stretch">
-            <div className="w-full sm:w-auto">
-              <PaginationSelector
-                registrosPorPagina={registrosPorPagina}
-                onChange={handleRegistrosPorPaginaChange}
-              />
-            </div>
-            <div className="w-full sm:w-auto">
-              <SortCard value={sortMapInverse[sortBy]} onSelect={handleSortChange} />
-            </div>
+            <PaginationSelector
+              registrosPorPagina={registrosPorPagina}
+              onChange={handleRegistrosPorPaginaChange}
+            />
+            <SortCard value={sortMapInverse[sortBy]} onSelect={handleSortChange} />
           </div>
         )}
       </div>
 
       <main className="px-4 sm:px-6 md:px-12 lg:px-24">
         {error && (
-          <div className="text-red-500 text-center mb-4 p-3 bg-red-100 rounded text-sm sm:text-base">
-            Error: {error}
-          </div>
+          <div className="text-red-500 text-center mb-4 p-3 bg-red-100 rounded">{error}</div>
         )}
-
         {loading && (
-          <div className="text-blue-500 text-center mb-4 p-3 bg-blue-100 rounded text-sm sm:text-base">
+          <div className="text-blue-500 text-center mb-4 p-3 bg-blue-100 rounded">
             Cargando ofertas...
           </div>
         )}
@@ -337,17 +271,7 @@ export default function JobOffers() {
           {!loading && trabajos.length > 0 ? (
             <CardJob trabajos={trabajos} />
           ) : !loading ? (
-            <div className="text-center py-12">
-              <p className="text-gray-500 text-xl font-roboto font-normal">
-                No se encontraron resultados
-                {search.trim() && (
-                  <>
-                    {' '}
-                    para <span className="font-bold">&quot;{search.trim()}&quot;</span>
-                  </>
-                )}
-              </p>
-            </div>
+            <NoResultsMessage search={search} />
           ) : null}
         </div>
 

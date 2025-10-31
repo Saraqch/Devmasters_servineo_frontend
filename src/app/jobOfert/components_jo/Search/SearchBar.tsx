@@ -58,7 +58,8 @@ return (
         />
         {value.length > 0 && <ClearButton onClick={handleClear} />}
       </div>
-      <SearchButton disabled={!!hasError || value.length === 0} onClick={handleSearch} />
+      {/* <SearchButton disabled={!!hasError || value.length === 0} onClick={handleSearch} /> */}
+      <SearchButton onClick={handleSearch} />
     </div>
     <div className="h-2 mt-1">{hasError && <p className="text-red-500 text-sm">{error}</p>}</div>
   </div>

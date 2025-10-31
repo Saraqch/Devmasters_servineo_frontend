@@ -1,5 +1,5 @@
 import { configureStore } from '@reduxjs/toolkit';
-import jobOffersReducer from './jobOfert.api';
+import jobOffersReducer from './slice';
 
 export const store = configureStore({
   reducer: {

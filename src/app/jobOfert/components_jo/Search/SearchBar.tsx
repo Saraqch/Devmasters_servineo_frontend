@@ -22,6 +22,7 @@ export const SearchBar = ({ onSearch }: SearchBarProps) => {
   const handleClear = () => {
     setValue('');
     setError(undefined);
+    onSearch('');
   };
 
   const handleSearch = () => {
@@ -59,7 +60,7 @@ return (
       </div>
       <SearchButton disabled={!!hasError || value.length === 0} onClick={handleSearch} />
     </div>
-    <div className="h-6 mt-1">{hasError && <p className="text-red-500 text-sm">{error}</p>}</div>
+    <div className="h-2 mt-1">{hasError && <p className="text-red-500 text-sm">{error}</p>}</div>
   </div>
 );
 };

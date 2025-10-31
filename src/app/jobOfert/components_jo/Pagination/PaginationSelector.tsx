@@ -3,7 +3,7 @@
 import { Fragment } from 'react';
 import { Listbox, Transition } from '@headlessui/react';
 import { ChevronDown } from 'lucide-react';
-import { validatePagination } from '../validators/pagination.validator';
+import { validatePagination } from '../../validators/pagination.validator';
 
 interface PaginationSelectorProps {
   registrosPorPagina: number;

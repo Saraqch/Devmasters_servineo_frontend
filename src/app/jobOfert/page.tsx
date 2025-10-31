@@ -1,30 +1,33 @@
 'use client';
 
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
+import {
+  SearchBar,
+  NoResultsMessage,
+  FilterButton,
+  FilterDrawer,
+  Paginacion,
+  PaginationInfo,
+  PaginationSelector,
+  CardJob,
+  SortCard,
+  Header,
+  Footer,
+} from '@/app/jobOfert/components_jo';
+
 import { useAppDispatch, useAppSelector } from './hooks/hook';
-import { useRouter } from 'next/navigation';
 import {
   fetchOffers,
   setSearch,
   setFilters,
   setSortBy,
   setRegistrosPorPagina,
-  resetFilters,
   FilterState,
-} from './lib/jobOfert.api';
-import { SearchBar } from '@/app/jobOfert/components_jo/Search/SearchBar';
-import { NoResultsMessage } from './components_jo/Search/NoResultsMessage';
-import { FilterButton } from '@/app/jobOfert/components_jo/FilterButton';
-import { FilterDrawer } from '@/app/jobOfert/components_jo/FilterDrawer';
-import Paginacion from './components_jo/Paginacion';
-import PaginationInfo from './components_jo/PaginationInfo';
-import PaginationSelector from './components_jo/PaginationSelector';
-import CardJob from './components_jo/CardJob';
-import SortCard from '@/components/sort/SortCard';
-import Header from './components_jo/Header';
-import Footer from './components_jo/Footer';
+} from './lib/slice';
+import { getSortValue, sortMapInverse } from './lib/constants/sortOptions';
+import { useSyncUrlParams } from './hooks/useSyncUrlParams';
 
-export default function JobOffers() {
+export default function JobOffersPage() {
   const dispatch = useAppDispatch();
   const {
     trabajos,
@@ -41,22 +44,17 @@ export default function JobOffers() {
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
   const stickyRef = useRef<HTMLDivElement | null>(null);
   const isInitialMount = useRef(true);
-  const router = useRouter();
 
-  useEffect(() => {
-    const params = new URLSearchParams();
-    if (search) params.set('search', search);
-    if (filters.city) params.set('city', filters.city);
-    if (filters.category?.length) params.set('category', filters.category.join(','));
-    if (sortBy) params.set('sort', sortBy);
-    if (paginaActual) params.set('page', String(paginaActual));
-    if (registrosPorPagina) params.set('limit', String(registrosPorPagina));
+  // --- Sincroniza URL ---
+  useSyncUrlParams({
+    search,
+    filters,
+    sortBy,
+    paginaActual,
+    registrosPorPagina,
+  });
 
-    const queryString = params.toString();
-    router.replace(queryString ? `?${queryString}` : '', { scroll: false });
-  }, [search, filters, sortBy, paginaActual, registrosPorPagina, router]);
-
-  // Carga inicial solo una vez
+  // --- Carga inicial ---
   useEffect(() => {
     if (isInitialMount.current) {
       dispatch(
@@ -72,7 +70,7 @@ export default function JobOffers() {
     }
   }, [dispatch]);
 
-  // Sticky header setup
+  // --- Sticky header handler ---
   useEffect(() => {
     if (typeof window === 'undefined') return;
 
@@ -98,19 +96,7 @@ export default function JobOffers() {
     };
   }, []);
 
-  const resetToInitial = () => {
-    dispatch(resetFilters());
-    dispatch(
-      fetchOffers({
-        searchText: '',
-        filters: { range: [], city: '', category: [] },
-        sortBy: 'recent',
-        page: 1,
-        limit: registrosPorPagina,
-      }),
-    );
-  };
-
+  // --- Handlers ---
   const handleRegistrosPorPaginaChange = (valor: number) => {
     dispatch(setRegistrosPorPagina(valor));
     dispatch(
@@ -124,19 +110,6 @@ export default function JobOffers() {
     );
   };
 
-    //const handleSearch = async () => {
-  const handleSearch = () => {
-    dispatch(
-      fetchOffers({
-        searchText: search,
-        filters,
-        sortBy,
-        page: 1,
-        limit: registrosPorPagina,
-      }),
-    );
-  };
-  //  const handleFiltersApply = async (appliedFilters: FilterState) => {
   const handleFiltersApply = (appliedFilters: FilterState) => {
     dispatch(setFilters(appliedFilters));
     dispatch(
@@ -150,23 +123,8 @@ export default function JobOffers() {
     );
   };
 
-  const sortMap: Record<string, string> = {
-    Destacados: 'rating',
-    'Los más recientes': 'recent',
-    'Los más antiguos': 'oldest',
-    'Nombre A-Z': 'name_asc',
-    'Nombre Z-A': 'name_desc',
-    'Num de contacto asc': 'contact_asc',
-    'Num de contacto desc': 'contact_desc',
-  };
-
-  const sortMapInverse: Record<string, string> = Object.fromEntries(
-    Object.entries(sortMap).map(([key, value]) => [value, key]),
-  );
-
-  //  const handleSortChange = async (option: string) => {
   const handleSortChange = (option: string) => {
-    const backendSort = sortMap[option] || 'recent';
+    const backendSort = getSortValue(option);
     dispatch(setSortBy(backendSort));
     dispatch(
       fetchOffers({
@@ -180,6 +138,7 @@ export default function JobOffers() {
   };
 
   const handleSearchSubmit = (query: string) => {
+    dispatch(setSearch(query));
     dispatch(
       fetchOffers({
         searchText: query,
@@ -189,10 +148,6 @@ export default function JobOffers() {
         limit: registrosPorPagina,
       }),
     );
-  };
-
-  const toggleDrawer = () => {
-    setIsDrawerOpen(!isDrawerOpen);
   };
 
   const handlePageChange = (newPage: number) => {
@@ -207,23 +162,26 @@ export default function JobOffers() {
     );
   };
 
+  const toggleDrawer = () => setIsDrawerOpen(!isDrawerOpen);
+
+  // --- Render ---
   return (
     <>
       <Header />
 
-      <h1 className="mt-20 sm:mt-24 md:mt-28 lg:mt-32 mb-0 sm:mb-0 text-center text-xl sm:text-2xl md:text-3xl font-bold pt-3 sm:pt-4 md:pt-6 px-3 sm:px-6 md:px-12 lg:px-24">
+      <h1 className="mt-20 sm:mt-24 md:mt-28 lg:mt-32 mb-0 text-center text-xl sm:text-2xl md:text-3xl font-bold pt-3 px-3">
         Ofertas de Trabajo
       </h1>
 
       <div
         ref={stickyRef}
-        className={`w-full mx-auto px-3 sm:px-4 md:px-6 lg:max-w-5xl sticky top-0 bg-white py-2 sm:py-3 md:py-4 shadow-md mb-1 sm:mb-2 ${
+        className={`w-full mx-auto px-3 sm:px-4 md:px-6 lg:max-w-5xl sticky top-0 bg-white py-3 shadow-md ${
           isDrawerOpen ? 'z-10' : 'z-50'
         }`}
       >
-        <div className="flex flex-row items-center gap-2 sm:gap-3 mb-3 sm:mb-4">
+        <div className="flex flex-row items-center gap-2 mb-3">
           <FilterButton onClick={toggleDrawer} />
-          <div className="flex-1 min-w-0">
+          <div className="flex-1">
             <SearchBar onSearch={handleSearchSubmit} />
           </div>
         </div>
@@ -256,7 +214,7 @@ export default function JobOffers() {
         />
 
         {!loading && trabajos.length > 0 && (
-          <div className="w-full max-w-5xl mx-auto px-4 sm:px-6 mb-3 sm:mb-4">
+          <div className="w-full max-w-5xl mx-auto mb-4">
             <div className="flex justify-center">
               <PaginationInfo
                 paginaActual={paginaActual}
@@ -267,7 +225,7 @@ export default function JobOffers() {
           </div>
         )}
 
-        <div className="w-full max-w-5xl mx-auto px-2 sm:px-6">
+        <div className="w-full max-w-5xl mx-auto">
           {!loading && trabajos.length > 0 ? (
             <CardJob trabajos={trabajos} />
           ) : !loading ? (

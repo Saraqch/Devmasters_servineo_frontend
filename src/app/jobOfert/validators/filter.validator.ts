@@ -1,17 +1,35 @@
 // src/validators/filter.validator.ts
 import { z } from 'zod';
 
-const RangeEnum = z.enum(['A-D', 'E-H', 'I-L', 'M-P', 'Q-T', 'U-Z']);
+const RangeEnum = z.enum([
+  'De (A-C)',
+  'De (D-F)',
+  'De (G-I)',
+  'De (J-L)',
+  'De (M-Ñ)',
+  'De (O-Q)',
+  'De (R-T)',
+  'De (U-W)',
+  'De (X-Z)',
+]);
+
+const nameRangeArray = z.array(RangeEnum).default([]);
+
+const cityRegex = /^[A-Za-zÁÉÍÓÚÜÑáéíóúüñ\s-]+$/;
+const cityString = z.string().trim().regex(cityRegex, { message: 'Ciudad inválida.' });
+const cityUnion = z.union([cityString, z.literal('')]).default('');
+
+const categoryItem = z
+  .string()
+  .trim()
+  .regex(/^[A-Za-zÁÉÍÓÚÜÑáéíóúüñ0-9\s-]+$/, {
+    message: 'Categoría inválida.',
+  });
 
 const FilterSchema = z.object({
-  range: z.array(RangeEnum).default([]),
-  city: z
-    .string()
-    .trim()
-    .regex(/^[A-Za-zÁÉÍÓÚÜÑáéíóúüñ\s-]+$/, { message: 'Ciudad inválida.' })
-    .optional()
-    .or(z.literal('')),
-  category: z.array(z.string().trim().regex(/^[A-Za-z0-9\s-]+$/)).default([]),
+  range: nameRangeArray,
+  city: cityUnion,
+  category: z.array(categoryItem).default([]),
 });
 
 export function validateFilters(filters: unknown) {

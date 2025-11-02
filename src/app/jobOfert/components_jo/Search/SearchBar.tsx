@@ -206,7 +206,7 @@ export const SearchBar = ({ onSearch, onFilter }: SearchBarProps) => {
 
           {/* Dropdown de historial (ahora siempre muestra el encabezado; lista puede estar vacía) */}
           {isOpen && (
-            <div className="absolute left-0 right-0 mt-2 bg-white border rounded shadow-md z-50 max-h-60 overflow-auto">
+            <div className="absolute left-0 right-0 mt-2 bg-white border rounded shadow-md z-50">
               <div className="px-3 py-2 flex items-center justify-between">
                 <div className="flex items-center gap-2">
                   <Clock className="w-4 h-4 text-slate-500" />
@@ -267,7 +267,7 @@ export const SearchBar = ({ onSearch, onFilter }: SearchBarProps) => {
 
               {/* Sugerencias: aparece cuando el usuario escribe */}
               {value.trim().length > 0 && (
-                <div className="mt-2 border-t">
+                <div className="mt-2">
                   <div className="px-3 py-2">
                     <div className="flex items-center gap-2">
                       <Star className="w-4 h-4 text-yellow-400" />

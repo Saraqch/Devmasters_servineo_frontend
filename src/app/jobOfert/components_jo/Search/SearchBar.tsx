@@ -1,7 +1,7 @@
 import React from 'react';
 import { Input } from '@/components/ui/input';
 import { SearchIcon } from './SearchIcon';
-import { Clock, X, Trash2 } from 'lucide-react';
+import { Clock, X, Trash2, Star } from 'lucide-react';
 import { ClearButton } from './ClearButton';
 import { SearchButton } from './SearchButton';
 import { FilterButton } from '../Filter/FilterButton';
@@ -139,6 +139,27 @@ export const SearchBar = ({ onSearch, onFilter }: SearchBarProps) => {
     setHistory(loadHistory());
   }, []);
 
+  // sample suggestions (could be replaced by API later)
+  const sampleSuggestions = React.useMemo(
+    () => [
+      'Albañil',
+      'Carpintero',
+      'Electricista',
+      'Fontanero',
+      'Plomero',
+      'Pintor',
+      'Cerrajero',
+      'Jardinero',
+    ],
+    []
+  );
+
+  const filteredSuggestions = React.useMemo(() => {
+    const q = value.trim().toLowerCase();
+    if (q.length === 0) return [] as string[];
+    return sampleSuggestions.filter((s) => s.toLowerCase().includes(q));
+  }, [value, sampleSuggestions]);
+
   // click outside to close
   React.useEffect(() => {
     const onDocClick = (ev: MouseEvent) => {
@@ -229,6 +250,44 @@ export const SearchBar = ({ onSearch, onFilter }: SearchBarProps) => {
                     </li>
                   ))}
                 </ul>
+              )}
+
+              {/* Sugerencias: aparece cuando el usuario escribe */}
+              {value.trim().length > 0 && (
+                <div className="mt-2 border-t">
+                  <div className="px-3 py-2">
+                    <div className="flex items-center gap-2">
+                      <Star className="w-4 h-4 text-yellow-400" />
+                      <span className="text-xs font-semibold uppercase text-slate-500">Sugerencias</span>
+                    </div>
+                  </div>
+
+                  {filteredSuggestions.length === 0 ? (
+                    <div className="p-3 text-sm text-slate-500">No hay sugerencias</div>
+                  ) : (
+                    <ul>
+                      {filteredSuggestions.map((sugg) => (
+                        <li key={sugg}>
+                          <div
+                            role="button"
+                            tabIndex={0}
+                            onMouseDown={(e) => e.preventDefault()}
+                            onClick={() => {
+                              setValue(sugg);
+                              onSearch(sugg);
+                              addToHistory(sugg);
+                              setIsOpen(false);
+                            }}
+                            className="w-full flex items-center gap-3 px-3 py-2 hover:bg-slate-50 cursor-pointer"
+                          >
+                            <Star className="w-4 h-4 text-yellow-400" />
+                            <span className="text-sm text-slate-700">{sugg}</span>
+                          </div>
+                        </li>
+                      ))}
+                    </ul>
+                  )}
+                </div>
               )}
 
               {/* footer removed per design: no clear history button */}

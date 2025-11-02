@@ -170,6 +170,9 @@ export const SearchBar = ({ onSearch, onFilter }: SearchBarProps) => {
     return sampleSuggestions.filter((s) => s.toLowerCase().includes(q));
   }, [value, sampleSuggestions]);
 
+  // limit visible suggestions to 5
+  const visibleSuggestions = React.useMemo(() => filteredSuggestions.slice(0, 5), [filteredSuggestions]);
+
   // click outside to close
   React.useEffect(() => {
     const onDocClick = (ev: MouseEvent) => {
@@ -276,7 +279,7 @@ export const SearchBar = ({ onSearch, onFilter }: SearchBarProps) => {
                     <div className="p-3 text-sm text-slate-500">No hay sugerencias</div>
                   ) : (
                     <ul>
-                      {filteredSuggestions.map((sugg) => (
+                      {visibleSuggestions.map((sugg) => (
                         <li key={sugg}>
                           <div
                             role="button"

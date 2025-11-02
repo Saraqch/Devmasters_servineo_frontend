@@ -1,7 +1,7 @@
 import React from 'react';
 import { Input } from '@/components/ui/input';
 import { SearchIcon } from './SearchIcon';
-import { Clock } from 'lucide-react';
+import { Clock, X } from 'lucide-react';
 import { ClearButton } from './ClearButton';
 import { SearchButton } from './SearchButton';
 import { FilterButton } from '../Filter/FilterButton';
@@ -73,6 +73,16 @@ export const SearchBar = ({ onSearch, onFilter }: SearchBarProps) => {
     setIsOpen(false);
     setHighlighted(-1);
     onSearch(item);
+  };
+
+  const deleteHistoryItem = (item: string) => {
+    setHistory((prev) => {
+      const updated = prev.filter((p) => p !== item);
+      persistHistory(updated);
+      return updated;
+    });
+    // if the highlighted item was removed, reset
+    setHighlighted(-1);
   };
 
   const handleSearch = () => {
@@ -176,17 +186,32 @@ export const SearchBar = ({ onSearch, onFilter }: SearchBarProps) => {
                 <ul>
                   {history.map((item, idx) => (
                     <li key={item}>
-                      <button
-                        type="button"
+                      <div
+                        role="button"
+                        tabIndex={0}
                         onMouseDown={(e) => e.preventDefault()} /* evitar blur antes de click */
                         onClick={() => selectHistory(item)}
+                        onKeyDown={(e) => {
+                          if (e.key === 'Enter') selectHistory(item);
+                        }}
                         onMouseEnter={() => setHighlighted(idx)}
-                        className={`w-full text-left px-3 py-2 hover:bg-slate-100 focus:bg-slate-100 ${
-                          highlighted === idx ? 'bg-slate-100' : ''
+                        className={`group w-full flex items-center justify-between px-3 py-2 hover:bg-slate-50 focus:bg-slate-50 ${
+                          highlighted === idx ? 'bg-slate-50' : ''
                         }`}
                       >
-                        {item}
-                      </button>
+                        <span className="text-sm text-slate-700">{item}</span>
+                        <button
+                          type="button"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            deleteHistoryItem(item);
+                          }}
+                          className="ml-3 opacity-0 group-hover:opacity-100 text-slate-400 hover:text-red-500 transition-opacity"
+                          aria-label={`Eliminar ${item}`}
+                        >
+                          <X className="w-4 h-4" />
+                        </button>
+                      </div>
                     </li>
                   ))}
                 </ul>

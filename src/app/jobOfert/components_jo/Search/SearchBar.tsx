@@ -100,7 +100,8 @@ export const SearchBar = ({ onSearch, onFilter }: SearchBarProps) => {
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key === 'Enter') {
-      if (isOpen && highlighted >= 0 && highlighted < history.length) {
+      const historyLen = Math.min(history.length, 5);
+      if (isOpen && highlighted >= 0 && highlighted < historyLen) {
         const item = history[highlighted];
         selectHistory(item);
         return;
@@ -112,14 +113,20 @@ export const SearchBar = ({ onSearch, onFilter }: SearchBarProps) => {
     if (e.key === 'ArrowDown') {
       e.preventDefault();
       setIsOpen(true);
-      setHighlighted((h) => (h < history.length - 1 ? h + 1 : 0));
+      setHighlighted((h) => {
+        const max = Math.min(history.length, 5) - 1;
+        return h < max ? h + 1 : 0;
+      });
       return;
     }
 
     if (e.key === 'ArrowUp') {
       e.preventDefault();
       setIsOpen(true);
-      setHighlighted((h) => (h > 0 ? h - 1 : Math.max(0, history.length - 1)));
+      setHighlighted((h) => {
+        const max = Math.min(history.length, 5) - 1;
+        return h > 0 ? h - 1 : Math.max(0, max);
+      });
       return;
     }
 
@@ -138,6 +145,9 @@ export const SearchBar = ({ onSearch, onFilter }: SearchBarProps) => {
   React.useEffect(() => {
     setHistory(loadHistory());
   }, []);
+
+  // limit visible history to 5 items
+  const visibleHistory = React.useMemo(() => history.slice(0, 5), [history]);
 
   // sample suggestions (could be replaced by API later)
   const sampleSuggestions = React.useMemo(
@@ -219,7 +229,7 @@ export const SearchBar = ({ onSearch, onFilter }: SearchBarProps) => {
                 <div className="p-3 text-sm text-slate-500">Aún no hay búsquedas recientes</div>
               ) : (
                 <ul>
-                  {history.map((item, idx) => (
+                  {visibleHistory.map((item, idx) => (
                     <li key={item}>
                       <div
                         role="button"

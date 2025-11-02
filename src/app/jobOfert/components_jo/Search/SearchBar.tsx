@@ -1,6 +1,7 @@
 import React from 'react';
 import { Input } from '@/components/ui/input';
 import { SearchIcon } from './SearchIcon';
+import { Clock } from 'lucide-react';
 import { ClearButton } from './ClearButton';
 import { SearchButton } from './SearchButton';
 import { FilterButton } from '../Filter/FilterButton';
@@ -161,14 +162,18 @@ export const SearchBar = ({ onSearch, onFilter }: SearchBarProps) => {
           {/* Dropdown de historial (ahora siempre muestra el encabezado; lista puede estar vacía) */}
           {isOpen && (
             <div className="absolute left-0 right-0 mt-2 bg-white border rounded shadow-md z-50 max-h-60 overflow-auto">
-              <div className="px-3 py-2 border-b">
-                <span className="text-sm font-medium">Búsquedas recientes</span>
+              <div className="px-3 py-2 flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <Clock className="w-4 h-4 text-slate-500" />
+                  <span className="text-xs font-semibold uppercase text-slate-500">Búsquedas recientes</span>
+                </div>
+                <div>{/* espacio para acción futura (p. ej. borrar historial) */}</div>
               </div>
 
               {history.length === 0 ? (
                 <div className="p-3 text-sm text-slate-500">Aún no hay búsquedas recientes</div>
               ) : (
-                <ul className="divide-y">
+                <ul>
                   {history.map((item, idx) => (
                     <li key={item}>
                       <button
@@ -187,13 +192,7 @@ export const SearchBar = ({ onSearch, onFilter }: SearchBarProps) => {
                 </ul>
               )}
 
-              {history.length > 0 && (
-                <div className="flex items-center justify-end px-2 py-1 border-t">
-                  <button type="button" className="text-sm text-slate-600 hover:underline" onClick={clearHistory}>
-                    Limpiar historial
-                  </button>
-                </div>
-              )}
+              {/* footer removed per design: no clear history button */}
             </div>
           )}
         </div>

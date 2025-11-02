@@ -207,7 +207,7 @@ export const SearchBar = ({ onSearch, onFilter }: SearchBarProps) => {
           {/* Dropdown de historial (ahora siempre muestra el encabezado; lista puede estar vacía) */}
           {isOpen && (
             <div className="absolute left-0 right-0 mt-2 bg-white border rounded shadow-md z-50">
-              <div className="px-3 py-2 flex items-center justify-between">
+              <div className="px-2 py-1 flex items-center justify-between">
                 <div className="flex items-center gap-2">
                   <Clock className="w-4 h-4 text-slate-500" />
                   <span className="text-xs font-semibold uppercase text-slate-500">Búsquedas recientes</span>
@@ -243,11 +243,11 @@ export const SearchBar = ({ onSearch, onFilter }: SearchBarProps) => {
                           if (e.key === 'Enter') selectHistory(item);
                         }}
                         onMouseEnter={() => setHighlighted(idx)}
-                        className={`group w-full flex items-center justify-between px-3 py-2 hover:bg-slate-50 focus:bg-slate-50 ${
+                        className={`group w-full flex items-center justify-between px-2 py-1 hover:bg-slate-50 focus:bg-slate-50 ${
                           highlighted === idx ? 'bg-slate-50' : ''
                         }`}
                       >
-                        <div className="flex items-center gap-2">
+                        <div className="flex items-center gap-1">
                           <Clock className="w-4 h-4 text-slate-400" />
                           <span className="text-sm text-slate-700">{item}</span>
                         </div>
@@ -257,7 +257,7 @@ export const SearchBar = ({ onSearch, onFilter }: SearchBarProps) => {
                             e.stopPropagation();
                             deleteHistoryItem(item);
                           }}
-                          className="ml-3 opacity-0 group-hover:opacity-100 text-slate-400 hover:text-red-500 transition-opacity"
+                          className="ml-2 opacity-0 group-hover:opacity-100 text-slate-400 hover:text-red-500 transition-opacity cursor-pointer"
                           aria-label={`Eliminar ${item}`}
                         >
                           <X className="w-4 h-4" />
@@ -271,12 +271,12 @@ export const SearchBar = ({ onSearch, onFilter }: SearchBarProps) => {
               {/* Sugerencias: aparece cuando el usuario escribe */}
               {value.trim().length > 0 && (
                 <div className="mt-2">
-                  <div className="px-3 py-2">
-                    <div className="flex items-center gap-2">
-                      <Star className="w-4 h-4 text-yellow-400" />
-                      <span className="text-xs font-semibold uppercase text-slate-500">Sugerencias</span>
+                    <div className="px-2 py-1">
+                      <div className="flex items-center gap-2">
+                        <Star className="w-4 h-4 text-yellow-400" />
+                        <span className="text-xs font-semibold uppercase text-slate-500">Sugerencias</span>
+                      </div>
                     </div>
-                  </div>
 
                   {filteredSuggestions.length === 0 ? (
                     <div className="p-3 text-sm text-slate-500">No hay sugerencias</div>
@@ -294,7 +294,7 @@ export const SearchBar = ({ onSearch, onFilter }: SearchBarProps) => {
                               addToHistory(sugg);
                               setIsOpen(false);
                             }}
-                            className="w-full flex items-center gap-3 px-3 py-2 hover:bg-slate-50 cursor-pointer"
+                            className="w-full flex items-center gap-2 px-2 py-1 hover:bg-slate-50 cursor-pointer"
                           >
                             <Star className="w-4 h-4 text-yellow-400" />
                             <span className="text-sm text-slate-700">{sugg}</span>

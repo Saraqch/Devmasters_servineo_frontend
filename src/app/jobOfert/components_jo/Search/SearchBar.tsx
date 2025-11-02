@@ -247,7 +247,10 @@ export const SearchBar = ({ onSearch, onFilter }: SearchBarProps) => {
                           highlighted === idx ? 'bg-slate-50' : ''
                         }`}
                       >
-                        <span className="text-sm text-slate-700">{item}</span>
+                        <div className="flex items-center gap-2">
+                          <Clock className="w-4 h-4 text-slate-400" />
+                          <span className="text-sm text-slate-700">{item}</span>
+                        </div>
                         <button
                           type="button"
                           onClick={(e) => {

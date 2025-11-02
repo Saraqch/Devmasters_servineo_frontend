@@ -1,7 +1,7 @@
 import React from 'react';
 import { Input } from '@/components/ui/input';
 import { SearchIcon } from './SearchIcon';
-import { Clock, X } from 'lucide-react';
+import { Clock, X, Trash2 } from 'lucide-react';
 import { ClearButton } from './ClearButton';
 import { SearchButton } from './SearchButton';
 import { FilterButton } from '../Filter/FilterButton';
@@ -65,7 +65,8 @@ export const SearchBar = ({ onSearch, onFilter }: SearchBarProps) => {
   const clearHistory = () => {
     persistHistory([]);
     setHistory([]);
-    setIsOpen(false);
+    // keep dropdown open so user sees the empty state
+    setIsOpen(true);
   };
 
   const selectHistory = (item: string) => {
@@ -177,7 +178,20 @@ export const SearchBar = ({ onSearch, onFilter }: SearchBarProps) => {
                   <Clock className="w-4 h-4 text-slate-500" />
                   <span className="text-xs font-semibold uppercase text-slate-500">Búsquedas recientes</span>
                 </div>
-                <div>{/* espacio para acción futura (p. ej. borrar historial) */}</div>
+                <div>
+                  <button
+                    type="button"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      clearHistory();
+                    }}
+                    className="flex items-center gap-1 text-sm text-red-500 cursor-pointer"
+                    aria-label="Borrar historial"
+                  >
+                    <Trash2 className="w-4 h-4" />
+                    <span className="ml-1 text-sm">Borrar historial</span>
+                  </button>
+                </div>
               </div>
 
               {history.length === 0 ? (

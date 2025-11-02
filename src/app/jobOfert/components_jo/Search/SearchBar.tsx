@@ -3,13 +3,15 @@ import { Input } from '@/components/ui/input';
 import { SearchIcon } from './SearchIcon';
 import { ClearButton } from './ClearButton';
 import { SearchButton } from './SearchButton';
+import { FilterButton } from '../Filter/FilterButton';
 import { validateSearch } from '../../validators/search.validator';
 
 interface SearchBarProps {
   onSearch: (query: string) => void;
+  onFilter?: () => void;
 }
 
-export const SearchBar = ({ onSearch }: SearchBarProps) => {
+export const SearchBar = ({ onSearch, onFilter }: SearchBarProps) => {
   const [value, setValue] = React.useState('');
   const [error, setError] = React.useState<string | undefined>();
 
@@ -45,8 +47,8 @@ export const SearchBar = ({ onSearch }: SearchBarProps) => {
   
 return (
   <div className="w-full">
-    <div className="flex flex-col w-full sm:flex-row sm:items-center gap-2">
-      <div className="relative flex-1">
+    <div className="flex flex-row w-full items-center gap-2">
+      <div className="relative flex-1 min-w-0 self-center">
         <SearchIcon hasError={hasError} />
         <Input
           type="text"
@@ -60,6 +62,7 @@ return (
       </div>
       {/* <SearchButton disabled={!!hasError || value.length === 0} onClick={handleSearch} /> */}
       <SearchButton onClick={handleSearch} />
+      {onFilter && <FilterButton onClick={onFilter} />}
     </div>
     <div className="h-2 mt-1">{hasError && <p className="text-red-500 text-sm">{error}</p>}</div>
   </div>

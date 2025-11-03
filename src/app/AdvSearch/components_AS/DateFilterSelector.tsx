@@ -120,9 +120,6 @@ const DateFilterSelector: React.FC = () => {
 
       </div>
 
-      {/* ESTE BLOQUE FUE ELIMINADO */}
-      {/* <div className="mt-6 p-4 bg-blue-50 rounded-lg">...</div> */}
-
     </div>
   );
 };

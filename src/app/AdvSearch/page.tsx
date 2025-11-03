@@ -12,6 +12,9 @@ interface FilterState {
   range: string[];
   city: string;
   category: string[];
+  tags: string[];        // NUEVO: Etiquetas
+  minPrice: number | null; // NUEVO: Precio mínimo
+  maxPrice: number | null; // NUEVO: Precio máximo
 }
 
 const FIXER_RANGES = [
@@ -31,6 +34,21 @@ const JOBS = [
   'Techador', 'Vidriero', 'Yesero',
 ];
 
+const parsePriceRange = (priceString: string): { minPrice: number | null, maxPrice: number | null } => {
+    switch (priceString) {
+        case "low":
+            return { minPrice: 30, maxPrice: 100 };
+        case "medium":
+            return { minPrice: 101, maxPrice: 200 };
+        case "high":
+            // Mapea la opción 'high' del dropdown (que cubre 201-300 y 301-400) al rango superior
+            return { minPrice: 201, maxPrice: 400 }; 
+        case "":
+        default:
+            return { minPrice: null, maxPrice: null };
+    }
+};
+
 const AdvancedSearchPage: React.FC = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [titleOnly, setTitleOnly] = useState(false);
@@ -47,85 +65,191 @@ const AdvancedSearchPage: React.FC = () => {
   const [selectedCity, setSelectedCity] = useState<string>('');
   const [selectedJobs, setSelectedJobs] = useState<string[]>([]);
 
-  // Estados para dropdowns (ahora controlados desde page.tsx pero actualizados por DropdownList)
-  const [selectedTags, setSelectedTags] = useState<string[]>([]); // 0 o 1 elemento
-  const [selectedPrice, setSelectedPrice] = useState<string>('');
+  // Estados para dropdowns (controlados por DropdownList)
+  const [selectedTags, setSelectedTags] = useState<string[]>([]); 
+  const [selectedPriceKey, setSelectedPriceKey] = useState<string>(''); // Usaremos 'Key' para el valor del dropdown
 
-  // Estado para resultados (manteniendo lo original)
-  const [resultsCount] = useState(0);
-  const [loading] = useState(false);
+  // Estado para resultados (permitiendo la mutabilidad)
+  const [resultsCount, setResultsCount] = useState<number | null>(null); // Permitir null para estado inicial/carga
+  const [loading, setLoading] = useState(false); // Permitir cambiar el estado de carga
 
   const toggleSection = (section: string) => {
-    setOpenSections((prev) => ({
-      ...prev,
-      [section]: !prev[section],
-    }));
+    setOpenSections((prev) => ({
+      ...prev,
+      [section]: !prev[section],
+    }));
+  };
+
+// --- 2. FUNCIÓN CENTRAL DE LLAMADA A LA API ---
+  const fetchOffers = async (params: { 
+      searchText: string; 
+      filters: FilterState;
+      titleOnly: boolean; 
+      exactWords: boolean; 
+  }) => {
+      setLoading(true);
+      const urlParams = new URLSearchParams();
+
+      // Parámetros de Texto y Modificadores
+      if (params.searchText.trim()) {
+        urlParams.append('search', params.searchText);
+      }
+      if (params.titleOnly) {
+        urlParams.append('titleOnly', 'true');
+      }
+      if (params.exactWords) {
+        urlParams.append('exactWords', 'true');
+      }
+
+      // Parámetros de Filtros (Checkboxes)
+      if (params.filters.range && params.filters.range.length > 0) {
+          params.filters.range.forEach((r) => {
+              urlParams.append('range', r);
+          });
+      }
+      if (params.filters.city) {
+          urlParams.append('city', params.filters.city);
+      }
+      if (params.filters.category && params.filters.category.length > 0) {
+          params.filters.category.forEach((c) => {
+              urlParams.append('category', c);
+          });
+      }
+
+      // Parámetros de Búsqueda Avanzada (Dropdowns - Tags y Precio)
+      if (params.filters.tags && params.filters.tags.length > 0) {
+          urlParams.append('tags', params.filters.tags.join(','));
+      }
+      if (params.filters.minPrice !== null) {
+          urlParams.append('minPrice', `${params.filters.minPrice}`); 
+      }
+      if (params.filters.maxPrice !== null) {
+          urlParams.append('maxPrice', `${params.filters.maxPrice}`);
+      }
+
+      // Parámetros de paginación
+      urlParams.append('page', '1');
+      urlParams.append('limit', '10'); 
+
+      const url = `/api/devmaster/offers?${urlParams.toString()}`;
+      console.log('API URL generada:', url);
+      
+      // Placeholder: Simulación de resultados
+      await new Promise(resolve => setTimeout(resolve, 500)); 
+      setResultsCount(101); // Simula el total
+      setLoading(false);
+  };
+// Después de fetchOffers...
+
+  // Función auxiliar para llamar a fetchOffers con los valores más recientes (debido a la naturaleza asíncrona de setState)
+  const updateSearchOnStateChange = ({ 
+    newRanges = selectedRanges, 
+    newCity = selectedCity, 
+    newJobs = selectedJobs, 
+    newTags = selectedTags, 
+    newPriceKey = selectedPriceKey,
+    newSearchQuery = searchQuery,
+    newTitleOnly = titleOnly,
+    newExactWords = exactWords
+  }: { 
+    newRanges?: string[], 
+    newCity?: string, 
+    newJobs?: string[], 
+    newTags?: string[], 
+    newPriceKey?: string,
+    newSearchQuery?: string,
+    newTitleOnly?: boolean,
+    newExactWords?: boolean
+  }) => {
+    
+    // VALIDACIÓN (HU1, Escenario 3: Búsqueda vacía)
+    if (!newSearchQuery && newRanges.length === 0 && newCity === '' && 
+        newJobs.length === 0 && newTags.length === 0 && newPriceKey === '') {
+        console.log('Debe ingresar al menos un parámetro de búsqueda.');
+        setResultsCount(0);
+        return;
+    }
+    
+    const { minPrice, maxPrice } = parsePriceRange(newPriceKey);
+
+    const currentFilters: FilterState = {
+        range: newRanges,
+        city: newCity,
+        category: newJobs,
+        tags: newTags,
+        minPrice: minPrice,
+        maxPrice: maxPrice,
+    };
+
+    fetchOffers({
+        searchText: newSearchQuery,
+        filters: currentFilters,
+        titleOnly: newTitleOnly,
+        exactWords: newExactWords,
+    });
   };
 
-  // Esta función es un placeholder. En una app real, enviaría los filtros al backend.
-  const executeSearchWithFilters = (ranges: string[], city: string, jobs: string[]) => {
-    const filters: FilterState = { range: ranges, city: city, category: jobs };
-    console.log('Filtros Aplicados (server payload):', filters);
-    // Aquí iría la llamada a la API o la lógica de filtrado...
+  // 3. FUNCIÓN UNIFICADA PARA EJECUTAR LA BÚSQUEDA COMPLETA (cuando no se tienen los nuevos estados disponibles)
+  const updateSearch = () => {
+    updateSearchOnStateChange({}); // Llama con los estados actuales
   };
 
-  // updateSearch ahora puede recibir tags y price opcionales.
-  const updateSearch = (tags?: string[], price?: string) => {
-    // Ejecutar búsqueda principal con rangos/ciudad/trabajo
-    executeSearchWithFilters(selectedRanges, selectedCity, selectedJobs);
+  const handleRangeChange = (range: string) => {
+    setSelectedRanges(prevRanges => {
+        const newRanges = prevRanges.includes(range)
+            ? prevRanges.filter((r) => r !== range)
+            : [...prevRanges, range];
+        // Ejecutar búsqueda con el estado recién calculado
+        updateSearchOnStateChange({ newRanges });
+        return newRanges;
+    });
+  };
 
-    // Log o envío de etiquetas/precio. Si quieres integrarlo en la misma petición,
-    // modifica executeSearchWithFilters para aceptar estos parámetros.
-    console.log('Etiquetas (local):', tags ?? selectedTags);
-    console.log('Precio (local):', price ?? selectedPrice);
-  };
+  const handleCityChange = (city: string) => {
+    setSelectedCity(prevCity => {
+        const newCity = prevCity === city ? '' : city;
+        // Ejecutar búsqueda con el estado recién calculado
+        updateSearchOnStateChange({ newCity });
+        return newCity;
+    });
+  };
 
-  const handleRangeChange = (range: string) => {
-    const newRanges = selectedRanges.includes(range)
-      ? selectedRanges.filter((r) => r !== range)
-      : [...selectedRanges, range];
+  const handleJobChange = (job: string) => {
+    setSelectedJobs(prevJobs => {
+        const newJobs = prevJobs.includes(job)
+            ? prevJobs.filter((j) => j !== job)
+            : [...prevJobs, job];
+        // Ejecutar búsqueda con el estado recién calculado
+        updateSearchOnStateChange({ newJobs });
+        return newJobs;
+    });
+  };
+// Reemplaza handleSearch y handleDropdownChange:
 
-    setSelectedRanges(newRanges);
-    updateSearch();
-  };
+  // Handler para el Input de Búsqueda (con debounce)
+  const handleSearch = (query: string) => {
+    setSearchQuery(query);
+    if (searchTimeout) clearTimeout(searchTimeout);
+    searchTimeout = setTimeout(() => {
+        updateSearchOnStateChange({ newSearchQuery: query }); 
+    }, 300); // Debounce de 300ms
+  };
+  let searchTimeout: ReturnType<typeof setTimeout> | null = null;
 
-  const handleCityChange = (city: string) => {
-    const newCity = selectedCity === city ? '' : city;
-    setSelectedCity(newCity);
-    updateSearch();
-  };
+  // --- Handler que recibe cambios desde DropdownList ---
+  const handleDropdownChange = (payload: { tag?: string; price?: string }) => {
+    const { tag, price } = payload;
 
-  const handleJobChange = (job: string) => {
-    const newJobs = selectedJobs.includes(job)
-      ? selectedJobs.filter((j) => j !== job)
-      : [...selectedJobs, job];
+    // tag es string o undefined. Guardamos como array 0 o 1.
+    const newTags = tag && tag !== '' ? [tag] : [];
+    setSelectedTags(newTags);
 
-    setSelectedJobs(newJobs);
-    updateSearch();
-  };
+    const newPriceKey = price ?? '';
+    setSelectedPriceKey(newPriceKey); // Actualizar el estado del precio
 
-  // Handler para el Input de Búsqueda
-  const handleSearch = (query: string) => {
-    setSearchQuery(query);
-    console.log('Buscar desde AdvancedSearch:', query);
-    // Si prefieres ejecutar la búsqueda al tipear, llama a updateSearch() aquí
-  };
-
-  // --- Handler que recibe cambios desde DropdownList ---
-  const handleDropdownChange = (payload: { tag?: string; price?: string }) => {
-    const { tag, price } = payload;
-
-    // tag es string o undefined. Guardamos como array 0 o 1.
-    const newTags = tag && tag !== '' ? [tag] : [];
-    setSelectedTags(newTags);
-
-    const newPrice = price ?? '';
-    setSelectedPrice(newPrice);
-
-    // Llamar a updateSearch con los valores actualizados
-    updateSearch(newTags, newPrice);
-  };
-
+    // Ejecutar búsqueda con el estado recién calculado.
+    updateSearchOnStateChange({ newTags, newPriceKey });
+  };
   return (
     <>
       <Header />
@@ -142,7 +266,7 @@ const AdvancedSearchPage: React.FC = () => {
         <div className="max-w-7xl mx-auto">
           <div className="flex justify-end mb-0">
             <div className="w-full sm:w-80">
-              <ResultsCounter total={resultsCount} loading={loading} />
+              <ResultsCounter total={resultsCount ?? 0} loading={loading} />
             </div>
           </div>
 
@@ -152,13 +276,14 @@ const AdvancedSearchPage: React.FC = () => {
             </div>
 
             <div className="mb-6">
-              <SearchCheckboxes
-                titleOnly={titleOnly}
-                setTitleOnly={setTitleOnly}
-                exactWords={exactWords}
-                setExactWords={setExactWords}
-              />
-            </div>
+              <SearchCheckboxes
+                titleOnly={titleOnly}
+                // Se usa setTimeout(0) para asegurar que la búsqueda se ejecute DESPUÉS de que setTitleOnly haya actualizado el estado.
+                setTitleOnly={(val) => { setTitleOnly(val); setTimeout(() => updateSearchOnStateChange({ newTitleOnly: val }), 0); }}
+                exactWords={exactWords}
+                setExactWords={(val) => { setExactWords(val); setTimeout(() => updateSearchOnStateChange({ newExactWords: val }), 0); }}
+              />
+            </div>
 
             <div className="bg-[#2B6AE0] text-white px-4 py-2 text-sm font-bold mb-6 rounded-lg text-left">
               Parámetros Seleccionables:

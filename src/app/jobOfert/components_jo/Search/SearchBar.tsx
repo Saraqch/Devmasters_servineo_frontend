@@ -223,7 +223,7 @@ export const SearchBar = ({ onSearch, onFilter }: SearchBarProps) => {
                     aria-label="Borrar historial"
                   >
                     <Trash2 className="w-4 h-4" />
-                    <span className="ml-1 text-sm">Borrar historial</span>
+                    <span className="ml-1 text-sm hidden sm:inline">Borrar historial</span>
                   </button>
                 </div>
               </div>

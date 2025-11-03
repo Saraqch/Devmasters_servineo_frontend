@@ -23,6 +23,21 @@ export const SearchBar = ({ onSearch, onFilter }: SearchBarProps) => {
 
   const HISTORY_KEY = 'job_search_history_v1';
 
+  const deleteFromBackend = async (searchTerm: string) => {
+   try {
+      const sessionId = localStorage.getItem('sessionId');
+      if (!sessionId) {
+        return;
+      }
+
+      const url = `${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000'}/api/devmaster/offers?action=deleteHistory&searchTerm=${encodeURIComponent(searchTerm)}&sessionId=${encodeURIComponent(sessionId)}`;
+    
+      await fetch(url);
+    } catch (error) {
+      console.error('Error eliminando del backend:', error);
+   }
+  };
+
   const loadHistory = () => {
     try {
       const raw = localStorage.getItem(HISTORY_KEY);
@@ -79,13 +94,18 @@ export const SearchBar = ({ onSearch, onFilter }: SearchBarProps) => {
     onSearch(item);
   };
 
-  const deleteHistoryItem = (item: string) => {
+  const deleteHistoryItem = async (item: string) => {
+  // Eliminar del localStorage local
     setHistory((prev) => {
       const updated = prev.filter((p) => p !== item);
       persistHistory(updated);
       return updated;
-    });
-    // si el elemento resaltado fue eliminado, resetear
+   });
+  
+   // Eliminar del backend
+   await deleteFromBackend(item);
+  
+   // si el elemento resaltado fue eliminado, resetear
     setHighlighted(-1);
   };
 
@@ -135,8 +155,6 @@ export const SearchBar = ({ onSearch, onFilter }: SearchBarProps) => {
     addToHistory(query);
     setIsOpen(false);
   };
-
-
 
   const hasError = !!error;
   const inputClasses = `pl-10 ${value.length > 0 ? 'pr-10' : 'pr-9'} w-full sm:min-w-80 rounded ${
@@ -318,8 +336,8 @@ export const SearchBar = ({ onSearch, onFilter }: SearchBarProps) => {
                           <div className="flex items-center gap-2">
                             <button
                               type="button"
-                              onClick={() => {
-                                deleteHistoryItem(item);
+                              onClick={async () => {
+                                await deleteHistoryItem(item);
                                 setLongPressedItem(null);
                               }}
                               className="bg-red-500 text-white px-3 py-1 rounded text-sm"
@@ -377,9 +395,9 @@ export const SearchBar = ({ onSearch, onFilter }: SearchBarProps) => {
 
                             <button
                               type="button"
-                              onClick={(e) => {
+                              onClick={async (e) => {
                                 e.stopPropagation();
-                                deleteHistoryItem(item);
+                                await deleteHistoryItem(item);
                               }}
                               className="hidden sm:inline-flex opacity-0 group-hover:opacity-100 text-slate-400 hover:text-red-500 transition-opacity cursor-pointer"
                               aria-label={`Eliminar ${item}`}

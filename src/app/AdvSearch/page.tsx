@@ -105,27 +105,7 @@ const AdvancedSearchPage = () => {
     // Aquí se ejecutaría executeSearchWithFilters con la nueva query
   };
 
-  // --- Renderizado ---
-
-  const FilterSectionButton = ({ sectionKey, title }: { sectionKey: string, title: string }) => (
-    <div
-      className="bg-[#2B6AE0] text-white px-4 py-2 text-sm font-semibold mb-3 cursor-pointer hover:bg-[#2B31E0] rounded-lg transition-colors flex justify-between items-center"
-      onClick={() => toggleSection(sectionKey)}
-    >
-      <span className="truncate">{title}</span>
-      {/* Icono de flecha para indicar expansión */}
-      <svg 
-        xmlns="http://www.w3.org/2000/svg" 
-        className={`h-4 w-4 transform transition-transform duration-200 ${openSections[sectionKey] ? 'rotate-180' : 'rotate-0'}`} 
-        fill="none" 
-        viewBox="0 0 24 24" 
-        stroke="currentColor"
-        strokeWidth="2"
-      >
-        <path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" />
-      </svg>
-    </div>
-  );
+  // El componente FilterSectionButton ya no es necesario ya que el título se mueve fuera.
 
   return (
     <>
@@ -176,9 +156,35 @@ const AdvancedSearchPage = () => {
 
             {/* --- Filtro: Nombre de Fixer --- */}
             <div className="mb-6">
-              <FilterSectionButton sectionKey="fixer" title="Nombre del fixer :" />
+              {/* Nuevo Título separado, arriba y a la izquierda */}
+              <h3 className="text-base mb-2">Nombre del fixer :</h3>
+              
+              {/* Barra de Toggle (Gris Claro) */}
+              <div
+                className={`bg-gray-100 text-gray-500 px-4 py-2 text-sm cursor-pointer hover:bg-gray-200 transition-colors flex justify-between items-center 
+                  ${openSections.fixer 
+                    ? 'rounded-t-lg border border-b-0 border-gray-300' 
+                    : 'rounded-lg border border-gray-300'
+                  }`}
+                onClick={() => toggleSection('fixer')}
+              >
+                <span className="truncate">Seleccionar Rangos de Nombre</span>
+                {/* Icono de flecha para indicar expansión */}
+                <svg 
+                  xmlns="http://www.w3.org/2000/svg" 
+                  className={`h-4 w-4 transform transition-transform duration-200 ${openSections.fixer ? 'rotate-180' : 'rotate-0'}`} 
+                  fill="none" 
+                  viewBox="0 0 24 24" 
+                  stroke="currentColor"
+                  strokeWidth="2"
+                >
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" />
+                </svg>
+              </div>
+
+              {/* Contenido del Filtro */}
               {openSections.fixer && (
-                <div className="bg-white border border-gray-200 p-4 rounded-lg shadow-sm">
+                <div className="bg-white border border-t-0 border-gray-300 p-4 rounded-b-lg shadow-sm">
                   <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
                     {FIXER_RANGES.flat().map((range) => (
                       <label
@@ -201,9 +207,34 @@ const AdvancedSearchPage = () => {
 
             {/* --- Filtro: Ciudad --- */}
             <div className="mb-6">
-              <FilterSectionButton sectionKey="ciudad" title="Ciudad :" />
+              {/* Nuevo Título separado, arriba y a la izquierda */}
+              <h3 className="text-base mb-2">Ciudad :</h3>
+              
+              {/* Barra de Toggle (Gris Claro) */}
+              <div
+                className={`bg-gray-100 text-gray-500 px-4 py-2 text-sm cursor-pointer hover:bg-gray-200 transition-colors flex justify-between items-center 
+                  ${openSections.ciudad 
+                    ? 'rounded-t-lg border border-b-0 border-gray-300' 
+                    : 'rounded-lg border border-gray-300'
+                  }`}
+                onClick={() => toggleSection('ciudad')}
+              >
+                <span className="truncate">Seleccionar Ciudad</span>
+                <svg 
+                  xmlns="http://www.w3.org/2000/svg" 
+                  className={`h-4 w-4 transform transition-transform duration-200 ${openSections.ciudad ? 'rotate-180' : 'rotate-0'}`} 
+                  fill="none" 
+                  viewBox="0 0 24 24" 
+                  stroke="currentColor"
+                  strokeWidth="2"
+                >
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" />
+                </svg>
+              </div>
+
+              {/* Contenido del Filtro */}
               {openSections.ciudad && (
-                <div className="bg-white border border-gray-200 p-4 rounded-lg shadow-sm max-h-[200px] overflow-y-auto">
+                <div className="bg-white border border-t-0 border-gray-300 p-4 rounded-b-lg shadow-sm max-h-[200px] overflow-y-auto">
                   <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
                     {CITIES.map((city) => (
                       <label
@@ -226,9 +257,34 @@ const AdvancedSearchPage = () => {
 
             {/* --- Filtro: Tipo de Trabajo --- */}
             <div className="mb-6">
-              <FilterSectionButton sectionKey="trabajo" title="Tipo de Trabajo :" />
+              {/* Nuevo Título separado, arriba y a la izquierda */}
+              <h3 className="text-base mb-2">Tipo de Trabajo :</h3>
+
+              {/* Barra de Toggle (Gris Claro) */}
+              <div
+                className={`bg-gray-100 text-gray-500 px-4 py-2 text-sm cursor-pointer hover:bg-gray-200 transition-colors flex justify-between items-center 
+                  ${openSections.trabajo 
+                    ? 'rounded-t-lg border border-b-0 border-gray-300' 
+                    : 'rounded-lg border border-gray-300'
+                  }`}
+                onClick={() => toggleSection('trabajo')}
+              >
+                <span className="truncate">Seleccionar Tipo de Trabajo</span>
+                <svg 
+                  xmlns="http://www.w3.org/2000/svg" 
+                  className={`h-4 w-4 transform transition-transform duration-200 ${openSections.trabajo ? 'rotate-180' : 'rotate-0'}`} 
+                  fill="none" 
+                  viewBox="0 0 24 24" 
+                  stroke="currentColor"
+                  strokeWidth="2"
+                >
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" />
+                </svg>
+              </div>
+
+              {/* Contenido del Filtro */}
               {openSections.trabajo && (
-                <div className="bg-white border border-gray-200 p-4 rounded-lg shadow-sm max-h-[200px] overflow-y-auto">
+                <div className="bg-white border border-t-0 border-gray-300 p-4 rounded-b-lg shadow-sm max-h-[200px] overflow-y-auto">
                   <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
                     {JOBS.map((job) => (
                       <label

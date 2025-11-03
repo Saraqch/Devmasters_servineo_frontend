@@ -25,10 +25,6 @@ export interface FilterState {
   range: string[];
   city: string;
   category: string[];
-  // --- NUEVOS FILTROS ---
-  tags: string[]; // Usaremos un array de strings para las etiquetas
-  minPrice: number | null; // Usaremos number para la lógica de precio
-  maxPrice: number | null; // Usaremos number para la lógica de precio
 }
 
 interface JobOffersState {
@@ -47,7 +43,7 @@ const initialState: JobOffersState = {
   trabajos: [],
   loading: true,
   error: null,
-  filters: { range: [], city: '', category: [], tags: [], minPrice: null, maxPrice: null }, // AÑADIDO Al GITHUB
+  filters: { range: [], city: '', category: [] },
   sortBy: 'recent',
   search: '',
   paginaActual: 1,
@@ -86,22 +82,6 @@ export const fetchOffers = createAsyncThunk(
           urlParams.append('category', c);
         });
       }
-      // --- AGREGAR LÓGICA DE PRECIO (CORREGIDA) ---
-      if (params.filters.minPrice !== null) {
-          // CORRECCIÓN: Usar interpolación de cadenas para conversión segura
-          urlParams.append('minPrice', encodeURIComponent(`${params.filters.minPrice}`)); 
-      }
-      if (params.filters.maxPrice !== null) {
-          // CORRECCIÓN: Usar interpolación de cadenas para conversión segura
-          urlParams.append('maxPrice', encodeURIComponent(`${params.filters.maxPrice}`));
-      }
-      // --- AGREGAR LÓGICA DE ETIQUETAS (MANTENER) ---
-      if (params.filters.tags && params.filters.tags.length > 0) {
-          // El backend espera una lista de tags separada por comas (ej: tag1,tag2)
-          urlParams.append('tags', encodeURIComponent(params.filters.tags.join(','))); 
-      }
-
-      
 
       if (params.sortBy) {
         urlParams.append('sortBy', params.sortBy);
@@ -151,7 +131,7 @@ const jobOffersSlice = createSlice({
       state.paginaActual = action.payload;
     },
     resetFilters: (state) => {
-      state.filters = { range: [], city: '', category: [], tags: [], minPrice: null, maxPrice: null };// aca se modifico , tags: [], minPrice: null, maxPrice: null
+      state.filters = { range: [], city: '', category: [] };
       state.sortBy = 'recent';
       state.search = '';
       state.paginaActual = 1;

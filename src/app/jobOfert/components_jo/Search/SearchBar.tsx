@@ -1,8 +1,11 @@
+"use client";
+
 import React from 'react';
 import { Input } from '@/components/ui/input';
 import { SearchIcon } from './SearchIcon';
 import { ClearButton } from './ClearButton';
 import { SearchButton } from './SearchButton';
+import { AdvancedSearchButton } from './AdvancedSearchButton';
 import { validateSearch } from '../../validators/search.validator';
 
 interface SearchBarProps {
@@ -43,25 +46,29 @@ export const SearchBar = ({ onSearch }: SearchBarProps) => {
     hasError ? 'border-red-500 border-[1.5px] outline-none shadow-[0_0_0_1px_red]' : ''
   }`
   
-return (
-  <div className="w-full">
-    <div className="flex flex-col w-full sm:flex-row sm:items-center gap-2">
-      <div className="relative flex-1">
-        <SearchIcon hasError={hasError} />
-        <Input
-          type="text"
-          placeholder="¿Qué servicio necesitas?"
-          className={inputClasses}
-          value={value}
-          onChange={handleChange}
-          onKeyDown={handleKeyDown}
-        />
-        {value.length > 0 && <ClearButton onClick={handleClear} />}
+  return (
+    <div className="w-full">
+      <div className="flex flex-col w-full sm:flex-row sm:items-center gap-2">
+        <div className="relative flex-1">
+          <SearchIcon hasError={hasError} />
+          <Input
+            type="text"
+            placeholder="¿Qué servicio necesitas?"
+            className={inputClasses}
+            value={value}
+            onChange={handleChange}
+            onKeyDown={handleKeyDown}
+          />
+          {value.length > 0 && <ClearButton onClick={handleClear} />}
+        </div>
+
+        {/* Contenedor de botones: Buscar + Búsqueda avanzada */}
+        <div className="flex gap-2 w-full sm:w-auto">
+          <SearchButton onClick={handleSearch} />
+          <AdvancedSearchButton />
+        </div>
       </div>
-      {/* <SearchButton disabled={!!hasError || value.length === 0} onClick={handleSearch} /> */}
-      <SearchButton onClick={handleSearch} />
+      <div className="h-2 mt-1">{hasError && <p className="text-red-500 text-sm">{error}</p>}</div>
     </div>
-    <div className="h-2 mt-1">{hasError && <p className="text-red-500 text-sm">{error}</p>}</div>
-  </div>
-);
+  );
 };

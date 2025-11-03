@@ -4,15 +4,13 @@ import React from 'react';
 import { Input } from '@/components/ui/input';
 import { SearchIcon } from './SearchIcon';
 import { ClearButton } from './ClearButton';
-import { SearchButton } from './SearchButton';
-import { AdvancedSearchButton } from './AdvancedSearchButton';
 import { validateSearch } from '../../validators/search.validator';
 
-interface SearchBarProps {
+interface InputOnlySearchProps {
   onSearch: (query: string) => void;
 }
 
-export const SearchBar = ({ onSearch }: SearchBarProps) => {
+export const InputOnlySearch = ({ onSearch }: InputOnlySearchProps) => {
   const [value, setValue] = React.useState('');
   const [error, setError] = React.useState<string | undefined>();
 
@@ -44,29 +42,21 @@ export const SearchBar = ({ onSearch }: SearchBarProps) => {
   const hasError = !!error;
   const inputClasses = `pl-10 ${value.length > 0 ? 'pr-10' : 'pr-9'} w-full sm:min-w-80 rounded ${
     hasError ? 'border-red-500 border-[1.5px] outline-none shadow-[0_0_0_1px_red]' : ''
-  }`
-  
+  }`;
+
   return (
     <div className="w-full">
-      <div className="flex flex-col w-full sm:flex-row sm:items-center gap-2">
-        <div className="relative flex-1">
-          <SearchIcon hasError={hasError} />
-          <Input
-            type="text"
-            placeholder="¿Qué servicio necesitas?"
-            className={inputClasses}
-            value={value}
-            onChange={handleChange}
-            onKeyDown={handleKeyDown}
-          />
-          {value.length > 0 && <ClearButton onClick={handleClear} />}
-        </div>
-
-        {/* Contenedor de botones: Buscar + Búsqueda avanzada */}
-        <div className="flex gap-2 w-full sm:w-auto">
-          <SearchButton onClick={handleSearch} />
-          <AdvancedSearchButton />
-        </div>
+      <div className="relative">
+        <SearchIcon hasError={hasError} />
+        <Input
+          type="text"
+          placeholder="¿Qué servicio necesitas?"
+          className={inputClasses}
+          value={value}
+          onChange={handleChange}
+          onKeyDown={handleKeyDown}
+        />
+        {value.length > 0 && <ClearButton onClick={handleClear} />}
       </div>
       <div className="h-2 mt-1">{hasError && <p className="text-red-500 text-sm">{error}</p>}</div>
     </div>

@@ -45,6 +45,8 @@ export const SearchBar = ({ onSearch, onFilter }: SearchBarProps) => {
     setValue(e.target.value);
     const { isValid, error } = validateSearch(e.target.value);
     setError(isValid ? undefined : error);
+    // reset any keyboard/mouse highlight when the user types
+    setHighlighted(-1);
   };
 
   const handleClear = () => {
@@ -86,6 +88,49 @@ export const SearchBar = ({ onSearch, onFilter }: SearchBarProps) => {
     setHighlighted(-1);
   };
 
+  // touch / long-press support for mobile: show delete/cancel actions
+  const [longPressedItem, setLongPressedItem] = React.useState<string | null>(null);
+  const touchTimerRef = React.useRef<number | null>(null);
+  const [isTouchDevice, setIsTouchDevice] = React.useState(false);
+
+  React.useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const touch = 'ontouchstart' in window || navigator.maxTouchPoints > 0;
+      setIsTouchDevice(!!touch);
+    }
+  }, []);
+
+  const handleTouchStart = (item: string) => (e: React.TouchEvent) => {
+    // start a timer to detect long press (600ms)
+    clearTouchTimer();
+    touchTimerRef.current = window.setTimeout(() => {
+      setLongPressedItem(item);
+    }, 600) as unknown as number;
+  };
+
+  // pointer events (works with Opera/DevTools touch emulation)
+  const handlePointerDown = (item: string) => (e: React.PointerEvent) => {
+    // ignore mouse pointers
+    // pointerType may be 'touch' when emulating on desktop
+    if ((e as any).pointerType === 'mouse') return;
+    clearTouchTimer();
+    touchTimerRef.current = window.setTimeout(() => {
+      setLongPressedItem(item);
+    }, 600) as unknown as number;
+  };
+
+  const clearTouchTimer = () => {
+    if (touchTimerRef.current) {
+      window.clearTimeout(touchTimerRef.current as unknown as number);
+      touchTimerRef.current = null;
+    }
+  };
+
+  const handleTouchEnd = () => {
+    clearTouchTimer();
+  };
+
+
   const handleSearch = () => {
     const { isValid, error, data } = validateSearch(value);
     if (!isValid) {
@@ -98,44 +143,7 @@ export const SearchBar = ({ onSearch, onFilter }: SearchBarProps) => {
     setIsOpen(false);
   };
 
-  const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
-    if (e.key === 'Enter') {
-      const historyLen = Math.min(history.length, 5);
-      if (isOpen && highlighted >= 0 && highlighted < historyLen) {
-        const item = history[highlighted];
-        selectHistory(item);
-        return;
-      }
-      handleSearch();
-      return;
-    }
 
-    if (e.key === 'ArrowDown') {
-      e.preventDefault();
-      setIsOpen(true);
-      setHighlighted((h) => {
-        const max = Math.min(history.length, 5) - 1;
-        return h < max ? h + 1 : 0;
-      });
-      return;
-    }
-
-    if (e.key === 'ArrowUp') {
-      e.preventDefault();
-      setIsOpen(true);
-      setHighlighted((h) => {
-        const max = Math.min(history.length, 5) - 1;
-        return h > 0 ? h - 1 : Math.max(0, max);
-      });
-      return;
-    }
-
-    if (e.key === 'Escape') {
-      setIsOpen(false);
-      setHighlighted(-1);
-      return;
-    }
-  };
 
   const hasError = !!error;
   const inputClasses = `pl-10 ${value.length > 0 ? 'pr-10' : 'pr-9'} w-full sm:min-w-80 rounded ${
@@ -148,7 +156,6 @@ export const SearchBar = ({ onSearch, onFilter }: SearchBarProps) => {
 
   // limit visible history to 5 items
   const visibleHistory = React.useMemo(() => history.slice(0, 5), [history]);
-
   // sample suggestions (could be replaced by API later)
   const sampleSuggestions = React.useMemo(
     () => [
@@ -172,6 +179,58 @@ export const SearchBar = ({ onSearch, onFilter }: SearchBarProps) => {
 
   // limit visible suggestions to 5
   const visibleSuggestions = React.useMemo(() => filteredSuggestions.slice(0, 5), [filteredSuggestions]);
+
+  // combined list used for keyboard navigation: history items first, then suggestions
+  const visibleCombined = React.useMemo(() => {
+    return [...visibleHistory, ...visibleSuggestions];
+  }, [visibleHistory, visibleSuggestions]);
+
+  const selectItem = (item: string) => {
+    setValue(item);
+    onSearch(item);
+    addToHistory(item);
+    setIsOpen(false);
+    setHighlighted(-1);
+  };
+
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === 'Enter') {
+      const combinedLen = visibleCombined.length;
+      if (isOpen && highlighted >= 0 && highlighted < combinedLen) {
+        const item = visibleCombined[highlighted];
+        selectItem(item);
+        return;
+      }
+      handleSearch();
+      return;
+    }
+
+    if (e.key === 'ArrowDown') {
+      e.preventDefault();
+      setIsOpen(true);
+      setHighlighted((h) => {
+        const max = visibleCombined.length - 1;
+        return h < max ? h + 1 : 0;
+      });
+      return;
+    }
+
+    if (e.key === 'ArrowUp') {
+      e.preventDefault();
+      setIsOpen(true);
+      setHighlighted((h) => {
+        const max = visibleCombined.length - 1;
+        return h > 0 ? h - 1 : Math.max(0, max);
+      });
+      return;
+    }
+
+    if (e.key === 'Escape') {
+      setIsOpen(false);
+      setHighlighted(-1);
+      return;
+    }
+  };
 
   // click outside to close
   React.useEffect(() => {
@@ -206,7 +265,11 @@ export const SearchBar = ({ onSearch, onFilter }: SearchBarProps) => {
 
           {/* Dropdown de historial (ahora siempre muestra el encabezado; lista puede estar vacía) */}
           {isOpen && (
-            <div className="absolute left-0 right-0 mt-2 bg-white border rounded shadow-md z-50">
+            <div
+              className="absolute left-0 right-0 mt-2 bg-white border rounded shadow-md z-50"
+              onMouseLeave={() => setHighlighted(-1)}
+              onPointerLeave={() => setHighlighted(-1)}
+            >
               <div className="px-2 py-1 flex items-center justify-between">
                 <div className="flex items-center gap-2">
                   <Clock className="w-4 h-4 text-slate-500" />
@@ -234,35 +297,68 @@ export const SearchBar = ({ onSearch, onFilter }: SearchBarProps) => {
                 <ul>
                   {visibleHistory.map((item, idx) => (
                     <li key={item}>
-                      <div
-                        role="button"
-                        tabIndex={0}
-                        onMouseDown={(e) => e.preventDefault()} /* evitar blur antes de click */
-                        onClick={() => selectHistory(item)}
-                        onKeyDown={(e) => {
-                          if (e.key === 'Enter') selectHistory(item);
-                        }}
-                        onMouseEnter={() => setHighlighted(idx)}
-                        className={`group w-full flex items-center justify-between px-2 py-1 hover:bg-slate-50 focus:bg-slate-50 ${
-                          highlighted === idx ? 'bg-slate-50' : ''
-                        }`}
-                      >
-                        <div className="flex items-center gap-1">
-                          <Clock className="w-4 h-4 text-slate-400" />
-                          <span className="text-sm text-slate-700">{item}</span>
+                      {longPressedItem === item ? (
+                        <div className="w-full flex items-center justify-between px-2 py-2 bg-red-50 border-l-4 border-red-500">
+                          <div className="text-sm text-red-700 font-medium">Eliminar búsqueda</div>
+                          <div className="flex items-center gap-2">
+                            <button
+                              type="button"
+                              onClick={() => {
+                                deleteHistoryItem(item);
+                                setLongPressedItem(null);
+                              }}
+                              className="bg-red-500 text-white px-3 py-1 rounded text-sm"
+                            >
+                              Eliminar
+                            </button>
+                            <button
+                              type="button"
+                              onClick={() => setLongPressedItem(null)}
+                              className="bg-slate-100 border border-slate-200 px-3 py-1 rounded text-sm text-slate-700 hover:bg-slate-200"
+                            >
+                              Cancelar
+                            </button>
+                          </div>
                         </div>
-                        <button
-                          type="button"
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            deleteHistoryItem(item);
+                      ) : (
+                        <div
+                          role="button"
+                          tabIndex={0}
+                          onMouseDown={(e) => e.preventDefault()} /* evitar blur antes de click */
+                          onClick={() => selectHistory(item)}
+                          onKeyDown={(e) => {
+                            if (e.key === 'Enter') selectHistory(item);
                           }}
-                          className="ml-2 opacity-0 group-hover:opacity-100 text-slate-400 hover:text-red-500 transition-opacity cursor-pointer"
-                          aria-label={`Eliminar ${item}`}
+                          onMouseEnter={() => setHighlighted(idx)}
+                          onTouchStart={handleTouchStart(item)}
+                          onTouchEnd={handleTouchEnd}
+                          onTouchMove={handleTouchEnd}
+                          onTouchCancel={handleTouchEnd}
+                          onPointerDown={handlePointerDown(item)}
+                          onPointerUp={handleTouchEnd}
+                          onPointerMove={handleTouchEnd}
+                          onPointerCancel={handleTouchEnd}
+                          className={`group w-full flex items-center justify-between px-2 py-1 hover:bg-slate-50 focus:bg-slate-50 ${
+                            highlighted === idx ? 'bg-slate-50' : ''
+                          }`}
                         >
-                          <X className="w-4 h-4" />
-                        </button>
-                      </div>
+                          <div className="flex items-center gap-1">
+                            <Clock className="w-4 h-4 text-slate-400" />
+                            <span className="text-sm text-slate-700">{item}</span>
+                          </div>
+                          <button
+                            type="button"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              deleteHistoryItem(item);
+                            }}
+                            className="ml-2 opacity-0 group-hover:opacity-100 text-slate-400 hover:text-red-500 transition-opacity cursor-pointer"
+                            aria-label={`Eliminar ${item}`}
+                          >
+                            <X className="w-4 h-4" />
+                          </button>
+                        </div>
+                      )}
                     </li>
                   ))}
                 </ul>
@@ -282,25 +378,29 @@ export const SearchBar = ({ onSearch, onFilter }: SearchBarProps) => {
                     <div className="p-3 text-sm text-slate-500">No hay sugerencias</div>
                   ) : (
                     <ul>
-                      {visibleSuggestions.map((sugg) => (
-                        <li key={sugg}>
-                          <div
-                            role="button"
-                            tabIndex={0}
-                            onMouseDown={(e) => e.preventDefault()}
-                            onClick={() => {
-                              setValue(sugg);
-                              onSearch(sugg);
-                              addToHistory(sugg);
-                              setIsOpen(false);
-                            }}
-                            className="w-full flex items-center gap-2 px-2 py-1 hover:bg-slate-50 cursor-pointer"
-                          >
-                            <Star className="w-4 h-4 text-yellow-400" />
-                            <span className="text-sm text-slate-700">{sugg}</span>
-                          </div>
-                        </li>
-                      ))}
+                      {visibleSuggestions.map((sugg, i) => {
+                        const combinedIndex = visibleHistory.length + i;
+                        return (
+                          <li key={sugg}>
+                            <div
+                              role="button"
+                              tabIndex={0}
+                              onMouseDown={(e) => e.preventDefault()}
+                              onClick={() => selectItem(sugg)}
+                              onKeyDown={(e) => {
+                                if (e.key === 'Enter') selectItem(sugg);
+                              }}
+                              onMouseEnter={() => setHighlighted(combinedIndex)}
+                              className={`w-full flex items-center gap-2 px-2 py-1 hover:bg-slate-50 cursor-pointer ${
+                                highlighted === combinedIndex ? 'bg-slate-50' : ''
+                              }`}
+                            >
+                              <Star className="w-4 h-4 text-yellow-400" />
+                              <span className="text-sm text-slate-700">{sugg}</span>
+                            </div>
+                          </li>
+                        );
+                      })}
                     </ul>
                   )}
                 </div>

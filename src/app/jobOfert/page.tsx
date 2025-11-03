@@ -60,7 +60,7 @@ export default function JobOffersPage() {
       dispatch(
         fetchOffers({
           searchText: '',
-          filters: { range: [], city: '', category: [] },
+          filters: { range: [], city: '', category: [], tags: [], minPrice: null, maxPrice: null }, //Codigo de los nuevos campos
           sortBy: 'recent',
           page: 1,
           limit: 10,

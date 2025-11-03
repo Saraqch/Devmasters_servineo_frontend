@@ -47,7 +47,7 @@ const initialState: JobOffersState = {
   trabajos: [],
   loading: true,
   error: null,
-  filters: { range: [], city: '', category: [], tags: [], minPrice: null, maxPrice: null }, // AÑADIDO
+  filters: { range: [], city: '', category: [], tags: [], minPrice: null, maxPrice: null }, // AÑADIDO Al GITHUB
   sortBy: 'recent',
   search: '',
   paginaActual: 1,

@@ -29,7 +29,7 @@ export const SearchBar = ({ onSearch, onFilter }: SearchBarProps) => {
       if (!raw) return [] as string[];
       const parsed = JSON.parse(raw);
       return Array.isArray(parsed) ? parsed : [];
-    } catch (e) {
+    } catch {
       return [] as string[];
     }
   };
@@ -37,7 +37,7 @@ export const SearchBar = ({ onSearch, onFilter }: SearchBarProps) => {
   const persistHistory = (items: string[]) => {
     try {
       localStorage.setItem(HISTORY_KEY, JSON.stringify(items));
-    } catch (e) {
+    } catch {
       // ignore storage errors
     }
   };
@@ -92,16 +92,8 @@ export const SearchBar = ({ onSearch, onFilter }: SearchBarProps) => {
   // touch / long-press support for mobile: show delete/cancel actions
   const [longPressedItem, setLongPressedItem] = React.useState<string | null>(null);
   const touchTimerRef = React.useRef<number | null>(null);
-  const [isTouchDevice, setIsTouchDevice] = React.useState(false);
 
-  React.useEffect(() => {
-    if (typeof window !== 'undefined') {
-      const touch = 'ontouchstart' in window || navigator.maxTouchPoints > 0;
-      setIsTouchDevice(!!touch);
-    }
-  }, []);
-
-  const handleTouchStart = (item: string) => (e: React.TouchEvent) => {
+  const handleTouchStart = (item: string) => () => {
     // start a timer to detect long press (600ms)
     clearTouchTimer();
     touchTimerRef.current = window.setTimeout(() => {
@@ -113,7 +105,7 @@ export const SearchBar = ({ onSearch, onFilter }: SearchBarProps) => {
   const handlePointerDown = (item: string) => (e: React.PointerEvent) => {
     // ignore mouse pointers
     // pointerType may be 'touch' when emulating on desktop
-    if ((e as any).pointerType === 'mouse') return;
+    if (e.pointerType === 'mouse') return;
     clearTouchTimer();
     touchTimerRef.current = window.setTimeout(() => {
       setLongPressedItem(item);
@@ -207,7 +199,7 @@ export const SearchBar = ({ onSearch, onFilter }: SearchBarProps) => {
       try {
         const len = input.value.length;
         input.setSelectionRange(len, len);
-      } catch (e) {
+      } catch {
         // ignore
       }
     }
@@ -276,7 +268,10 @@ export const SearchBar = ({ onSearch, onFilter }: SearchBarProps) => {
             className={inputClasses}
             value={value}
             onChange={handleChange}
-            ref={inputRef as any}
+            ref={(el) => {
+              // assign to local ref with correct typing
+              inputRef.current = el as HTMLInputElement | null;
+            }}
             onKeyDown={handleKeyDown}
             onFocus={() => {
               setIsOpen(true);

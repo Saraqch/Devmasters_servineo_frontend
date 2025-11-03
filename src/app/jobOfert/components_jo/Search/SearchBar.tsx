@@ -332,8 +332,10 @@ export const SearchBar = ({ onSearch, onFilter }: SearchBarProps) => {
                     <li key={item}>
                       {longPressedItem === item ? (
                         <div className="w-full flex items-center justify-between px-2 py-2 bg-red-50 border-l-4 border-red-500">
-                          <div className="text-sm text-red-700 font-medium">Eliminar búsqueda</div>
-                          <div className="flex items-center gap-2">
+                          <div className="text-sm text-red-700 font-medium leading-tight">
+                            Eliminar<br />búsqueda
+                          </div>
+                          <div className="flex items-center gap-2 flex-shrink-0">
                             <button
                               type="button"
                               onClick={async () => {
@@ -371,16 +373,16 @@ export const SearchBar = ({ onSearch, onFilter }: SearchBarProps) => {
                           onPointerUp={handleTouchEnd}
                           onPointerMove={handleTouchEnd}
                           onPointerCancel={handleTouchEnd}
-                          className={`group w-full flex items-center justify-between px-2 py-1 hover:bg-slate-50 focus:bg-slate-50 ${
+                          className={`group w-full flex items-center justify-between gap-2 px-2 py-1 hover:bg-slate-50 focus:bg-slate-50 ${
                             highlighted === idx ? 'bg-slate-50' : ''
                           }`}
                         >
-                          <div className="flex items-center gap-1">
-                            <Clock className="w-4 h-4 text-slate-400" />
-                            <span className="text-sm text-slate-700">{item}</span>
+                          <div className="flex items-center gap-1 min-w-0 flex-1">
+                            <Clock className="w-4 h-4 text-slate-400 flex-shrink-0" />
+                            <span className="text-sm text-slate-700 overflow-hidden text-ellipsis whitespace-nowrap flex-1" title={item}>{item}</span>
                           </div>
 
-                          <div className="w-8 flex items-center justify-center sm:justify-end gap-2">
+                          <div className="flex items-center justify-end gap-2 flex-shrink-0">
                             <button
                               type="button"
                               onClick={(e) => {
@@ -439,12 +441,12 @@ export const SearchBar = ({ onSearch, onFilter }: SearchBarProps) => {
                                 if (e.key === 'Enter') selectItem(sugg);
                               }}
                               onMouseEnter={() => setHighlighted(combinedIndex)}
-                              className={`w-full flex items-center gap-2 px-2 py-1 hover:bg-slate-50 cursor-pointer ${
+                              className={`w-full flex items-center gap-2 px-2 py-1 hover:bg-slate-50 cursor-pointer min-w-0 ${
                                 highlighted === combinedIndex ? 'bg-slate-50' : ''
                               }`}
                             >
-                              <Star className="w-4 h-4 text-yellow-400" />
-                              <span className="text-sm text-slate-700">{sugg}</span>
+                              <Star className="w-4 h-4 text-yellow-400 flex-shrink-0" />
+                              <span className="text-sm text-slate-700 overflow-hidden text-ellipsis whitespace-nowrap" title={sugg}>{sugg}</span>
                             </div>
                           </li>
                         );

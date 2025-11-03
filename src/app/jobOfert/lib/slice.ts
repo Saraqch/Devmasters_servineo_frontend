@@ -86,19 +86,20 @@ export const fetchOffers = createAsyncThunk(
           urlParams.append('category', c);
         });
       }
-      // --- AGREGAR LÓGICA DE PRECIO ---
-      if (params.filters.minPrice !== null) {
-          // Usamos encodeURIComponent para asegurar que el valor se transmita correctamente
-          urlParams.append('minPrice', encodeURIComponent(params.filters.minPrice.toString())); 
-      }
-      if (params.filters.maxPrice !== null) {
-          urlParams.append('maxPrice', encodeURIComponent(params.filters.maxPrice.toString()));
-      }
-      // --- AGREGAR LÓGICA DE ETIQUETAS ---
-      if (params.filters.tags && params.filters.tags.length > 0) {
-          // El backend espera una lista de tags separada por comas (ej: tag1,tag2)
-          urlParams.append('tags', encodeURIComponent(params.filters.tags.join(','))); 
-      }
+      // --- AGREGAR LÓGICA DE PRECIO (CORREGIDA) ---
+      if (params.filters.minPrice !== null) {
+          // CORRECCIÓN: Usar interpolación de cadenas para conversión segura
+          urlParams.append('minPrice', encodeURIComponent(`${params.filters.minPrice}`)); 
+      }
+      if (params.filters.maxPrice !== null) {
+          // CORRECCIÓN: Usar interpolación de cadenas para conversión segura
+          urlParams.append('maxPrice', encodeURIComponent(`${params.filters.maxPrice}`));
+      }
+      // --- AGREGAR LÓGICA DE ETIQUETAS (MANTENER) ---
+      if (params.filters.tags && params.filters.tags.length > 0) {
+          // El backend espera una lista de tags separada por comas (ej: tag1,tag2)
+          urlParams.append('tags', encodeURIComponent(params.filters.tags.join(','))); 
+      }
 
       
 

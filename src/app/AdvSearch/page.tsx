@@ -1,13 +1,23 @@
 'use client';
 
-import React from 'react';
+import React, { useState } from 'react';
 import { Header } from '@/app/jobOfert/components_jo';
 import { ResultsCounter } from '@/app/AdvSearch/components_AS/ResultsCounter';
+import DateFilterSelector from '@/app/AdvSearch/components_AS/DateFilterSelector'; // <-- import correcto
 
-const AdvancedSearchPage = () => {
+const AdvancedSearchPage: React.FC = () => {
+  const [totalResults, setTotalResults] = useState(0);
+  const [loading, setLoading] = useState(false);
+
   const handleSearch = () => {
-    // Aquí irá la lógica de búsqueda
+    setLoading(true);
     console.log('Aplicar búsqueda');
+
+    // Simulamos una búsqueda (reemplaza por tu lógica real)
+    setTimeout(() => {
+      setTotalResults(Math.floor(Math.random() * 100));
+      setLoading(false);
+    }, 1000);
   };
 
   return (
@@ -21,21 +31,27 @@ const AdvancedSearchPage = () => {
         <h1 className="text-center text-xl sm:text-2xl md:text-3xl font-bold mb-6">
           Búsqueda Avanzada
         </h1>
-        
-        <div className="flex justify-end">
-          {/* Contador de resultados a la derecha */}
-          <ResultsCounter total={0} loading={false} />
+
+        {/* Contador de resultados a la derecha */}
+        <div className="flex justify-end mb-6">
+          <ResultsCounter total={totalResults} loading={loading} />
         </div>
-        
-        {/* Aquí puedes agregar tu contenido de búsqueda avanzada */}
+
+        {/* Aquí se monta tu selector de fecha (usa internamente CalendarComponent) */}
+        <div className="mt-6">
+          <DateFilterSelector />
+        </div>
 
         {/* Botón Aplicar Búsqueda */}
         <div className="flex justify-center mt-8">
           <button
             onClick={handleSearch}
-            className="bg-blue-500 text-white font-semibold px-6 py-3 rounded-lg hover:bg-blue-600 transition-colors duration-300 shadow-md hover:shadow-lg"
+            disabled={loading}
+            className={`${
+              loading ? 'bg-gray-400 cursor-not-allowed' : 'bg-blue-500 hover:bg-blue-600'
+            } text-white font-semibold px-6 py-3 rounded-lg transition-colors duration-300 shadow-md`}
           >
-            Aplicar Búsqueda
+            {loading ? 'Buscando...' : 'Aplicar Búsqueda'}
           </button>
         </div>
       </main>
@@ -44,4 +60,5 @@ const AdvancedSearchPage = () => {
 };
 
 export default AdvancedSearchPage;
+
 

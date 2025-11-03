@@ -38,7 +38,7 @@ export const SearchBar = ({ onSearch, onFilter }: SearchBarProps) => {
     try {
       localStorage.setItem(HISTORY_KEY, JSON.stringify(items));
     } catch {
-      // ignore storage errors
+      // ignorar errores de almacenamiento
     }
   };
 
@@ -46,7 +46,7 @@ export const SearchBar = ({ onSearch, onFilter }: SearchBarProps) => {
     setValue(e.target.value);
     const { isValid, error } = validateSearch(e.target.value);
     setError(isValid ? undefined : error);
-    // reset any keyboard/mouse highlight when the user types
+    // resetear el resaltado de teclado/ratón cuando el usuario escribe
     setHighlighted(-1);
   };
 
@@ -68,7 +68,7 @@ export const SearchBar = ({ onSearch, onFilter }: SearchBarProps) => {
   const clearHistory = () => {
     persistHistory([]);
     setHistory([]);
-    // keep dropdown open so user sees the empty state
+    // mantener el dropdown abierto para que el usuario vea el estado vacío
     setIsOpen(true);
   };
 
@@ -85,26 +85,26 @@ export const SearchBar = ({ onSearch, onFilter }: SearchBarProps) => {
       persistHistory(updated);
       return updated;
     });
-    // if the highlighted item was removed, reset
+    // si el elemento resaltado fue eliminado, resetear
     setHighlighted(-1);
   };
 
-  // touch / long-press support for mobile: show delete/cancel actions
+  // soporte de toque / pulsación larga en móvil: mostrar acciones Eliminar/Cancelar
   const [longPressedItem, setLongPressedItem] = React.useState<string | null>(null);
   const touchTimerRef = React.useRef<number | null>(null);
 
   const handleTouchStart = (item: string) => () => {
-    // start a timer to detect long press (600ms)
+    // iniciar un temporizador para detectar pulsación larga (600 ms)
     clearTouchTimer();
     touchTimerRef.current = window.setTimeout(() => {
       setLongPressedItem(item);
     }, 600) as unknown as number;
   };
 
-  // pointer events (works with Opera/DevTools touch emulation)
+  // eventos pointer (funciona con la emulación táctil de Opera/DevTools)
   const handlePointerDown = (item: string) => (e: React.PointerEvent) => {
-    // ignore mouse pointers
-    // pointerType may be 'touch' when emulating on desktop
+    // ignorar punteros de ratón
+    // pointerType puede ser 'touch' al emular en escritorio
     if (e.pointerType === 'mouse') return;
     clearTouchTimer();
     touchTimerRef.current = window.setTimeout(() => {
@@ -147,9 +147,9 @@ export const SearchBar = ({ onSearch, onFilter }: SearchBarProps) => {
     setHistory(loadHistory());
   }, []);
 
-  // limit visible history to 5 items
+  // limitar historial visible a 5 ítems
   const visibleHistory = React.useMemo(() => history.slice(0, 5), [history]);
-  // sample suggestions (could be replaced by API later)
+  // sugerencias de ejemplo (se puede reemplazar por una API más adelante)
   const sampleSuggestions = React.useMemo(
     () => [
       'Albañil',
@@ -170,10 +170,10 @@ export const SearchBar = ({ onSearch, onFilter }: SearchBarProps) => {
     return sampleSuggestions.filter((s) => s.toLowerCase().includes(q));
   }, [value, sampleSuggestions]);
 
-  // limit visible suggestions to 5
+  // limitar sugerencias visibles a 5
   const visibleSuggestions = React.useMemo(() => filteredSuggestions.slice(0, 5), [filteredSuggestions]);
 
-  // combined list used for keyboard navigation: history items first, then suggestions
+  // lista combinada usada para la navegación por teclado: historial primero, luego sugerencias
   const visibleCombined = React.useMemo(() => {
     return [...visibleHistory, ...visibleSuggestions];
   }, [visibleHistory, visibleSuggestions]);
@@ -187,20 +187,20 @@ export const SearchBar = ({ onSearch, onFilter }: SearchBarProps) => {
   };
 
   const previewItem = (item: string) => {
-    // set the input value but do NOT trigger search — allow editing
+    // poner el valor en el input pero NO ejecutar la búsqueda — permitir editar
     setValue(item);
     setError(undefined);
     setIsOpen(true);
     setHighlighted(-1);
-    // focus input and move caret to end
     const input = inputRef.current;
     if (input) {
+      // enfocar el input y mover el cursor al final
       input.focus();
       try {
         const len = input.value.length;
         input.setSelectionRange(len, len);
       } catch {
-        // ignore
+        // ignorar errores al mover el cursor
       }
     }
   };
@@ -244,7 +244,7 @@ export const SearchBar = ({ onSearch, onFilter }: SearchBarProps) => {
     }
   };
 
-  // click outside to close
+  // click fuera para cerrar
   React.useEffect(() => {
     const onDocClick = (ev: MouseEvent) => {
       if (!containerRef.current) return;
@@ -269,7 +269,6 @@ export const SearchBar = ({ onSearch, onFilter }: SearchBarProps) => {
             value={value}
             onChange={handleChange}
             ref={(el) => {
-              // assign to local ref with correct typing
               inputRef.current = el as HTMLInputElement | null;
             }}
             onKeyDown={handleKeyDown}
@@ -291,17 +290,17 @@ export const SearchBar = ({ onSearch, onFilter }: SearchBarProps) => {
                   <Clock className="w-4 h-4 text-slate-500" />
                   <span className="text-xs font-semibold uppercase text-slate-500">Búsquedas recientes</span>
                 </div>
-                <div className="w-8 flex items-center justify-end">
+                <div className="w-8 flex items-center justify-center sm:justify-end sm:w-auto">
                   <button
                     type="button"
                     onClick={(e) => {
                       e.stopPropagation();
                       clearHistory();
                     }}
-                    className="mr-1 flex items-center gap-1 text-sm text-red-500 cursor-pointer"
+                    className="mr-1 flex items-center gap-1 text-sm text-red-500 cursor-pointer px-2 py-1 rounded hover:bg-red-50 whitespace-nowrap"
                     aria-label="Borrar historial"
                   >
-                    <Trash2 className="w-4 h-4" />
+                    <Trash2 className="w-5 h-5 sm:w-4 sm:h-4" />
                     <span className="ml-1 text-sm hidden sm:inline">Borrar historial</span>
                   </button>
                 </div>
@@ -363,7 +362,7 @@ export const SearchBar = ({ onSearch, onFilter }: SearchBarProps) => {
                             <span className="text-sm text-slate-700">{item}</span>
                           </div>
 
-                          <div className="w-8 flex items-center justify-end gap-2">
+                          <div className="w-8 flex items-center justify-center sm:justify-end gap-2">
                             <button
                               type="button"
                               onClick={(e) => {

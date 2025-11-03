@@ -1,7 +1,7 @@
 import React from 'react';
 import { Input } from '@/components/ui/input';
 import { SearchIcon } from './SearchIcon';
-import { Clock, X, Trash2, Star } from 'lucide-react';
+import { Clock, X, Trash2, Star, ArrowUpLeft } from 'lucide-react';
 import { ClearButton } from './ClearButton';
 import { SearchButton } from './SearchButton';
 import { FilterButton } from '../Filter/FilterButton';
@@ -19,6 +19,7 @@ export const SearchBar = ({ onSearch, onFilter }: SearchBarProps) => {
   const [history, setHistory] = React.useState<string[]>([]);
   const [highlighted, setHighlighted] = React.useState<number>(-1);
   const containerRef = React.useRef<HTMLDivElement | null>(null);
+  const inputRef = React.useRef<HTMLInputElement | null>(null);
 
   const HISTORY_KEY = 'job_search_history_v1';
 
@@ -193,6 +194,25 @@ export const SearchBar = ({ onSearch, onFilter }: SearchBarProps) => {
     setHighlighted(-1);
   };
 
+  const previewItem = (item: string) => {
+    // set the input value but do NOT trigger search — allow editing
+    setValue(item);
+    setError(undefined);
+    setIsOpen(true);
+    setHighlighted(-1);
+    // focus input and move caret to end
+    const input = inputRef.current;
+    if (input) {
+      input.focus();
+      try {
+        const len = input.value.length;
+        input.setSelectionRange(len, len);
+      } catch (e) {
+        // ignore
+      }
+    }
+  };
+
   const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key === 'Enter') {
       const combinedLen = visibleCombined.length;
@@ -256,6 +276,7 @@ export const SearchBar = ({ onSearch, onFilter }: SearchBarProps) => {
             className={inputClasses}
             value={value}
             onChange={handleChange}
+            ref={inputRef as any}
             onKeyDown={handleKeyDown}
             onFocus={() => {
               setIsOpen(true);
@@ -275,14 +296,14 @@ export const SearchBar = ({ onSearch, onFilter }: SearchBarProps) => {
                   <Clock className="w-4 h-4 text-slate-500" />
                   <span className="text-xs font-semibold uppercase text-slate-500">Búsquedas recientes</span>
                 </div>
-                <div>
+                <div className="w-8 flex items-center justify-end">
                   <button
                     type="button"
                     onClick={(e) => {
                       e.stopPropagation();
                       clearHistory();
                     }}
-                    className="flex items-center gap-1 text-sm text-red-500 cursor-pointer"
+                    className="mr-1 flex items-center gap-1 text-sm text-red-500 cursor-pointer"
                     aria-label="Borrar historial"
                   >
                     <Trash2 className="w-4 h-4" />
@@ -346,17 +367,32 @@ export const SearchBar = ({ onSearch, onFilter }: SearchBarProps) => {
                             <Clock className="w-4 h-4 text-slate-400" />
                             <span className="text-sm text-slate-700">{item}</span>
                           </div>
-                          <button
-                            type="button"
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              deleteHistoryItem(item);
-                            }}
-                            className="ml-2 opacity-0 group-hover:opacity-100 text-slate-400 hover:text-red-500 transition-opacity cursor-pointer"
-                            aria-label={`Eliminar ${item}`}
-                          >
-                            <X className="w-4 h-4" />
-                          </button>
+
+                          <div className="w-8 flex items-center justify-end gap-2">
+                            <button
+                              type="button"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                previewItem(item);
+                              }}
+                              className="sm:hidden p-1 rounded text-slate-400"
+                              aria-label={`Previsualizar ${item}`}
+                            >
+                              <ArrowUpLeft className="w-4 h-4" />
+                            </button>
+
+                            <button
+                              type="button"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                deleteHistoryItem(item);
+                              }}
+                              className="hidden sm:inline-flex opacity-0 group-hover:opacity-100 text-slate-400 hover:text-red-500 transition-opacity cursor-pointer"
+                              aria-label={`Eliminar ${item}`}
+                            >
+                              <X className="w-4 h-4" />
+                            </button>
+                          </div>
                         </div>
                       )}
                     </li>

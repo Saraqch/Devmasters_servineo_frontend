@@ -5,6 +5,11 @@ import { Header } from '@/app/jobOfert/components_jo';
 import { ResultsCounter } from '@/app/AdvSearch/components_AS/ResultsCounter';
 
 const AdvancedSearchPage = () => {
+  const handleSearch = () => {
+    // Aquí irá la lógica de búsqueda
+    console.log('Aplicar búsqueda');
+  };
+
   return (
     <>
       {/* Header arriba */}
@@ -23,6 +28,16 @@ const AdvancedSearchPage = () => {
         </div>
         
         {/* Aquí puedes agregar tu contenido de búsqueda avanzada */}
+
+        {/* Botón Aplicar Búsqueda */}
+        <div className="flex justify-center mt-8">
+          <button
+            onClick={handleSearch}
+            className="bg-blue-500 text-white font-semibold px-6 py-3 rounded-lg hover:bg-blue-600 transition-colors duration-300 shadow-md hover:shadow-lg"
+          >
+            Aplicar Búsqueda
+          </button>
+        </div>
       </main>
     </>
   );

@@ -1,5 +1,7 @@
+// src/app/jobOfert/components_jo/Pagination/PaginationInfo.tsx
 'use client';
 import React from 'react';
+import { usePagination } from '@/lib/modular/hooks';
 
 interface PaginationInfoProps {
   paginaActual: number;
@@ -12,20 +14,22 @@ const PaginationInfo: React.FC<PaginationInfoProps> = ({
   registrosPorPagina,
   totalRegistros,
 }) => {
+  // ✅ Hook para lógica
+  const pagination = usePagination({
+    totalItems: totalRegistros,
+    initialPage: paginaActual,
+    initialPageSize: registrosPorPagina,
+  });
+
   if (totalRegistros === 0) {
     return <div className="text-sm text-gray-600 mt-3">Mostrando 0 de 0 resultados</div>;
   }
 
-  const inicioRegistro = (paginaActual - 1) * registrosPorPagina + 1;
-  const finRegistro = Math.min(paginaActual * registrosPorPagina, totalRegistros);
-
   return (
     <div className="text-sm text-gray-600 mt-3">
-      Mostrando {inicioRegistro} - {finRegistro} de {totalRegistros} resultados
+      Mostrando {pagination.startIndex} - {pagination.endIndex} de {totalRegistros} resultados
     </div>
   );
 };
 
 export default PaginationInfo;
-
-

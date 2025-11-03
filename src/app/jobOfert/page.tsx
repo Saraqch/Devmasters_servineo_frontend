@@ -1,6 +1,7 @@
+// src/app/jobOfert/page.tsx
 'use client';
 
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useRef } from 'react';
 import {
   SearchBar,
   NoResultsMessage,
@@ -22,13 +23,26 @@ import {
   setFilters,
   setSortBy,
   setRegistrosPorPagina,
+  setPaginaActual,
   FilterState,
 } from './lib/slice';
-import { getSortValue, sortMapInverse } from './lib/constants/sortOptions';
 import { useSyncUrlParams } from './hooks/useSyncUrlParams';
+
+// Opciones de ordenamiento
+const SORT_OPTIONS = [
+  { label: 'Destacados', value: 'rating' },
+  { label: 'Los más recientes', value: 'recent' },
+  { label: 'Los más antiguos', value: 'oldest' },
+  { label: 'Nombre A-Z', value: 'name_asc' },
+  { label: 'Nombre Z-A', value: 'name_desc' },
+  { label: 'Num de contacto asc', value: 'contact_asc' },
+  { label: 'Num de contacto desc', value: 'contact_desc' },
+];
 
 export default function JobOffersPage() {
   const dispatch = useAppDispatch();
+
+  // ✅ Redux state (mantenido)
   const {
     trabajos,
     loading,
@@ -41,7 +55,7 @@ export default function JobOffersPage() {
     totalRegistros,
   } = useAppSelector((state) => state.jobOffers);
 
-  const [isDrawerOpen, setIsDrawerOpen] = useState(false);
+  const [isDrawerOpen, setIsDrawerOpen] = React.useState(false);
   const stickyRef = useRef<HTMLDivElement | null>(null);
   const isInitialMount = useRef(true);
 
@@ -96,22 +110,24 @@ export default function JobOffersPage() {
     };
   }, []);
 
-  // --- Handlers ---
-  const handleRegistrosPorPaginaChange = (valor: number) => {
-    dispatch(setRegistrosPorPagina(valor));
+  // --- Handlers que despachan acciones a Redux ---
+  const handleSearchSubmit = (query: string) => {
+    dispatch(setSearch(query));
+    dispatch(setPaginaActual(1));
     dispatch(
       fetchOffers({
-        searchText: search,
+        searchText: query,
         filters,
         sortBy,
         page: 1,
-        limit: valor,
+        limit: registrosPorPagina,
       }),
     );
   };
 
   const handleFiltersApply = (appliedFilters: FilterState) => {
     dispatch(setFilters(appliedFilters));
+    dispatch(setPaginaActual(1));
     dispatch(
       fetchOffers({
         searchText: search,
@@ -124,26 +140,13 @@ export default function JobOffersPage() {
   };
 
   const handleSortChange = (option: string) => {
-    const backendSort = getSortValue(option);
-    dispatch(setSortBy(backendSort));
+    dispatch(setSortBy(option));
+    dispatch(setPaginaActual(1));
     dispatch(
       fetchOffers({
         searchText: search,
         filters,
-        sortBy: backendSort,
-        page: 1,
-        limit: registrosPorPagina,
-      }),
-    );
-  };
-
-  const handleSearchSubmit = (query: string) => {
-    dispatch(setSearch(query));
-    dispatch(
-      fetchOffers({
-        searchText: query,
-        filters,
-        sortBy,
+        sortBy: option,
         page: 1,
         limit: registrosPorPagina,
       }),
@@ -151,6 +154,7 @@ export default function JobOffersPage() {
   };
 
   const handlePageChange = (newPage: number) => {
+    dispatch(setPaginaActual(newPage));
     dispatch(
       fetchOffers({
         searchText: search,
@@ -158,6 +162,20 @@ export default function JobOffersPage() {
         sortBy,
         page: newPage,
         limit: registrosPorPagina,
+      }),
+    );
+  };
+
+  const handleRegistrosPorPaginaChange = (valor: number) => {
+    dispatch(setRegistrosPorPagina(valor));
+    dispatch(setPaginaActual(1));
+    dispatch(
+      fetchOffers({
+        searchText: search,
+        filters,
+        sortBy,
+        page: 1,
+        limit: valor,
       }),
     );
   };
@@ -182,17 +200,20 @@ export default function JobOffersPage() {
         <div className="flex flex-row items-center gap-2 mb-3">
           <FilterButton onClick={toggleDrawer} />
           <div className="flex-1">
+            {/* ✅ SearchBar usa hook internamente */}
             <SearchBar onSearch={handleSearchSubmit} />
           </div>
         </div>
 
         {!loading && trabajos.length > 0 && (
           <div className="flex flex-col gap-2 sm:flex-row justify-between items-stretch">
+            {/* ✅ PaginationSelector usa hook internamente */}
             <PaginationSelector
               registrosPorPagina={registrosPorPagina}
               onChange={handleRegistrosPorPaginaChange}
             />
-            <SortCard value={sortMapInverse[sortBy]} onSelect={handleSortChange} />
+            {/* ✅ SortCard usa hook internamente */}
+            <SortCard options={SORT_OPTIONS} initialSort={sortBy} onSelect={handleSortChange} />
           </div>
         )}
       </div>
@@ -207,15 +228,18 @@ export default function JobOffersPage() {
           </div>
         )}
 
+        {/* ✅ FilterDrawer usa hook internamente */}
         <FilterDrawer
           isOpen={isDrawerOpen}
           onClose={() => setIsDrawerOpen(false)}
           onFiltersApply={handleFiltersApply}
+          initialFilters={filters}
         />
 
         {!loading && trabajos.length > 0 && (
           <div className="w-full max-w-5xl mx-auto mb-4">
             <div className="flex justify-center">
+              {/* ✅ PaginationInfo usa hook internamente */}
               <PaginationInfo
                 paginaActual={paginaActual}
                 registrosPorPagina={registrosPorPagina}
@@ -235,6 +259,7 @@ export default function JobOffersPage() {
 
         {!loading && trabajos.length > 0 && (
           <div className="mt-8 mb-24 flex justify-center">
+            {/* ✅ Paginacion usa hook internamente */}
             <Paginacion
               paginaActual={paginaActual}
               registrosPorPagina={registrosPorPagina}

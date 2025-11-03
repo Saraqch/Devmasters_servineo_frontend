@@ -1,6 +1,8 @@
-// Paginacion.tsx
+// src/app/jobOfert/components_jo/Pagination/Paginacion.tsx
 'use client';
 import React from 'react';
+import { usePagination } from '@/lib/modular/hooks';
+import { PaginationHeadless } from '@/lib/modular/headless';
 
 interface PaginacionProps {
   paginaActual: number;
@@ -15,57 +17,70 @@ const Paginacion: React.FC<PaginacionProps> = ({
   registrosPorPagina,
   onChange,
 }) => {
-  // Calcular total de páginas
-  const totalPaginas = Math.max(Math.ceil(totalRegistros / registrosPorPagina), 1);
-  const paginas = Array.from({ length: totalPaginas }, (_, i) => i + 1);
-  // Calcular si ya se alcanzó el último registro
-  const registrosMostrados = paginaActual * registrosPorPagina;
-  const yaLlegoAlFinal = registrosMostrados >= totalRegistros;
+  // ✅ Hook para lógica
+  const pagination = usePagination({
+    totalItems: totalRegistros,
+    initialPage: paginaActual,
+    initialPageSize: registrosPorPagina,
+  });
 
   return (
-    <div className="flex gap-1 flex-wrap justify-center mt-4">
-      {/* Botón Anterior (solo se muestra si no estamos en la primera página) */}
-{paginaActual > 1 && (
-  <button
-    onClick={() => onChange(paginaActual - 1)}
-    className="px-3 py-1 rounded bg-gray-200 hover:bg-blue-500 hover:text-white"
-  >
-    Anterior
-  </button>
-)}
+    // ✅ Headless para estructura
+    <PaginationHeadless
+      currentPage={pagination.currentPage}
+      totalPages={pagination.totalPages}
+      onPageChange={onChange}
+      hasNext={pagination.hasNext}
+      hasPrev={pagination.hasPrev}
+      maxVisible={5}
+    >
+      {({ pages, navigation, state }) => (
+        // 🎨 Diseño específico de JobOfert
+        <div className="flex gap-1 flex-wrap justify-center mt-4">
+          {/* Botón Anterior */}
+          {state.hasPrev && (
+            <button
+              onClick={navigation.prevPage}
+              className="px-3 py-1 rounded bg-gray-200 hover:bg-blue-500 hover:text-white transition-colors duration-200"
+            >
+              Anterior
+            </button>
+          )}
 
+          {/* Números de página */}
+          {pages.map((page, index) =>
+            page === 'ellipsis' ? (
+              <span key={`ellipsis-${index}`} className="px-3 py-1">
+                ...
+              </span>
+            ) : (
+              <button
+                key={page}
+                onClick={() => navigation.goToPage(page)}
+                className={`px-3 py-1 rounded transition-colors duration-200 ${
+                  page === pagination.currentPage
+                    ? 'bg-blue-600 text-white'
+                    : 'bg-gray-200 hover:bg-blue-500 hover:text-white'
+                }`}
+              >
+                {page}
+              </button>
+            ),
+          )}
 
-      {paginas.map((num) => (
-        <button
-          key={num}
-          onClick={() => onChange(num)}
-          className={`px-3 py-1 rounded transition-colors duration-200 ${
-            num === paginaActual
-              ? 'bg-blue-600 text-white'
-              : 'bg-gray-200 hover:bg-blue-500 hover:text-white'
-          }`}
-        >
-          {num}
-        </button>
-      ))}
-
-       {!yaLlegoAlFinal && (
-        <button
-          onClick={() => onChange(Math.min(paginaActual + 1, totalPaginas))}
-          disabled={paginaActual === totalPaginas}
-          className={`px-3 py-1 rounded ${
-            paginaActual === totalPaginas
-              ? 'bg-gray-300 cursor-not-allowed'
-              : 'bg-gray-200 hover:bg-blue-500 hover:text-white'
-          }`}
-        >
-          Siguiente
-        </button>
+          {/* Botón Siguiente */}
+          {state.hasNext && (
+            <button
+              onClick={navigation.nextPage}
+              className="px-3 py-1 rounded bg-gray-200 hover:bg-blue-500 hover:text-white transition-colors duration-200"
+            >
+              Siguiente
+            </button>
+          )}
+        </div>
       )}
-    </div>
+    </PaginationHeadless>
   );
 };
 
 export default Paginacion;
-
-

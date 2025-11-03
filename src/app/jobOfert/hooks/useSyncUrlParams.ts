@@ -24,6 +24,7 @@ export const useSyncUrlParams = ({
     
     if (search) params.set('search', search);
     if (filters.city) params.set('city', filters.city);
+    if (filters.range?.length) params.set('range', filters.range.join(','));
     if (filters.category?.length) params.set('category', filters.category.join(','));
     if (sortBy) params.set('sort', sortBy);
     if (paginaActual) params.set('page', String(paginaActual));

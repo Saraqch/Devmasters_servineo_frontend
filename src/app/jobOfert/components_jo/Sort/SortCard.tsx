@@ -1,3 +1,4 @@
+// src/app/jobOfert/components_jo/Sort/SortCard.tsx
 'use client';
 
 import { Button } from '@/components/ui/button';
@@ -9,52 +10,57 @@ import {
 } from '@/components/ui/dropdown-menu';
 import React from 'react';
 import { ChevronDown } from 'lucide-react';
+import { useSort } from '@/lib/modular/hooks';
+import { SortSelectHeadless } from '@/lib/modular/headless';
+import { SortOption } from '@/lib/modular/types/base.types';
 
 interface SortCardProps {
-  value: string; // valor actual seleccionado desde el padre
-  onSelect: (option: string) => void; // callback al cambiar
+  options: SortOption[];
+  initialSort?: string;
+  onSelect: (option: string) => void;
 }
 
-export default function SortCard({ value, onSelect }: SortCardProps) {
-  const sortOptions = [
-    'Destacados',
-    'Los más recientes',
-    'Los más antiguos',
-    'Nombre A-Z',
-    'Nombre Z-A',
-    'Num de contacto asc',
-    'Num de contacto desc',
-  ];
+export default function SortCard({ options, initialSort, onSelect }: SortCardProps) {
+  // ✅ Hook para lógica
+  const sort = useSort({
+    initialSort: initialSort || options[0]?.value || '',
+    options,
+    onChange: onSelect,
+  });
 
   return (
-    <DropdownMenu>
-      <DropdownMenuTrigger asChild>
-        <Button
-          variant="outline"
-          className="flex font-bold items-center gap-2 !border-black hover:!bg-[#2B6AE0] hover:!text-white !transition-colors"
-        >
-          {value}
-          <ChevronDown className="h-4 w-4" />
-        </Button>
-      </DropdownMenuTrigger>
-      <DropdownMenuContent
-        align="start"
-        className="!bg-white !border-black !shadow-md !rounded-lg z-70"
-      >
-        {sortOptions.map((option) => (
-          <DropdownMenuItem
-            key={option}
-            onClick={() => onSelect(option)} // Solo notificamos al padre
-            className={`cursor-pointer !px-3 !py-2 !rounded-md !transition-colors ${
-              value === option
-                ? '!bg-[#2B6AE0] !text-white'
-                : 'hover:!bg-[#1AA7ED] hover:!text-white'
-            }`}
+    // ✅ Headless para estructura
+    <SortSelectHeadless value={sort.value} options={sort.options} onChange={sort.setValue}>
+      {({ currentOption, options: sortOptions }) => (
+        // 🎨 Diseño específico de JobOfert
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <Button
+              variant="outline"
+              className="flex font-bold items-center gap-2 !border-black hover:!bg-[#2B6AE0] hover:!text-white !transition-colors"
+            >
+              {currentOption?.label || 'Ordenar'}
+              <ChevronDown className="h-4 w-4" />
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent
+            align="start"
+            className="!bg-white !border-black !shadow-md !rounded-lg z-70"
           >
-            {option}
-          </DropdownMenuItem>
-        ))}
-      </DropdownMenuContent>
-    </DropdownMenu>
+            {sortOptions.map(({ option, isSelected, select }) => (
+              <DropdownMenuItem
+                key={option.value}
+                onClick={select}
+                className={`cursor-pointer !px-3 !py-2 !rounded-md !transition-colors ${
+                  isSelected ? '!bg-[#2B6AE0] !text-white' : 'hover:!bg-[#1AA7ED] hover:!text-white'
+                }`}
+              >
+                {option.label}
+              </DropdownMenuItem>
+            ))}
+          </DropdownMenuContent>
+        </DropdownMenu>
+      )}
+    </SortSelectHeadless>
   );
 }

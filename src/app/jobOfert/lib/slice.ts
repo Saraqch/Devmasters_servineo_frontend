@@ -48,6 +48,7 @@ const initialState: JobOffersState = {
   loading: true,
   error: null,
   filters: { range: [], city: '', category: [], tags: [], minPrice: null, maxPrice: null }, // AÑADIDO
+  sortBy: 'recent',
   search: '',
   paginaActual: 1,
   registrosPorPagina: 10,

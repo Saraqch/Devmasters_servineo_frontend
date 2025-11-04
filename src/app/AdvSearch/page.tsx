@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useRef, useEffect } from 'react';
+import React from 'react';
 import Header from '@/app/jobOfert/components_jo/Header';
 import { ResultsCounter } from '@/app/AdvSearch/components_AS/ResultsCounter';
 import { InputOnlySearch } from '@/app/jobOfert/components_jo/Search/InputOnlySearch';
@@ -9,8 +9,7 @@ import { HelpButton } from './components_AS/HelpButton';
 import DropdownList from './components_AS/DropdownList'; // <-- Nuevo componente
 import useSyncUrlParamsAdv from './hooks/useSyncUrlParams'; // ajustar ruta si hace falta
 import { useRouter } from 'next/navigation';
-import { useAppDispatch, useAppSelector } from '@/app/jobOfert/hooks/hook';
-import { fetchOffers as fetchOffersThunk } from '@/app/jobOfert/lib/slice';
+import useAdvSearchLogic from './hooks/useAdvSearchLogic';
 import PriceRangeList from './components_AS/PriceRangeList';
 import DateFilterSelector from './components_AS/DateFilterSelector';
 import CalificacionEstrella from './components_AS/CalificacionEstrella';
@@ -61,168 +60,53 @@ function parsePriceRange(key: string): { minPrice: number | null; maxPrice: numb
 }
 
 function AdvancedSearchPage() {
-  const [searchQuery, setSearchQuery] = useState('');
-  const [titleOnly, setTitleOnly] = useState(false);
-  const [exactWords, setExactWords] = useState(false);
+  const {
+    // state
+    searchQuery,
+    titleOnly,
+    exactWords,
+    openSections,
+    selectedRanges,
+    selectedCity,
+    selectedJobs,
+    selectedCategories,
+    selectedPriceRanges,
+    selectedTags,
+    selectedPriceKey,
+    resultsCount,
+    loading,
+    totalRegistros,
+    storeLoading,
+    clearSignal,
+    skipSyncRef,
+    // handlers
+    setSearchQuery,
+    setTitleOnly,
+    setExactWords,
+    toggleSection,
+    handleRangeChange,
+    handleCityChange,
+    handleJobChange,
+    handleDropdownChange,
+    handlePriceRangeChange,
+    handleSearch,
+    setClearSignal,
+    updateSearchOnStateChange,
+    setSelectedRanges,
+    setSelectedCity,
+    setSelectedJobs,
+    setSelectedCategories,
+    setSelectedPriceRanges,
+    setSelectedPriceKey,
+    setResultsCount,
+    fetchGlobalTotal,
+  } = useAdvSearchLogic();
 
-  const [openSections, setOpenSections] = useState<{ [key: string]: boolean }>({
-    fixer: false,
-    ciudad: false,
-    trabajo: false,
-    categorias: false,
-    precio: false,
-  });
-  const [selectedRanges, setSelectedRanges] = useState<string[]>([]);
-  const [selectedCity, setSelectedCity] = useState<string>('');
-  const [selectedJobs, setSelectedJobs] = useState<string[]>([]);
-  const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
-  const [selectedPriceRanges, setSelectedPriceRanges] = useState<string[]>([]);
-
-  // Estados para dropdowns (controlados por DropdownList)
-  const [selectedTags, setSelectedTags] = useState<string[]>([]); 
-  const [selectedPriceKey, _setSelectedPriceKey] = useState<string>(''); // Usaremos 'Key' para el valor del dropdown
-
-  // Estado para resultados (permitiendo la mutabilidad)
-  const [resultsCount, setResultsCount] = useState<number | null>(null); // Permitir null para estado inicial/carga
-  const [loading, setLoading] = useState(false); // Permitir cambiar el estado de carga
-  const dispatch = useAppDispatch();
-  const totalRegistros = useAppSelector((s) => s.jobOffers.totalRegistros);
-  const storeLoading = useAppSelector((s) => s.jobOffers.loading);
-  const router = useRouter();
-  const skipSyncRef = useRef<boolean | null>(null);
-  
-  // signal to force child components to clear their internal selection
-  const [clearSignal, setClearSignal] = useState<number>(0);
-
-  const toggleSection = (section: string) => {
-    setOpenSections((prev) => ({
-      ...prev,
-      [section]: !prev[section],
-    }));
-  };
-
-  // Removed local fake fetch; we now reuse the shared thunk `fetchOffersThunk`
-
-  const updateSearchOnStateChange = ({ 
-    newRanges = selectedRanges, 
-    newCity = selectedCity, 
-    newJobs = selectedJobs, 
-    newCategories = selectedCategories,
-    newPriceRanges = selectedPriceRanges,
-    newSearchQuery = searchQuery,
-    newTitleOnly = titleOnly,
-    newExactWords = exactWords,
-    newPriceKey = selectedPriceKey,
-  }: { 
-    newRanges?: string[], 
-    newCity?: string, 
-    newJobs?: string[], 
-    newCategories?: string[],
-    newPriceRanges?: string[],
-    newSearchQuery?: string,
-    newTitleOnly?: boolean,
-    newExactWords?: boolean,
-    newPriceKey?: string,
-  }) => {
-    
-   if (!newSearchQuery && newRanges.length === 0 && newCity === '' && 
-        newJobs.length === 0 && newCategories.length === 0 && newPriceRanges.length === 0) { //  Condición actualizada
-        console.log('Debe ingresar al menos un parámetro de búsqueda.');
-        setResultsCount(0);
-        return;
-    }
-
-  const { minPrice, maxPrice } = parsePriceRange(newPriceKey ?? '');
-
-  const currentFilters: FilterState = {
-    range: newRanges,
-    city: newCity,
-    category: newJobs,
-    tags: newCategories,
-    priceRanges: newPriceRanges,
-    minPrice,
-    maxPrice,
-  };
-
-    // updateSearchOnStateChange only computes filters; actual fetch is handled
-    // by a debounced effect below that dispatches `fetchOffersThunk`.
-  };
-
-  const updateSearch = () => updateSearchOnStateChange({});
-
-  const handleRangeChange = (range: string) => {
-    setSelectedRanges(prevRanges => {
-      const newRanges = prevRanges.includes(range)
-        ? prevRanges.filter((r) => r !== range)
-        : [...prevRanges, range];
-      updateSearchOnStateChange({ newRanges });
-      return newRanges;
-    });
-  };
-
-  const handleCityChange = (city: string) => {
-    setSelectedCity(prevCity => {
-      const newCity = prevCity === city ? '' : city;
-      updateSearchOnStateChange({ newCity });
-      return newCity;
-    });
-  };
-
-  const handleJobChange = (job: string) => {
-    setSelectedJobs(prevJobs => {
-      const newJobs = prevJobs.includes(job)
-        ? prevJobs.filter((j) => j !== job)
-        : [...prevJobs, job];
-      updateSearchOnStateChange({ newJobs });
-      return newJobs;
-    });
-  };
-// Reemplaza handleSearch y handleDropdownChange:
-
-  // Handler para el Input de Búsqueda (con debounce)
-  const handleSearch = (query: string) => {
-  setSearchQuery(query);
-  // Prevent the AdvSearch URL-sync hook from overriding the navigation
-  skipSyncRef.current = true;
-  // Navigate to jobOfert with current filters + this query
-  const params = new URLSearchParams();
-  if (query.trim()) params.set('search', query.trim());
-  if (titleOnly) params.set('titleOnly', 'true');
-  if (exactWords) params.set('exact', 'true');
-  selectedRanges.forEach(r => params.append('range', r));
-  if (selectedCity) params.set('city', selectedCity);
-  if (selectedJobs.length) params.set('category', selectedJobs.join(','));
-  if (selectedTags.length) params.set('tags', selectedTags.join(','));
-  const { minPrice, maxPrice } = parsePriceRange(selectedPriceKey);
-  if (minPrice != null) params.set('minPrice', String(minPrice));
-  if (maxPrice != null) params.set('maxPrice', String(maxPrice));
-  params.set('page', '1');
-  params.set('limit', '10');
-  // Force a full navigation to /jobOfert to ensure the page component mounts and shows results.
-  // Using window.location avoids client-side URL-replace races with the local sync hook.
-  if (typeof window !== 'undefined') {
-    window.location.href = `/jobOfert?${params.toString()}`;
-  } else {
-    router.push(`/jobOfert?${params.toString()}`);
-  }
-  };
- 
-  // Handler que recibe cambios desde DropdownList (etiquetas)
-  // DropdownList calls onFilterChange({ categories: string[] })
-  const handleDropdownChange = (filters: { categories: string[] }) => {
-    const newTags = Array.isArray(filters.categories) ? filters.categories : [];
-    setSelectedTags(newTags);
-    // DropdownList doesn't provide price; keep existing price key unchanged
-    updateSearchOnStateChange({ newCategories: newTags });
-  };
-
-  // Handler para rangos de precio (PriceRangeList)
-  // PriceRangeList calls onFilterChange({ priceRanges: string[] })
-  const handlePriceRangeChange = (filters: { priceRanges: string[] }) => {
-    const newPriceRanges = Array.isArray(filters.priceRanges) ? filters.priceRanges : [];
-    setSelectedPriceRanges(newPriceRanges);
-    updateSearchOnStateChange({ newPriceRanges });
-  };
+  // compute min/max from selectedPriceKey (kept local for URL sync)
+  const _priceNormalized = (selectedPriceKey || '').replace(/[$€£,]/g, '');
+  const _priceMatches = _priceNormalized.match(/-?\d+(?:\.\d+)?/g) || [];
+  const _minPrice = _priceMatches[0] ? Number(_priceMatches[0]) : null;
+  const _maxPrice = _priceMatches[1] ? Number(_priceMatches[1]) : null;
 
   useSyncUrlParamsAdv({
     search: searchQuery,
@@ -231,59 +115,14 @@ function AdvancedSearchPage() {
       city: selectedCity,
       category: selectedJobs,
       tags: selectedTags,
-      minPrice: parsePriceRange(selectedPriceKey).minPrice,
-      maxPrice: parsePriceRange(selectedPriceKey).maxPrice,
+      minPrice: _minPrice,
+      maxPrice: _maxPrice,
     },
     titleOnly,
     exact: exactWords,
     skipSyncRef,
   });
 
-  // Initial fetch: get total offers from DB (no filters) when component mounts
-  useEffect(() => {
-    dispatch(
-      fetchOffersThunk({
-        searchText: '',
-        filters: { range: [], city: '', category: [], tags: [], minPrice: null, maxPrice: null },
-        sortBy: 'recent',
-        page: 1,
-        limit: 1,
-      }),
-    );
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
-
-  // Debounced update: when any filter/search changes, quickly dispatch the thunk
-  useEffect(() => {
-    const { minPrice, maxPrice } = parsePriceRange(selectedPriceKey);
-    // Build filters matching the backend/store FilterState shape (no priceRanges key)
-    const apiFilters = {
-      range: selectedRanges,
-      city: selectedCity,
-      category: selectedJobs,
-      tags: selectedTags,
-      minPrice,
-      maxPrice,
-    };
-
-    // Short debounce for responsive updates while typing/selecting
-    const t = window.setTimeout(() => {
-      dispatch(
-        fetchOffersThunk({
-          searchText: searchQuery ?? '',
-          filters: apiFilters,
-          sortBy: 'recent',
-          page: 1,
-          limit: 1,
-          titleOnly: titleOnly ?? false,
-          exact: exactWords ?? false,
-        }),
-      );
-    }, 150);
-
-    return () => clearTimeout(t);
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [searchQuery, selectedRanges, selectedCity, selectedJobs, selectedTags, selectedPriceRanges, selectedPriceKey, titleOnly, exactWords]);
 
   return (
     <>
@@ -541,16 +380,8 @@ function AdvancedSearchPage() {
                 setResultsCount(null);
                 // notify children (DropdownList, PriceRangeList) to clear
                 setClearSignal((s) => s + 1);
-                // fetch global total again
-                dispatch(
-                  fetchOffersThunk({
-                    searchText: '',
-                    filters: { range: [], city: '', category: [], tags: [], minPrice: null, maxPrice: null },
-                    sortBy: 'recent',
-                    page: 1,
-                    limit: 1,
-                  }),
-                );
+                // fetch global total again (hook exposes helper)
+                fetchGlobalTotal();
               }} />
             </div>
 

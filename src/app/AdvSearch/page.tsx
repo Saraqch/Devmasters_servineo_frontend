@@ -11,6 +11,7 @@ import PriceRangeList from './components_AS/PriceRangeList';
 import DateFilterSelector from './components_AS/DateFilterSelector';
 import CalificacionEstrella from './components_AS/CalificacionEstrella';
 import ButtonAplicarBus from './components_AS/ButtonAplicarBus';
+import ClearButton from './components_AS/ClearButton';
 
 interface FilterState {
   range: string[];
@@ -61,6 +62,8 @@ function AdvancedSearchPage() {
 
   const [resultsCount, setResultsCount] = useState<number | null>(null);
   const [loading, setLoading] = useState(false);
+  // signal to force child components to clear their internal selection
+  const [clearSignal, setClearSignal] = useState<number>(0);
 
   const toggleSection = (section: string) => {
     setOpenSections((prev) => ({
@@ -423,7 +426,7 @@ const handleCategoryChange = (payload: { categories: string[] }) => {
 
               {openSections.categorias && (
                 <div className="bg-white border border-t-0 border-gray-300 rounded-b-lg shadow-sm">
-                  <DropdownList onFilterChange={handleCategoryChange} />
+                  <DropdownList onFilterChange={handleCategoryChange} clearSignal={clearSignal} />
                 </div>
               )}
             </div>
@@ -453,7 +456,7 @@ const handleCategoryChange = (payload: { categories: string[] }) => {
 
               {openSections.precio && (
                 <div className="bg-white border border-t-0 border-gray-300 rounded-b-lg shadow-sm">
-                  <PriceRangeList onFilterChange={handlePriceRangeChange} /> 
+                  <PriceRangeList onFilterChange={handlePriceRangeChange} clearSignal={clearSignal} /> 
                 </div>
               )}
             </div>
@@ -467,12 +470,23 @@ const handleCategoryChange = (payload: { categories: string[] }) => {
               </div>
             </div>
 
-            {/* Botón Aplicar Búsqueda al final izquierdo */}
-            <div className="flex justify-start">
-              <ButtonAplicarBus 
-                onClick={updateSearch} 
-                loading={loading} 
-              />
+            {/* Botones: Aplicar Búsqueda y Limpiar Datos (misma altura y alineación) */}
+            <div className="flex justify-center items-center gap-4 mt-8">
+              <ButtonAplicarBus onClick={updateSearch} loading={loading} />
+              <ClearButton onClick={() => {
+                // Limpia todos los filtros y la búsqueda a nivel de página
+                setSearchQuery('');
+                setSelectedRanges([]);
+                setSelectedCity('');
+                setSelectedJobs([]);
+                setSelectedCategories([]);
+                setSelectedPriceRanges([]);
+                setTitleOnly(false);
+                setExactWords(false);
+                setResultsCount(null);
+                // notify children (DropdownList, PriceRangeList) to clear
+                setClearSignal((s) => s + 1);
+              }} />
             </div>
 
           </div>

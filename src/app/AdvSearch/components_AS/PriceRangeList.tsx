@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 
 // Genera rangos de 100 en 100 hasta un máximo.
 const generatePriceRanges = (max: number = 1000) => {
@@ -17,9 +17,11 @@ const PRICE_RANGES = generatePriceRanges(500); // Rango de ejemplo: $0 a $500+
 
 interface PriceRangeListProps {
   onFilterChange?: (filters: { priceRanges: string[] }) => void;
+  // When this numeric prop changes, the component will clear its selection
+  clearSignal?: number;
 }
 
-const PriceRangeList: React.FC<PriceRangeListProps> = ({ onFilterChange }) => {
+const PriceRangeList: React.FC<PriceRangeListProps> = ({ onFilterChange, clearSignal }) => {
   const [selectedRanges, setSelectedRanges] = useState<string[]>([]);
   // No necesitamos loading/error ya que los rangos son estáticos
 
@@ -32,6 +34,14 @@ const PriceRangeList: React.FC<PriceRangeListProps> = ({ onFilterChange }) => {
     // Notifica al componente padre
     onFilterChange?.({ priceRanges: newSelectedRanges });
   };
+
+  // Reset selections when parent signals a clear
+  useEffect(() => {
+    if (typeof clearSignal === 'undefined') return;
+    setSelectedRanges([]);
+    onFilterChange?.({ priceRanges: [] });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [clearSignal]);
 
   return (
     <div className="w-full border border-gray-300 rounded-lg overflow-hidden">

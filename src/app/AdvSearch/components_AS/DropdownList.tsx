@@ -4,9 +4,11 @@ import React, { useState, useEffect } from "react";
 
 interface DropdownListProps {
   onFilterChange?: (filters: { categories: string[] }) => void;
+  // A numeric signal that when changed forces the component to clear its selection.
+  clearSignal?: number;
 }
 
-const DropdownList: React.FC<DropdownListProps> = ({ onFilterChange }) => {
+const DropdownList: React.FC<DropdownListProps> = ({ onFilterChange, clearSignal }) => {
   const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
   const [categories, setCategories] = useState<string[]>([]);
   const [loading, setLoading] = useState(true);
@@ -71,6 +73,15 @@ const DropdownList: React.FC<DropdownListProps> = ({ onFilterChange }) => {
 
     fetchCategories();
   }, []);
+
+  // When parent requests a clear (clearSignal changes), reset internal selection
+  useEffect(() => {
+    if (typeof clearSignal === 'undefined') return;
+    // Parent changed clearSignal: reset selection
+    setSelectedCategories([]);
+    onFilterChange?.({ categories: [] });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [clearSignal]);
 
   const handleCheckboxChange = (categoryValue: string) => {
     const newSelectedCategories = selectedCategories.includes(categoryValue)

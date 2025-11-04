@@ -50,6 +50,30 @@ export const SearchBar = ({ onSearch, onFilter }: SearchBarProps) => {
     await fetch(url);
   } catch (error) {
     console.error('Error limpiando historial del backend:', error);
+   }
+  };
+
+   const fetchHistoryFromBackend = async (searchTerm: string = '') => {
+    try {
+    const sessionId = localStorage.getItem('sessionId');
+    if (!sessionId) {
+      return [];
+    }
+
+    // ✅ Usar el endpoint correcto de historial
+    const url = `${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000'}/api/devmaster/offers?action=getHistory&search=${encodeURIComponent(searchTerm)}&sessionId=${encodeURIComponent(sessionId)}`;
+    
+    const response = await fetch(url);
+    const data = await response.json();
+    
+    if (data.success && data.searchHistory) {
+      return data.searchHistory.map((item: any) => item.searchTerm);
+    }
+    
+    return [];
+  } catch (error) {
+    console.error('Error obteniendo historial del backend:', error);
+    return [];
   }
 };
 
@@ -73,12 +97,12 @@ export const SearchBar = ({ onSearch, onFilter }: SearchBarProps) => {
   };
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setValue(e.target.value);
-    const { isValid, error } = validateSearch(e.target.value);
-    setError(isValid ? undefined : error);
-    // resetear el resaltado de teclado/ratón cuando el usuario escribe
-    setHighlighted(-1);
-  };
+  const newValue = e.target.value;
+  setValue(newValue);
+  const { isValid, error } = validateSearch(newValue);
+  setError(isValid ? undefined : error);
+  setHighlighted(-1);
+};
 
   const handleClear = () => {
     setValue('');
@@ -110,17 +134,10 @@ export const SearchBar = ({ onSearch, onFilter }: SearchBarProps) => {
   };
 
   const deleteHistoryItem = async (item: string) => {
-  // Eliminar del localStorage local
-    setHistory((prev) => {
-      const updated = prev.filter((p) => p !== item);
-      persistHistory(updated);
-      return updated;
-   });
-  
-   // Eliminar del backend
-   await deleteFromBackend(item);
-  
-   // si el elemento resaltado fue eliminado, resetear
+    await deleteFromBackend(item);
+    const updatedHistory = await fetchHistoryFromBackend(value.trim());
+    setHistory(updatedHistory);
+    persistHistory(updatedHistory);
     setHighlighted(-1);
   };
 
@@ -158,7 +175,6 @@ export const SearchBar = ({ onSearch, onFilter }: SearchBarProps) => {
     clearTouchTimer();
   };
 
-
   const handleSearch = () => {
     const { isValid, error, data } = validateSearch(value);
     if (!isValid) {
@@ -177,8 +193,29 @@ export const SearchBar = ({ onSearch, onFilter }: SearchBarProps) => {
   }`;
 
   React.useEffect(() => {
-    setHistory(loadHistory());
+    const loadInitialHistory = async () => {
+      const backendHistory = await fetchHistoryFromBackend('');
+      if (backendHistory.length > 0) {
+        setHistory(backendHistory);
+        persistHistory(backendHistory);
+      } else {
+        setHistory(loadHistory());
+      }
+    };
+  
+  loadInitialHistory();
   }, []);
+
+  React.useEffect(() => {
+    const timer = setTimeout(async () => {
+     // Si está vacío, cargar todo el historial
+      // Si tiene texto, filtrar
+     const filteredHistory = await fetchHistoryFromBackend(value.trim());
+     setHistory(filteredHistory);
+    }, 0);
+  
+    return () => clearTimeout(timer);
+  }, [value]);
 
   // limitar historial visible a 5 ítems
   const visibleHistory = React.useMemo(() => history.slice(0, 5), [history]);

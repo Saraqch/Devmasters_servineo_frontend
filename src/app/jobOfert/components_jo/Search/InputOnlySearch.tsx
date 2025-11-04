@@ -8,14 +8,16 @@ import { validateSearch } from '../../validators/search.validator';
 
 interface InputOnlySearchProps {
   onSearch: (query: string) => void;
+  onValueChange?: (value: string) => void;
 }
 
-export const InputOnlySearch = ({ onSearch }: InputOnlySearchProps) => {
+export const InputOnlySearch = ({ onSearch, onValueChange }: InputOnlySearchProps) => {
   const [value, setValue] = React.useState('');
   const [error, setError] = React.useState<string | undefined>();
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setValue(e.target.value);
+  if (typeof onValueChange === 'function') onValueChange(e.target.value);
     const { isValid, error } = validateSearch(e.target.value);
     setError(isValid ? undefined : error);
   };
@@ -24,6 +26,7 @@ export const InputOnlySearch = ({ onSearch }: InputOnlySearchProps) => {
     setValue('');
     setError(undefined);
     onSearch('');
+  if (typeof onValueChange === 'function') onValueChange('');
   };
 
   const handleSearch = () => {

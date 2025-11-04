@@ -310,7 +310,7 @@ function AdvancedSearchPage() {
 
           <div className="w-full sm:w-[700px] mx-auto -mt-60">
             <div className="mb-4">
-              <InputOnlySearch onSearch={handleSearch} />
+              <InputOnlySearch onSearch={handleSearch} onValueChange={(v) => setSearchQuery(v)} />
             </div>
 
             <div className="mb-6">
@@ -533,7 +533,7 @@ function AdvancedSearchPage() {
 
             {/* Botones: Aplicar Búsqueda y Limpiar Datos (misma altura y alineación) */}
             <div className="flex justify-center items-center gap-4 mt-8">
-              <ButtonAplicarBus onClick={updateSearch} loading={loading} />
+              <ButtonAplicarBus onClick={() => handleSearch(searchQuery)} loading={loading} />
               <ClearButton onClick={() => {
                 // Limpia todos los filtros y la búsqueda a nivel de página
                 setSearchQuery('');

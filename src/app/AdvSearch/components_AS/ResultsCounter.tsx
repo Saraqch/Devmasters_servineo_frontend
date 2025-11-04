@@ -8,7 +8,7 @@ interface ResultsCounterProps {
 
 export function ResultsCounter({ total, loading = false }: ResultsCounterProps) {
   return (
-    <div className="flex flex-col items-center justify-center py-8 px-4">
+    <div className="flex flex-col items-center justify-center py-6 px-4 transform -translate-y-4" style={{ fontFamily: 'Roboto, sans-serif' }}>
       {/* Título FUERA de la forma - letra más grande */}
       <p className="text-sm font-bold text-gray-900 mb-4 text-center leading-tight">
         CANTIDAD
@@ -33,12 +33,12 @@ export function ResultsCounter({ total, loading = false }: ResultsCounterProps) 
         </svg>
         
         {/* Contenido sobre el escudo */}
-        <div className="absolute inset-0 flex flex-col items-center justify-center pt-4">
+  <div className="absolute inset-0 flex flex-col items-center justify-center">
           {/* Ícono de documento */}
-          <div className="flex justify-center mb-3">
-            <svg 
-              className="w-10 h-10 text-blue-600" 
-              fill="currentColor" 
+          <div className="flex justify-center mb-2">
+            <svg
+              className="w-8 h-8 text-blue-600"
+              fill="currentColor"
               viewBox="0 0 20 20"
             >
               {/* Ícono de documento con líneas horizontales */}
@@ -47,7 +47,7 @@ export function ResultsCounter({ total, loading = false }: ResultsCounterProps) 
           </div>
           
           {/* Solo el número - sin "Empleos" */}
-          <p className="text-3xl font-bold text-blue-600">
+          <p className="text-lg font-bold text-blue-600 text-center">
             {loading ? (
               <span className="animate-pulse">...</span>
             ) : (

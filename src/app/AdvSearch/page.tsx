@@ -12,6 +12,7 @@ import DateFilterSelector from './components_AS/DateFilterSelector';
 import CalificacionEstrella from './components_AS/CalificacionEstrella';
 import ButtonAplicarBus from './components_AS/ButtonAplicarBus';
 import ClearButton from './components_AS/ClearButton';
+import Footer from './components_AS/Footer';
 
 interface FilterState {
   range: string[];
@@ -492,6 +493,7 @@ const handleCategoryChange = (payload: { categories: string[] }) => {
           </div>
         </div>
       </main>
+      <Footer />
     </>
   );
 }

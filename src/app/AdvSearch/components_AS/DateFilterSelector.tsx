@@ -121,7 +121,7 @@ const DateFilterSelector: React.FC = () => {
 
                 {/* Calendario desplegable */}
                 {showCalendar && (
-                  <div className="absolute z-50 mt-2 left-0">
+                  <div className="absolute z-50 mt-2 -left-90">
                     <CalendarComponent
                       selectedDate={selectedDate || new Date()}
                       onDateSelect={handleDateSelect}

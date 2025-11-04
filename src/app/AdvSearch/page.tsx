@@ -9,14 +9,21 @@ import { HelpButton } from './components_AS/HelpButton';
 import DropdownList from './components_AS/DropdownList'; // <-- Nuevo componente
 import useSyncUrlParamsAdv from './hooks/useSyncUrlParams'; // ajustar ruta si hace falta
 import { useRouter } from 'next/navigation';
+import PriceRangeList from './components_AS/PriceRangeList';
+import DateFilterSelector from './components_AS/DateFilterSelector';
+import CalificacionEstrella from './components_AS/CalificacionEstrella';
+import ButtonAplicarBus from './components_AS/ButtonAplicarBus';
+import ClearButton from './components_AS/ClearButton';
+import Footer from './components_AS/Footer';
 
 interface FilterState {
   range: string[];
   city: string;
   category: string[];
-  tags: string[];        // NUEVO: Etiquetas
-  minPrice: number | null; // NUEVO: Precio mínimo
-  maxPrice: number | null; // NUEVO: Precio máximo
+  tags: string[];
+  priceRanges: string[];
+  minPrice: number | null;
+  maxPrice: number | null;
 }
 
 const FIXER_RANGES = [
@@ -36,55 +43,59 @@ const JOBS = [
   'Techador', 'Vidriero', 'Yesero',
 ];
 
-const parsePriceRange = (priceString: string): { minPrice: number | null, maxPrice: number | null } => {
-    switch (priceString) {
-        case "low":
-            return { minPrice: 30, maxPrice: 100 };
-        case "medium":
-            return { minPrice: 101, maxPrice: 200 };
-        case "high":
-            // Mapea la opción 'high' del dropdown (que cubre 201-300 y 301-400) al rango superior
-            return { minPrice: 201, maxPrice: 400 }; 
-        case "":
-        default:
-            return { minPrice: null, maxPrice: null };
-    }
-};
 
-const AdvancedSearchPage: React.FC = () => {
+
+// Small helper to parse a price-range key into numeric min/max values.
+// Accepts strings like "$100 - $200", "100-200", "100" and returns {minPrice, maxPrice}.
+function parsePriceRange(key: string): { minPrice: number | null; maxPrice: number | null } {
+  if (!key) return { minPrice: null, maxPrice: null };
+  // Normalize: remove currency symbols and replace commas with nothing
+  const normalized = key.replace(/[$€£,]/g, '');
+  // Find numbers (integers or decimals)
+  const matches = normalized.match(/-?\d+(?:\.\d+)?/g);
+  if (!matches || matches.length === 0) return { minPrice: null, maxPrice: null };
+  if (matches.length === 1) return { minPrice: Number(matches[0]), maxPrice: null };
+  return { minPrice: Number(matches[0]), maxPrice: Number(matches[1]) };
+}
+
+function AdvancedSearchPage() {
   const [searchQuery, setSearchQuery] = useState('');
   const [titleOnly, setTitleOnly] = useState(false);
   const [exactWords, setExactWords] = useState(false);
 
-  // Estados para la Búsqueda Avanzada
   const [openSections, setOpenSections] = useState<{ [key: string]: boolean }>({
     fixer: false,
     ciudad: false,
     trabajo: false,
+    categorias: false,
+    precio: false,
   });
-
   const [selectedRanges, setSelectedRanges] = useState<string[]>([]);
   const [selectedCity, setSelectedCity] = useState<string>('');
   const [selectedJobs, setSelectedJobs] = useState<string[]>([]);
+  const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
+  const [selectedPriceRanges, setSelectedPriceRanges] = useState<string[]>([]);
 
   // Estados para dropdowns (controlados por DropdownList)
   const [selectedTags, setSelectedTags] = useState<string[]>([]); 
-  const [selectedPriceKey, setSelectedPriceKey] = useState<string>(''); // Usaremos 'Key' para el valor del dropdown
+  const [selectedPriceKey, _setSelectedPriceKey] = useState<string>(''); // Usaremos 'Key' para el valor del dropdown
 
   // Estado para resultados (permitiendo la mutabilidad)
   const [resultsCount, setResultsCount] = useState<number | null>(null); // Permitir null para estado inicial/carga
   const [loading, setLoading] = useState(false); // Permitir cambiar el estado de carga
   const router = useRouter();
   const skipSyncRef = useRef<boolean | null>(null);
+  
+  // signal to force child components to clear their internal selection
+  const [clearSignal, setClearSignal] = useState<number>(0);
 
   const toggleSection = (section: string) => {
-    setOpenSections((prev) => ({
-      ...prev,
-      [section]: !prev[section],
-    }));
-  };
+    setOpenSections((prev) => ({
+      ...prev,
+      [section]: !prev[section],
+    }));
+  };
 
-// --- 2. FUNCIÓN CENTRAL DE LLAMADA A LA API ---
   const fetchOffers = async (params: { 
       searchText: string; 
       filters: FilterState;
@@ -94,7 +105,6 @@ const AdvancedSearchPage: React.FC = () => {
       setLoading(true);
       const urlParams = new URLSearchParams();
 
-      // Parámetros de Texto y Modificadores
       if (params.searchText.trim()) {
         urlParams.append('search', params.searchText);
       }
@@ -105,7 +115,6 @@ const AdvancedSearchPage: React.FC = () => {
         urlParams.append('exactWords', 'true');
       }
 
-      // Parámetros de Filtros (Checkboxes)
       if (params.filters.range && params.filters.range.length > 0) {
           params.filters.range.forEach((r) => {
               urlParams.append('range', r);
@@ -120,70 +129,68 @@ const AdvancedSearchPage: React.FC = () => {
           });
       }
 
-      // Parámetros de Búsqueda Avanzada (Dropdowns - Tags y Precio)
       if (params.filters.tags && params.filters.tags.length > 0) {
-          urlParams.append('tags', params.filters.tags.join(','));
-      }
-      if (params.filters.minPrice !== null) {
-          urlParams.append('minPrice', `${params.filters.minPrice}`); 
-      }
-      if (params.filters.maxPrice !== null) {
-          urlParams.append('maxPrice', `${params.filters.maxPrice}`);
+      urlParams.append('tags', params.filters.tags.join(','));
       }
 
-      // Parámetros de paginación
+      if (params.filters.priceRanges && params.filters.priceRanges.length > 0) {
+          params.filters.priceRanges.forEach((r) => {
+              urlParams.append('priceRange', r);
+          });
+      }
+      // ⚠️ NOTA IMPORTANTE: Los rangos (ej. "$100 - $200") deben ser parseados en el Backend.
+      // Aquí solo enviamos el string del rango como filtro.
       urlParams.append('page', '1');
       urlParams.append('limit', '10'); 
 
       const url = `/api/devmaster/offers?${urlParams.toString()}`;
       console.log('API URL generada:', url);
       
-      // Placeholder: Simulación de resultados
       await new Promise(resolve => setTimeout(resolve, 500)); 
-      setResultsCount(101); // Simula el total
+      setResultsCount(101);
       setLoading(false);
   };
-// Después de fetchOffers...
 
-  // Función auxiliar para llamar a fetchOffers con los valores más recientes (debido a la naturaleza asíncrona de setState)
   const updateSearchOnStateChange = ({ 
     newRanges = selectedRanges, 
     newCity = selectedCity, 
     newJobs = selectedJobs, 
-    newTags = selectedTags, 
-    newPriceKey = selectedPriceKey,
+    newCategories = selectedCategories,
+    newPriceRanges = selectedPriceRanges,
     newSearchQuery = searchQuery,
     newTitleOnly = titleOnly,
-    newExactWords = exactWords
+    newExactWords = exactWords,
+    newPriceKey = selectedPriceKey,
   }: { 
     newRanges?: string[], 
     newCity?: string, 
     newJobs?: string[], 
-    newTags?: string[], 
-    newPriceKey?: string,
+    newCategories?: string[],
+    newPriceRanges?: string[],
     newSearchQuery?: string,
     newTitleOnly?: boolean,
-    newExactWords?: boolean
+    newExactWords?: boolean,
+    newPriceKey?: string,
   }) => {
     
-    // VALIDACIÓN (HU1, Escenario 3: Búsqueda vacía)
-    if (!newSearchQuery && newRanges.length === 0 && newCity === '' && 
-        newJobs.length === 0 && newTags.length === 0 && newPriceKey === '') {
+   if (!newSearchQuery && newRanges.length === 0 && newCity === '' && 
+        newJobs.length === 0 && newCategories.length === 0 && newPriceRanges.length === 0) { //  Condición actualizada
         console.log('Debe ingresar al menos un parámetro de búsqueda.');
         setResultsCount(0);
         return;
     }
-    
-    const { minPrice, maxPrice } = parsePriceRange(newPriceKey);
 
-    const currentFilters: FilterState = {
-        range: newRanges,
-        city: newCity,
-        category: newJobs,
-        tags: newTags,
-        minPrice: minPrice,
-        maxPrice: maxPrice,
-    };
+  const { minPrice, maxPrice } = parsePriceRange(newPriceKey ?? '');
+
+  const currentFilters: FilterState = {
+    range: newRanges,
+    city: newCity,
+    category: newJobs,
+    tags: newCategories,
+    priceRanges: newPriceRanges,
+    minPrice,
+    maxPrice,
+  };
 
     fetchOffers({
         searchText: newSearchQuery,
@@ -193,41 +200,35 @@ const AdvancedSearchPage: React.FC = () => {
     });
   };
 
-  // 3. FUNCIÓN UNIFICADA PARA EJECUTAR LA BÚSQUEDA COMPLETA (cuando no se tienen los nuevos estados disponibles)
-  const updateSearch = () => {
-    updateSearchOnStateChange({}); // Llama con los estados actuales
+  const updateSearch = () => updateSearchOnStateChange({});
+
+  const handleRangeChange = (range: string) => {
+    setSelectedRanges(prevRanges => {
+      const newRanges = prevRanges.includes(range)
+        ? prevRanges.filter((r) => r !== range)
+        : [...prevRanges, range];
+      updateSearchOnStateChange({ newRanges });
+      return newRanges;
+    });
   };
 
-  const handleRangeChange = (range: string) => {
-    setSelectedRanges(prevRanges => {
-        const newRanges = prevRanges.includes(range)
-            ? prevRanges.filter((r) => r !== range)
-            : [...prevRanges, range];
-        // Ejecutar búsqueda con el estado recién calculado
-        updateSearchOnStateChange({ newRanges });
-        return newRanges;
+  const handleCityChange = (city: string) => {
+    setSelectedCity(prevCity => {
+      const newCity = prevCity === city ? '' : city;
+      updateSearchOnStateChange({ newCity });
+      return newCity;
     });
-  };
+  };
 
-  const handleCityChange = (city: string) => {
-    setSelectedCity(prevCity => {
-        const newCity = prevCity === city ? '' : city;
-        // Ejecutar búsqueda con el estado recién calculado
-        updateSearchOnStateChange({ newCity });
-        return newCity;
+  const handleJobChange = (job: string) => {
+    setSelectedJobs(prevJobs => {
+      const newJobs = prevJobs.includes(job)
+        ? prevJobs.filter((j) => j !== job)
+        : [...prevJobs, job];
+      updateSearchOnStateChange({ newJobs });
+      return newJobs;
     });
-  };
-
-  const handleJobChange = (job: string) => {
-    setSelectedJobs(prevJobs => {
-        const newJobs = prevJobs.includes(job)
-            ? prevJobs.filter((j) => j !== job)
-            : [...prevJobs, job];
-        // Ejecutar búsqueda con el estado recién calculado
-        updateSearchOnStateChange({ newJobs });
-        return newJobs;
-    });
-  };
+  };
 // Reemplaza handleSearch y handleDropdownChange:
 
   // Handler para el Input de Búsqueda (con debounce)
@@ -258,20 +259,22 @@ const AdvancedSearchPage: React.FC = () => {
   }
   };
  
-  // --- Handler que recibe cambios desde DropdownList ---
-  const handleDropdownChange = (payload: { tag?: string; price?: string }) => {
-    const { tag, price } = payload;
+  // Handler que recibe cambios desde DropdownList (etiquetas)
+  // DropdownList calls onFilterChange({ categories: string[] })
+  const handleDropdownChange = (filters: { categories: string[] }) => {
+    const newTags = Array.isArray(filters.categories) ? filters.categories : [];
+    setSelectedTags(newTags);
+    // DropdownList doesn't provide price; keep existing price key unchanged
+    updateSearchOnStateChange({ newCategories: newTags });
+  };
 
-    // tag es string o undefined. Guardamos como array 0 o 1.
-    const newTags = tag && tag !== '' ? [tag] : [];
-    setSelectedTags(newTags);
-
-    const newPriceKey = price ?? '';
-    setSelectedPriceKey(newPriceKey); // Actualizar el estado del precio
-
-    // Ejecutar búsqueda con el estado recién calculado.
-    updateSearchOnStateChange({ newTags, newPriceKey });
-  };
+  // Handler para rangos de precio (PriceRangeList)
+  // PriceRangeList calls onFilterChange({ priceRanges: string[] })
+  const handlePriceRangeChange = (filters: { priceRanges: string[] }) => {
+    const newPriceRanges = Array.isArray(filters.priceRanges) ? filters.priceRanges : [];
+    setSelectedPriceRanges(newPriceRanges);
+    updateSearchOnStateChange({ newPriceRanges });
+  };
 
   useSyncUrlParamsAdv({
     search: searchQuery,
@@ -291,11 +294,8 @@ const AdvancedSearchPage: React.FC = () => {
   return (
     <>
       <Header />
-
-      {/* Botón de ayuda flotante */}
       <HelpButton />
 
-      {/* Main con padding-top para compensar el header fixed */}
       <main className="pt-20 lg:pt-24 px-4 sm:px-6 md:px-12 lg:px-24 pb-12">
         <h1 className="text-center text-xl sm:text-2xl md:text-3xl font-bold mb-8 mt-4">
           Búsqueda Avanzada
@@ -314,23 +314,20 @@ const AdvancedSearchPage: React.FC = () => {
             </div>
 
             <div className="mb-6">
-              <SearchCheckboxes
-                titleOnly={titleOnly}
-                // Se usa setTimeout(0) para asegurar que la búsqueda se ejecute DESPUÉS de que setTitleOnly haya actualizado el estado.
-                setTitleOnly={(val) => { setTitleOnly(val); setTimeout(() => updateSearchOnStateChange({ newTitleOnly: val }), 0); }}
-                exactWords={exactWords}
-                setExactWords={(val) => { setExactWords(val); setTimeout(() => updateSearchOnStateChange({ newExactWords: val }), 0); }}
-              />
-            </div>
+              <SearchCheckboxes
+                titleOnly={titleOnly}
+                setTitleOnly={(val) => { setTitleOnly(val); setTimeout(() => updateSearchOnStateChange({ newTitleOnly: val }), 0); }}
+                exactWords={exactWords}
+                setExactWords={(val) => { setExactWords(val); setTimeout(() => updateSearchOnStateChange({ newExactWords: val }), 0); }}
+              />
+            </div>
 
             <div className="bg-[#2B6AE0] text-white px-4 py-2 text-sm font-bold mb-6 rounded-lg text-left">
               Parámetros Seleccionables:
             </div>
 
-            {/* Fixer filter */}
             <div className="mb-6">
               <h3 className="text-base mb-2">Nombre del fixer :</h3>
-
               <div
                 className={`bg-gray-100 text-gray-500 px-4 py-2 text-sm cursor-pointer hover:bg-gray-200 transition-colors flex justify-between items-center 
                   ${openSections.fixer
@@ -374,10 +371,8 @@ const AdvancedSearchPage: React.FC = () => {
               )}
             </div>
 
-            {/* Ciudad filter */}
             <div className="mb-6">
               <h3 className="text-base mb-2">Ciudad :</h3>
-
               <div
                 className={`bg-gray-100 text-gray-500 px-4 py-2 text-sm cursor-pointer hover:bg-gray-200 transition-colors flex justify-between items-center 
                   ${openSections.ciudad
@@ -420,11 +415,9 @@ const AdvancedSearchPage: React.FC = () => {
                 </div>
               )}
             </div>
- 
-            {/* Trabajo filter */}
+
             <div className="mb-6">
               <h3 className="text-base mb-2">Tipo de Trabajo :</h3>
-
               <div
                 className={`bg-gray-100 text-gray-500 px-4 py-2 text-sm cursor-pointer hover:bg-gray-200 transition-colors flex justify-between items-center 
                   ${openSections.trabajo
@@ -468,18 +461,102 @@ const AdvancedSearchPage: React.FC = () => {
               )}
             </div>
 
-            {/* Aquí se invoca el nuevo componente DropdownList (Etiquetas y Precio) */}
             <div className="mb-6">
-              <DropdownList onFilterChange={handleDropdownChange} />
+              <h3 className="text-base mb-2">Etiquetas :</h3>
+
+              <div
+                className={`bg-gray-100 text-gray-500 px-4 py-2 text-sm cursor-pointer hover:bg-gray-200 transition-colors flex justify-between items-center 
+                  ${openSections.categorias
+                    ? 'rounded-t-lg border border-b-0 border-gray-300'
+                    : 'rounded-lg border border-gray-300'
+                  }`}
+                onClick={() => toggleSection('categorias')}
+              >
+                <span className="truncate">Seleccionar etiquetas</span>
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  className={`h-4 w-4 transform transition-transform duration-200 ${openSections.categorias ? 'rotate-180' : 'rotate-0'}`}
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                >
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" />
+                </svg>
+              </div>
+
+              {openSections.categorias && (
+                <div className="bg-white border border-t-0 border-gray-300 rounded-b-lg shadow-sm">
+                  <DropdownList onFilterChange={handleDropdownChange} clearSignal={clearSignal} />
+                </div>
+              )}
+            </div>
+<div className="mb-6">
+              <h3 className="text-base mb-2">Precio :</h3>
+
+              <div
+                className={`bg-gray-100 text-gray-500 px-4 py-2 text-sm cursor-pointer hover:bg-gray-200 transition-colors flex justify-between items-center 
+                  ${openSections.precio
+                    ? 'rounded-t-lg border border-b-0 border-gray-300'
+                    : 'rounded-lg border border-gray-300'
+                  }`}
+                onClick={() => toggleSection('precio')}
+              >
+                <span className="truncate">Seleccionar Rangos de Precio</span>
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  className={`h-4 w-4 transform transition-transform duration-200 ${openSections.precio ? 'rotate-180' : 'rotate-0'}`}
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                >
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" />
+                </svg>
+              </div>
+
+              {openSections.precio && (
+                <div className="bg-white border border-t-0 border-gray-300 rounded-b-lg shadow-sm">
+                  <PriceRangeList onFilterChange={handlePriceRangeChange} clearSignal={clearSignal} /> 
+                </div>
+              )}
+            </div>
+            {/* NUEVO: Filtro de Fecha y Calificación */}
+            <div className="mb-6 flex gap-6 items-start">
+              <div className="flex-shrink-0">
+                <DateFilterSelector />
+              </div>
+              <div className="flex-shrink-0">
+                <CalificacionEstrella />
+              </div>
+            </div>
+
+            {/* Botones: Aplicar Búsqueda y Limpiar Datos (misma altura y alineación) */}
+            <div className="flex justify-center items-center gap-4 mt-8">
+              <ButtonAplicarBus onClick={updateSearch} loading={loading} />
+              <ClearButton onClick={() => {
+                // Limpia todos los filtros y la búsqueda a nivel de página
+                setSearchQuery('');
+                setSelectedRanges([]);
+                setSelectedCity('');
+                setSelectedJobs([]);
+                setSelectedCategories([]);
+                setSelectedPriceRanges([]);
+                setTitleOnly(false);
+                setExactWords(false);
+                setResultsCount(null);
+                // notify children (DropdownList, PriceRangeList) to clear
+                setClearSignal((s) => s + 1);
+              }} />
             </div>
 
           </div>
-
         </div>
       </main>
+      <Footer />
     </>
   );
-};
+}
 
 export default AdvancedSearchPage;
 

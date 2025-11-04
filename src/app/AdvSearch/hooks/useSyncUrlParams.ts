@@ -17,9 +17,11 @@ interface Params {
 
 export const useSyncUrlParamsAdv = (p: Params) => {
   const router = useRouter();
-  useEffect(() => {
-    const { search, filters, titleOnly, exact, page, limit, skipSyncRef } = p;
+  // Destructure once so we can use stable primitives in deps
+  const { search, filters, titleOnly, exact, page, limit, skipSyncRef } = p;
+  const filtersJson = JSON.stringify(filters || {});
 
+  useEffect(() => {
     // If parent signals skipping sync (e.g. about to navigate), consume the flag and skip one run
     if (skipSyncRef && skipSyncRef.current) {
       // reset flag and skip this sync to avoid overriding navigation
@@ -61,7 +63,7 @@ export const useSyncUrlParamsAdv = (p: Params) => {
       if (typeof window !== 'undefined' && window.location.search === '') return;
       router.replace(targetSearch, { scroll: false });
       if (typeof window !== 'undefined' && window.location.search !== targetSearch) {
-        try { window.history.replaceState(null, '', window.location.pathname + targetSearch); } catch (e) { /* noop */ }
+        try { window.history.replaceState(null, '', window.location.pathname + targetSearch); } catch { /* noop */ }
       }
       return;
     }
@@ -72,9 +74,9 @@ export const useSyncUrlParamsAdv = (p: Params) => {
     // update Next router and ensure browser address bar shows the search
     router.replace(targetSearch, { scroll: false });
     if (typeof window !== 'undefined' && window.location.search !== targetSearch) {
-      try { window.history.replaceState(null, '', window.location.pathname + targetSearch); } catch (e) { /* noop */ }
+      try { window.history.replaceState(null, '', window.location.pathname + targetSearch); } catch { /* noop */ }
     }
   // Use stable primitive deps to avoid re-running on new object identity
-  }, [p.search, p.titleOnly, p.exact, p.page, p.limit, JSON.stringify(p.filters), router]);
+  }, [search, titleOnly, exact, page, limit, filtersJson, router, skipSyncRef]);
 };
 export default useSyncUrlParamsAdv;

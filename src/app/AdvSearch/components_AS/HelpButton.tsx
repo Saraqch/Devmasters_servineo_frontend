@@ -157,7 +157,7 @@ export function HelpButton() {
                   </div>
                   <div className="flex-1">
                     <p className="text-sm text-gray-800 leading-relaxed">
-                      <span className="font-semibold text-blue-600">7.</span> En la sección de etiqueta, seleccionar el tipo de servicio que ofrece cada fixer.
+                      <span className="font-semibold text-blue-600">7.</span> En la sección de tipo de trabajo, seleccionar y deacuerdo a su eleccion se mostrarán las respectivas etiquetas.
                     </p>
                   </div>
                 </div>

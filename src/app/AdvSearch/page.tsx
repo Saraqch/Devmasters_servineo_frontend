@@ -6,12 +6,18 @@ import { ResultsCounter } from '@/app/AdvSearch/components_AS/ResultsCounter';
 import { InputOnlySearch } from '@/app/jobOfert/components_jo/Search/InputOnlySearch';
 import { SearchCheckboxes } from './components_AS/SearchCheckboxes';
 import { HelpButton } from './components_AS/HelpButton';
-import DropdownList from './components_AS/DropdownList'; // <-- Nuevo componente
+import DropdownList from './components_AS/DropdownList';
+import DateFilterSelector from './components_AS/DateFilterSelector';
+import CalificacionEstrella from './components_AS/CalificacionEstrella';
+import ButtonAplicarBus from './components_AS/ButtonAplicarBus';
 
 interface FilterState {
   range: string[];
   city: string;
   category: string[];
+  tags: string[];
+  minPrice: number | null;
+  maxPrice: number | null;
 }
 
 const FIXER_RANGES = [
@@ -31,29 +37,36 @@ const JOBS = [
   'Techador', 'Vidriero', 'Yesero',
 ];
 
+const parsePriceRange = (priceString: string): { minPrice: number | null, maxPrice: number | null } => {
+  switch (priceString) {
+      case "low":
+          return { minPrice: 30, maxPrice: 100 };
+      case "medium":
+          return { minPrice: 101, maxPrice: 200 };
+      case "high":
+          return { minPrice: 201, maxPrice: 400 }; 
+      case "":
+      default:
+          return { minPrice: null, maxPrice: null };
+  }
+};
+
 const AdvancedSearchPage: React.FC = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [titleOnly, setTitleOnly] = useState(false);
   const [exactWords, setExactWords] = useState(false);
-
-  // Estados para la Búsqueda Avanzada
   const [openSections, setOpenSections] = useState<{ [key: string]: boolean }>({
     fixer: false,
     ciudad: false,
     trabajo: false,
   });
-
   const [selectedRanges, setSelectedRanges] = useState<string[]>([]);
   const [selectedCity, setSelectedCity] = useState<string>('');
   const [selectedJobs, setSelectedJobs] = useState<string[]>([]);
-
-  // Estados para dropdowns (ahora controlados desde page.tsx pero actualizados por DropdownList)
-  const [selectedTags, setSelectedTags] = useState<string[]>([]); // 0 o 1 elemento
-  const [selectedPrice, setSelectedPrice] = useState<string>('');
-
-  // Estado para resultados (manteniendo lo original)
-  const [resultsCount] = useState(0);
-  const [loading] = useState(false);
+  const [selectedTags, setSelectedTags] = useState<string[]>([]); 
+  const [selectedPriceKey, setSelectedPriceKey] = useState<string>('');
+  const [resultsCount, setResultsCount] = useState<number | null>(null);
+  const [loading, setLoading] = useState(false);
 
   const toggleSection = (section: string) => {
     setOpenSections((prev) => ({
@@ -62,78 +75,143 @@ const AdvancedSearchPage: React.FC = () => {
     }));
   };
 
-  // Esta función es un placeholder. En una app real, enviaría los filtros al backend.
-  const executeSearchWithFilters = (ranges: string[], city: string, jobs: string[]) => {
-    const filters: FilterState = { range: ranges, city: city, category: jobs };
-    console.log('Filtros Aplicados (server payload):', filters);
-    // Aquí iría la llamada a la API o la lógica de filtrado...
+  const fetchOffers = async (params: { 
+      searchText: string; 
+      filters: FilterState;
+      titleOnly: boolean; 
+      exactWords: boolean; 
+  }) => {
+      setLoading(true);
+      const urlParams = new URLSearchParams();
+
+      if (params.searchText.trim()) urlParams.append('search', params.searchText);
+      if (params.titleOnly) urlParams.append('titleOnly', 'true');
+      if (params.exactWords) urlParams.append('exactWords', 'true');
+
+      if (params.filters.range && params.filters.range.length > 0)
+          params.filters.range.forEach((r) => urlParams.append('range', r));
+
+      if (params.filters.city) urlParams.append('city', params.filters.city);
+
+      if (params.filters.category && params.filters.category.length > 0)
+          params.filters.category.forEach((c) => urlParams.append('category', c));
+
+      if (params.filters.tags && params.filters.tags.length > 0)
+          urlParams.append('tags', params.filters.tags.join(','));
+
+      if (params.filters.minPrice !== null) urlParams.append('minPrice', `${params.filters.minPrice}`);
+      if (params.filters.maxPrice !== null) urlParams.append('maxPrice', `${params.filters.maxPrice}`);
+
+      urlParams.append('page', '1');
+      urlParams.append('limit', '10'); 
+
+      const url = `/api/devmaster/offers?${urlParams.toString()}`;
+      console.log('API URL generada:', url);
+      
+      await new Promise(resolve => setTimeout(resolve, 500)); 
+      setResultsCount(101);
+      setLoading(false);
   };
 
-  // updateSearch ahora puede recibir tags y price opcionales.
-  const updateSearch = (tags?: string[], price?: string) => {
-    // Ejecutar búsqueda principal con rangos/ciudad/trabajo
-    executeSearchWithFilters(selectedRanges, selectedCity, selectedJobs);
+  const updateSearchOnStateChange = ({ 
+    newRanges = selectedRanges, 
+    newCity = selectedCity, 
+    newJobs = selectedJobs, 
+    newTags = selectedTags, 
+    newPriceKey = selectedPriceKey,
+    newSearchQuery = searchQuery,
+    newTitleOnly = titleOnly,
+    newExactWords = exactWords
+  }: { 
+    newRanges?: string[], 
+    newCity?: string, 
+    newJobs?: string[], 
+    newTags?: string[], 
+    newPriceKey?: string,
+    newSearchQuery?: string,
+    newTitleOnly?: boolean,
+    newExactWords?: boolean
+  }) => {
+    
+    if (!newSearchQuery && newRanges.length === 0 && newCity === '' && 
+        newJobs.length === 0 && newTags.length === 0 && newPriceKey === '') {
+        console.log('Debe ingresar al menos un parámetro de búsqueda.');
+        setResultsCount(0);
+        return;
+    }
+    
+    const { minPrice, maxPrice } = parsePriceRange(newPriceKey);
 
-    // Log o envío de etiquetas/precio. Si quieres integrarlo en la misma petición,
-    // modifica executeSearchWithFilters para aceptar estos parámetros.
-    console.log('Etiquetas (local):', tags ?? selectedTags);
-    console.log('Precio (local):', price ?? selectedPrice);
+    const currentFilters: FilterState = {
+        range: newRanges,
+        city: newCity,
+        category: newJobs,
+        tags: newTags,
+        minPrice,
+        maxPrice,
+    };
+
+    fetchOffers({
+        searchText: newSearchQuery,
+        filters: currentFilters,
+        titleOnly: newTitleOnly,
+        exactWords: newExactWords,
+    });
   };
+
+  const updateSearch = () => updateSearchOnStateChange({});
 
   const handleRangeChange = (range: string) => {
-    const newRanges = selectedRanges.includes(range)
-      ? selectedRanges.filter((r) => r !== range)
-      : [...selectedRanges, range];
-
-    setSelectedRanges(newRanges);
-    updateSearch();
+    setSelectedRanges(prevRanges => {
+        const newRanges = prevRanges.includes(range)
+            ? prevRanges.filter((r) => r !== range)
+            : [...prevRanges, range];
+        updateSearchOnStateChange({ newRanges });
+        return newRanges;
+    });
   };
 
   const handleCityChange = (city: string) => {
-    const newCity = selectedCity === city ? '' : city;
-    setSelectedCity(newCity);
-    updateSearch();
+    setSelectedCity(prevCity => {
+        const newCity = prevCity === city ? '' : city;
+        updateSearchOnStateChange({ newCity });
+        return newCity;
+    });
   };
 
   const handleJobChange = (job: string) => {
-    const newJobs = selectedJobs.includes(job)
-      ? selectedJobs.filter((j) => j !== job)
-      : [...selectedJobs, job];
-
-    setSelectedJobs(newJobs);
-    updateSearch();
+    setSelectedJobs(prevJobs => {
+        const newJobs = prevJobs.includes(job)
+            ? prevJobs.filter((j) => j !== job)
+            : [...prevJobs, job];
+        updateSearchOnStateChange({ newJobs });
+        return newJobs;
+    });
   };
 
-  // Handler para el Input de Búsqueda
   const handleSearch = (query: string) => {
     setSearchQuery(query);
-    console.log('Buscar desde AdvancedSearch:', query);
-    // Si prefieres ejecutar la búsqueda al tipear, llama a updateSearch() aquí
+    if (searchTimeout) clearTimeout(searchTimeout);
+    searchTimeout = setTimeout(() => {
+        updateSearchOnStateChange({ newSearchQuery: query }); 
+    }, 300);
   };
+  let searchTimeout: ReturnType<typeof setTimeout> | null = null;
 
-  // --- Handler que recibe cambios desde DropdownList ---
   const handleDropdownChange = (payload: { tag?: string; price?: string }) => {
     const { tag, price } = payload;
-
-    // tag es string o undefined. Guardamos como array 0 o 1.
     const newTags = tag && tag !== '' ? [tag] : [];
     setSelectedTags(newTags);
-
-    const newPrice = price ?? '';
-    setSelectedPrice(newPrice);
-
-    // Llamar a updateSearch con los valores actualizados
-    updateSearch(newTags, newPrice);
+    const newPriceKey = price ?? '';
+    setSelectedPriceKey(newPriceKey);
+    updateSearchOnStateChange({ newTags, newPriceKey });
   };
 
   return (
     <>
       <Header />
-
-      {/* Botón de ayuda flotante */}
       <HelpButton />
 
-      {/* Main con padding-top para compensar el header fixed */}
       <main className="pt-20 lg:pt-24 px-4 sm:px-6 md:px-12 lg:px-24 pb-12">
         <h1 className="text-center text-xl sm:text-2xl md:text-3xl font-bold mb-8 mt-4">
           Búsqueda Avanzada
@@ -142,7 +220,7 @@ const AdvancedSearchPage: React.FC = () => {
         <div className="max-w-7xl mx-auto">
           <div className="flex justify-end mb-0">
             <div className="w-full sm:w-80">
-              <ResultsCounter total={resultsCount} loading={loading} />
+              <ResultsCounter total={resultsCount ?? 0} loading={loading} />
             </div>
           </div>
 
@@ -154,9 +232,9 @@ const AdvancedSearchPage: React.FC = () => {
             <div className="mb-6">
               <SearchCheckboxes
                 titleOnly={titleOnly}
-                setTitleOnly={setTitleOnly}
+                setTitleOnly={(val) => { setTitleOnly(val); setTimeout(() => updateSearchOnStateChange({ newTitleOnly: val }), 0); }}
                 exactWords={exactWords}
-                setExactWords={setExactWords}
+                setExactWords={(val) => { setExactWords(val); setTimeout(() => updateSearchOnStateChange({ newExactWords: val }), 0); }}
               />
             </div>
 
@@ -167,7 +245,6 @@ const AdvancedSearchPage: React.FC = () => {
             {/* Fixer filter */}
             <div className="mb-6">
               <h3 className="text-base mb-2">Nombre del fixer :</h3>
-
               <div
                 className={`bg-gray-100 text-gray-500 px-4 py-2 text-sm cursor-pointer hover:bg-gray-200 transition-colors flex justify-between items-center 
                   ${openSections.fixer
@@ -214,7 +291,6 @@ const AdvancedSearchPage: React.FC = () => {
             {/* Ciudad filter */}
             <div className="mb-6">
               <h3 className="text-base mb-2">Ciudad :</h3>
-
               <div
                 className={`bg-gray-100 text-gray-500 px-4 py-2 text-sm cursor-pointer hover:bg-gray-200 transition-colors flex justify-between items-center 
                   ${openSections.ciudad
@@ -261,7 +337,6 @@ const AdvancedSearchPage: React.FC = () => {
             {/* Trabajo filter */}
             <div className="mb-6">
               <h3 className="text-base mb-2">Tipo de Trabajo :</h3>
-
               <div
                 className={`bg-gray-100 text-gray-500 px-4 py-2 text-sm cursor-pointer hover:bg-gray-200 transition-colors flex justify-between items-center 
                   ${openSections.trabajo
@@ -305,13 +380,30 @@ const AdvancedSearchPage: React.FC = () => {
               )}
             </div>
 
-            {/* Aquí se invoca el nuevo componente DropdownList (Etiquetas y Precio) */}
+            {/* Dropdowns de Etiquetas y Precio */}
             <div className="mb-6">
               <DropdownList onFilterChange={handleDropdownChange} />
             </div>
 
-          </div>
+            {/* NUEVO: Filtro de Fecha y Calificación */}
+            <div className="mb-6 flex gap-6 items-start">
+              <div className="flex-shrink-0">
+                <DateFilterSelector />
+              </div>
+              <div className="flex-shrink-0">
+                <CalificacionEstrella />
+              </div>
+            </div>
 
+            {/* Botón Aplicar Búsqueda al final izquierdo */}
+            <div className="flex justify-start">
+              <ButtonAplicarBus 
+                onClick={updateSearch} 
+                loading={loading} 
+              />
+            </div>
+
+          </div>
         </div>
       </main>
     </>
@@ -319,4 +411,5 @@ const AdvancedSearchPage: React.FC = () => {
 };
 
 export default AdvancedSearchPage;
+
 

@@ -23,6 +23,18 @@ function parsePriceRange(key: string): { minPrice: number | null; maxPrice: numb
   return { minPrice: Number(matches[0]), maxPrice: Number(matches[1]) };
 }
 
+type UpdateParams = {
+  newRanges?: string[];
+  newCity?: string;
+  newJobs?: string[];
+  newCategories?: string[];
+  newPriceRanges?: string[];
+  newSearchQuery?: string;
+  newPriceKey?: string;
+  newTitleOnly?: boolean;
+  newExactWords?: boolean;
+};
+
 export default function useAdvSearchLogic() {
   const [searchQuery, setSearchQuery] = useState('');
   const [titleOnly, setTitleOnly] = useState(false);
@@ -45,7 +57,7 @@ export default function useAdvSearchLogic() {
   const [selectedPriceKey, setSelectedPriceKey] = useState<string>('');
 
   const [resultsCount, setResultsCount] = useState<number | null>(null);
-  const [loading, setLoading] = useState(false);
+  const [loading] = useState(false);
 
   const dispatch = useAppDispatch();
   const totalRegistros = useAppSelector((s) => s.jobOffers.totalRegistros);
@@ -65,10 +77,8 @@ export default function useAdvSearchLogic() {
     newCategories = selectedCategories,
     newPriceRanges = selectedPriceRanges,
     newSearchQuery = searchQuery,
-    newTitleOnly = titleOnly,
-    newExactWords = exactWords,
     newPriceKey = selectedPriceKey,
-  }: Partial<Record<string, any>> = {}) => {
+  }: UpdateParams = {}) => {
     if (
       !newSearchQuery &&
       newRanges.length === 0 &&
@@ -100,7 +110,6 @@ export default function useAdvSearchLogic() {
     return currentFilters;
   };
 
-  const updateSearch = () => updateSearchOnStateChange();
 
   const handleRangeChange = (range: string) => {
     setSelectedRanges((prev) => {

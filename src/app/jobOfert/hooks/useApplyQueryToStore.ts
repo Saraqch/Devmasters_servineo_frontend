@@ -1,5 +1,4 @@
 import { useEffect, useRef } from 'react';
-import { useSearchParams } from 'next/navigation';
 import { useAppDispatch } from './hook';
 import {
   setSearch,
@@ -17,18 +16,18 @@ import {
  * and trigger a fetch. Keeps changes small and local.
  */
 const useApplyQueryToStore = () => {
-  const searchParams = useSearchParams();
   const dispatch = useAppDispatch();
   const appliedRef = useRef(false);
 
   useEffect(() => {
-  if (!searchParams) return;
-  // Only apply once to avoid loops between reading URL -> dispatch -> syncURL hooks
-  if (appliedRef.current) return;
+    // only run on client
+    if (typeof window === 'undefined') return;
+    // Only apply once to avoid loops between reading URL -> dispatch -> syncURL hooks
+    if (appliedRef.current) return;
 
-  // detect if there are any query params
-  const hasAny = [...searchParams.keys()].length > 0;
-  if (!hasAny) return;
+    const searchParams = new URLSearchParams(window.location.search);
+    // detect if there are any query params
+    if ([...searchParams.keys()].length === 0) return;
 
     const search = searchParams.get('search') ?? '';
     const ranges = searchParams.getAll('range');
@@ -83,8 +82,7 @@ const useApplyQueryToStore = () => {
         exact,
       }),
     );
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [searchParams?.toString(), dispatch]);
+  }, [dispatch]);
 };
 
 export default useApplyQueryToStore;

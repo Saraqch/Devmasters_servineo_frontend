@@ -42,19 +42,27 @@ export const useSyncUrlParamsAdv = (p: Params) => {
     if (limit != null) params.set('limit', String(limit));
 
     const qs = params.toString();
-    const target = qs ? `/AdvSearch?${qs}` : '/AdvSearch';
+    // Use relative query update like jobOfert: replace only the search part (keeps pathname)
+    const targetSearch = qs ? `?${qs}` : '';
 
-    // If nothing is active, ensure we remove params (go to /AdvSearch)
+    // If nothing is active, ensure the search is cleared
     if (!hasAny) {
-      if (typeof window !== 'undefined' && window.location.pathname + window.location.search === '/AdvSearch') return;
-      router.replace('/AdvSearch', { scroll: false });
+      if (typeof window !== 'undefined' && window.location.search === '') return;
+      router.replace(targetSearch, { scroll: false });
+      if (typeof window !== 'undefined' && window.location.search !== targetSearch) {
+        try { window.history.replaceState(null, '', window.location.pathname + targetSearch); } catch (e) { /* noop */ }
+      }
       return;
     }
 
-    // Avoid replacing if URL already matches target (prevents infinite replace loops)
-    if (typeof window !== 'undefined' && window.location.pathname + window.location.search === target) return;
+    // Avoid replacing if search already matches target (prevents unnecessary navigation)
+    if (typeof window !== 'undefined' && window.location.search === targetSearch) return;
 
-    router.replace(target, { scroll: false });
+    // update Next router and ensure browser address bar shows the search
+    router.replace(targetSearch, { scroll: false });
+    if (typeof window !== 'undefined' && window.location.search !== targetSearch) {
+      try { window.history.replaceState(null, '', window.location.pathname + targetSearch); } catch (e) { /* noop */ }
+    }
   // Use stable primitive deps to avoid re-running on new object identity
   }, [p.search, p.titleOnly, p.exact, p.page, p.limit, JSON.stringify(p.filters), router]);
 };

@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import Header from '@/app/jobOfert/components_jo/Header';
 import { ResultsCounter } from '@/app/AdvSearch/components_AS/ResultsCounter';
 import { InputOnlySearch } from '@/app/jobOfert/components_jo/Search/InputOnlySearch';
@@ -9,6 +9,8 @@ import { HelpButton } from './components_AS/HelpButton';
 import DropdownList from './components_AS/DropdownList'; // <-- Nuevo componente
 import useSyncUrlParamsAdv from './hooks/useSyncUrlParams'; // ajustar ruta si hace falta
 import { useRouter } from 'next/navigation';
+import { useAppDispatch, useAppSelector } from '@/app/jobOfert/hooks/hook';
+import { fetchOffers as fetchOffersThunk } from '@/app/jobOfert/lib/slice';
 import PriceRangeList from './components_AS/PriceRangeList';
 import DateFilterSelector from './components_AS/DateFilterSelector';
 import CalificacionEstrella from './components_AS/CalificacionEstrella';
@@ -83,6 +85,9 @@ function AdvancedSearchPage() {
   // Estado para resultados (permitiendo la mutabilidad)
   const [resultsCount, setResultsCount] = useState<number | null>(null); // Permitir null para estado inicial/carga
   const [loading, setLoading] = useState(false); // Permitir cambiar el estado de carga
+  const dispatch = useAppDispatch();
+  const totalRegistros = useAppSelector((s) => s.jobOffers.totalRegistros);
+  const storeLoading = useAppSelector((s) => s.jobOffers.loading);
   const router = useRouter();
   const skipSyncRef = useRef<boolean | null>(null);
   
@@ -96,60 +101,7 @@ function AdvancedSearchPage() {
     }));
   };
 
-  const fetchOffers = async (params: { 
-      searchText: string; 
-      filters: FilterState;
-      titleOnly: boolean; 
-      exactWords: boolean; 
-  }) => {
-      setLoading(true);
-      const urlParams = new URLSearchParams();
-
-      if (params.searchText.trim()) {
-        urlParams.append('search', params.searchText);
-      }
-      if (params.titleOnly) {
-        urlParams.append('titleOnly', 'true');
-      }
-      if (params.exactWords) {
-        urlParams.append('exactWords', 'true');
-      }
-
-      if (params.filters.range && params.filters.range.length > 0) {
-          params.filters.range.forEach((r) => {
-              urlParams.append('range', r);
-          });
-      }
-      if (params.filters.city) {
-          urlParams.append('city', params.filters.city);
-      }
-      if (params.filters.category && params.filters.category.length > 0) {
-          params.filters.category.forEach((c) => {
-              urlParams.append('category', c);
-          });
-      }
-
-      if (params.filters.tags && params.filters.tags.length > 0) {
-      urlParams.append('tags', params.filters.tags.join(','));
-      }
-
-      if (params.filters.priceRanges && params.filters.priceRanges.length > 0) {
-          params.filters.priceRanges.forEach((r) => {
-              urlParams.append('priceRange', r);
-          });
-      }
-      // ⚠️ NOTA IMPORTANTE: Los rangos (ej. "$100 - $200") deben ser parseados en el Backend.
-      // Aquí solo enviamos el string del rango como filtro.
-      urlParams.append('page', '1');
-      urlParams.append('limit', '10'); 
-
-      const url = `/api/devmaster/offers?${urlParams.toString()}`;
-      console.log('API URL generada:', url);
-      
-      await new Promise(resolve => setTimeout(resolve, 500)); 
-      setResultsCount(101);
-      setLoading(false);
-  };
+  // Removed local fake fetch; we now reuse the shared thunk `fetchOffersThunk`
 
   const updateSearchOnStateChange = ({ 
     newRanges = selectedRanges, 
@@ -192,12 +144,8 @@ function AdvancedSearchPage() {
     maxPrice,
   };
 
-    fetchOffers({
-        searchText: newSearchQuery,
-        filters: currentFilters,
-        titleOnly: newTitleOnly,
-        exactWords: newExactWords,
-    });
+    // updateSearchOnStateChange only computes filters; actual fetch is handled
+    // by a debounced effect below that dispatches `fetchOffersThunk`.
   };
 
   const updateSearch = () => updateSearchOnStateChange({});
@@ -291,6 +239,52 @@ function AdvancedSearchPage() {
     skipSyncRef,
   });
 
+  // Initial fetch: get total offers from DB (no filters) when component mounts
+  useEffect(() => {
+    dispatch(
+      fetchOffersThunk({
+        searchText: '',
+        filters: { range: [], city: '', category: [], tags: [], minPrice: null, maxPrice: null },
+        sortBy: 'recent',
+        page: 1,
+        limit: 1,
+      }),
+    );
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  // Debounced update: when any filter/search changes, quickly dispatch the thunk
+  useEffect(() => {
+    const { minPrice, maxPrice } = parsePriceRange(selectedPriceKey);
+    // Build filters matching the backend/store FilterState shape (no priceRanges key)
+    const apiFilters = {
+      range: selectedRanges,
+      city: selectedCity,
+      category: selectedJobs,
+      tags: selectedTags,
+      minPrice,
+      maxPrice,
+    };
+
+    // Short debounce for responsive updates while typing/selecting
+    const t = window.setTimeout(() => {
+      dispatch(
+        fetchOffersThunk({
+          searchText: searchQuery ?? '',
+          filters: apiFilters,
+          sortBy: 'recent',
+          page: 1,
+          limit: 1,
+          titleOnly: titleOnly ?? false,
+          exact: exactWords ?? false,
+        }),
+      );
+    }, 150);
+
+    return () => clearTimeout(t);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [searchQuery, selectedRanges, selectedCity, selectedJobs, selectedTags, selectedPriceRanges, selectedPriceKey, titleOnly, exactWords]);
+
   return (
     <>
       <Header />
@@ -304,7 +298,7 @@ function AdvancedSearchPage() {
         <div className="max-w-7xl mx-auto">
           <div className="flex justify-end mb-0">
             <div className="w-full sm:w-80">
-              <ResultsCounter total={resultsCount ?? 0} loading={loading} />
+              <ResultsCounter total={totalRegistros ?? 0} loading={storeLoading ?? loading} />
             </div>
           </div>
 
@@ -533,7 +527,7 @@ function AdvancedSearchPage() {
 
             {/* Botones: Aplicar Búsqueda y Limpiar Datos (misma altura y alineación) */}
             <div className="flex justify-center items-center gap-4 mt-8">
-              <ButtonAplicarBus onClick={() => handleSearch(searchQuery)} loading={loading} />
+              <ButtonAplicarBus onClick={() => handleSearch(searchQuery)} loading={storeLoading ?? loading} />
               <ClearButton onClick={() => {
                 // Limpia todos los filtros y la búsqueda a nivel de página
                 setSearchQuery('');
@@ -547,6 +541,16 @@ function AdvancedSearchPage() {
                 setResultsCount(null);
                 // notify children (DropdownList, PriceRangeList) to clear
                 setClearSignal((s) => s + 1);
+                // fetch global total again
+                dispatch(
+                  fetchOffersThunk({
+                    searchText: '',
+                    filters: { range: [], city: '', category: [], tags: [], minPrice: null, maxPrice: null },
+                    sortBy: 'recent',
+                    page: 1,
+                    limit: 1,
+                  }),
+                );
               }} />
             </div>
 

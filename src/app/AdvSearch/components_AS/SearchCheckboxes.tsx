@@ -22,7 +22,12 @@ export function SearchCheckboxes({
           <input
             type="checkbox"
             checked={titleOnly}
-            onChange={(e) => setTitleOnly(e.target.checked)}
+            onChange={(e) => {
+              const checked = e.target.checked;
+              // If selecting titleOnly, ensure exactWords is deselected
+              setTitleOnly(checked);
+              if (checked) setExactWords(false);
+            }}
             className="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500 focus:ring-2 cursor-pointer"
           />
           <span className="text-sm text-gray-700">
@@ -34,7 +39,12 @@ export function SearchCheckboxes({
           <input
             type="checkbox"
             checked={exactWords}
-            onChange={(e) => setExactWords(e.target.checked)}
+            onChange={(e) => {
+              const checked = e.target.checked;
+              // If selecting exactWords, ensure titleOnly is deselected
+              setExactWords(checked);
+              if (checked) setTitleOnly(false);
+            }}
             className="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500 focus:ring-2 cursor-pointer"
           />
           <span className="text-sm text-gray-700">Palabras Exactas</span>

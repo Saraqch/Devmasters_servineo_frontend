@@ -8,6 +8,9 @@ import { SearchCheckboxes } from './components_AS/SearchCheckboxes';
 import { HelpButton } from './components_AS/HelpButton';
 import DropdownList from './components_AS/DropdownList';
 import PriceRangeList from './components_AS/PriceRangeList';
+import DateFilterSelector from './components_AS/DateFilterSelector';
+import CalificacionEstrella from './components_AS/CalificacionEstrella';
+import ButtonAplicarBus from './components_AS/ButtonAplicarBus';
 
 interface FilterState {
   range: string[];
@@ -50,7 +53,6 @@ function AdvancedSearchPage() {
     categorias: false,
     precio: false,
   });
-
   const [selectedRanges, setSelectedRanges] = useState<string[]>([]);
   const [selectedCity, setSelectedCity] = useState<string>('');
   const [selectedJobs, setSelectedJobs] = useState<string[]>([]);
@@ -167,6 +169,8 @@ function AdvancedSearchPage() {
     });
   };
 
+  const updateSearch = () => updateSearchOnStateChange({});
+
   const handleRangeChange = (range: string) => {
     setSelectedRanges(prevRanges => {
       const newRanges = prevRanges.includes(range)
@@ -202,6 +206,7 @@ function AdvancedSearchPage() {
       updateSearchOnStateChange({ newSearchQuery: query }); 
     }, 300);
   };
+  let searchTimeout: ReturnType<typeof setTimeout> | null = null;
 
 const handleCategoryChange = (payload: { categories: string[] }) => {
     const newCategories = payload.categories;
@@ -259,7 +264,6 @@ const handleCategoryChange = (payload: { categories: string[] }) => {
 
             <div className="mb-6">
               <h3 className="text-base mb-2">Nombre del fixer :</h3>
-
               <div
                 className={`bg-gray-100 text-gray-500 px-4 py-2 text-sm cursor-pointer hover:bg-gray-200 transition-colors flex justify-between items-center 
                   ${openSections.fixer
@@ -305,7 +309,6 @@ const handleCategoryChange = (payload: { categories: string[] }) => {
 
             <div className="mb-6">
               <h3 className="text-base mb-2">Ciudad :</h3>
-
               <div
                 className={`bg-gray-100 text-gray-500 px-4 py-2 text-sm cursor-pointer hover:bg-gray-200 transition-colors flex justify-between items-center 
                   ${openSections.ciudad
@@ -351,7 +354,6 @@ const handleCategoryChange = (payload: { categories: string[] }) => {
 
             <div className="mb-6">
               <h3 className="text-base mb-2">Tipo de Trabajo :</h3>
-
               <div
                 className={`bg-gray-100 text-gray-500 px-4 py-2 text-sm cursor-pointer hover:bg-gray-200 transition-colors flex justify-between items-center 
                   ${openSections.trabajo
@@ -455,6 +457,24 @@ const handleCategoryChange = (payload: { categories: string[] }) => {
                 </div>
               )}
             </div>
+            {/* NUEVO: Filtro de Fecha y Calificación */}
+            <div className="mb-6 flex gap-6 items-start">
+              <div className="flex-shrink-0">
+                <DateFilterSelector />
+              </div>
+              <div className="flex-shrink-0">
+                <CalificacionEstrella />
+              </div>
+            </div>
+
+            {/* Botón Aplicar Búsqueda al final izquierdo */}
+            <div className="flex justify-start">
+              <ButtonAplicarBus 
+                onClick={updateSearch} 
+                loading={loading} 
+              />
+            </div>
+
           </div>
         </div>
       </main>
@@ -463,3 +483,4 @@ const handleCategoryChange = (payload: { categories: string[] }) => {
 }
 
 export default AdvancedSearchPage;
+

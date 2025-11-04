@@ -25,6 +25,10 @@ export interface FilterState {
   range: string[];
   city: string;
   category: string[];
+  // Optional extended filters
+  tags?: string[];
+  minPrice?: number | null;
+  maxPrice?: number | null;
 }
 
 interface JobOffersState {
@@ -34,6 +38,8 @@ interface JobOffersState {
   filters: FilterState;
   sortBy: string;
   search: string;
+  titleOnly?: boolean;
+  exact?: boolean;
   paginaActual: number;
   registrosPorPagina: number;
   totalRegistros: number;
@@ -46,6 +52,8 @@ const initialState: JobOffersState = {
   filters: { range: [], city: '', category: [] },
   sortBy: 'recent',
   search: '',
+  titleOnly: false,
+  exact: false,
   paginaActual: 1,
   registrosPorPagina: 10,
   totalRegistros: 0,
@@ -57,6 +65,8 @@ interface FetchOffersParams {
   sortBy: string;
   page: number;
   limit: number;
+  titleOnly?: boolean;
+  exact?: boolean;
 }
 
 export const fetchOffers = createAsyncThunk(
@@ -85,6 +95,24 @@ export const fetchOffers = createAsyncThunk(
 
       if (params.sortBy) {
         urlParams.append('sortBy', params.sortBy);
+      }
+
+      if (params.titleOnly) {
+        urlParams.append('titleOnly', 'true');
+      }
+      if (params.exact) {
+        urlParams.append('exact', 'true');
+      }
+
+      // Extended filters: tags, minPrice, maxPrice
+      if (params.filters.tags && params.filters.tags.length) {
+        urlParams.append('tags', params.filters.tags.join(','));
+      }
+      if (params.filters.minPrice != null) {
+        urlParams.append('minPrice', String(params.filters.minPrice));
+      }
+      if (params.filters.maxPrice != null) {
+        urlParams.append('maxPrice', String(params.filters.maxPrice));
       }
 
       urlParams.append('page', params.page.toString());
@@ -119,6 +147,12 @@ const jobOffersSlice = createSlice({
     },
     setFilters: (state, action: PayloadAction<FilterState>) => {
       state.filters = action.payload;
+    },
+    setTitleOnly: (state, action: PayloadAction<boolean>) => {
+      state.titleOnly = action.payload;
+    },
+    setExact: (state, action: PayloadAction<boolean>) => {
+      state.exact = action.payload;
     },
     setSortBy: (state, action: PayloadAction<string>) => {
       state.sortBy = action.payload;
@@ -161,6 +195,8 @@ const jobOffersSlice = createSlice({
 export const {
   setSearch,
   setFilters,
+  setTitleOnly,
+  setExact,
   setSortBy,
   setRegistrosPorPagina,
   setPaginaActual,

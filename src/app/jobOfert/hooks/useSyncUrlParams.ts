@@ -8,6 +8,8 @@ interface UseSyncUrlParamsProps {
   sortBy: string;
   paginaActual: number;
   registrosPorPagina: number;
+  titleOnly?: boolean;
+  exact?: boolean;
 }
 
 export const useSyncUrlParams = ({
@@ -16,20 +18,33 @@ export const useSyncUrlParams = ({
   sortBy,
   paginaActual,
   registrosPorPagina,
+  titleOnly,
+  exact,
 }: UseSyncUrlParamsProps) => {
   const router = useRouter();
 
   useEffect(() => {
     const params = new URLSearchParams();
-    
+
     if (search) params.set('search', search);
+    if (titleOnly) params.set('titleOnly', 'true');
+    if (exact) params.set('exact', 'true');
+    if (filters.range && filters.range.length) filters.range.forEach((r) => params.append('range', r));
     if (filters.city) params.set('city', filters.city);
     if (filters.category?.length) params.set('category', filters.category.join(','));
+    if (filters.tags && filters.tags.length) params.set('tags', filters.tags.join(','));
+    if (filters.minPrice != null) params.set('minPrice', String(filters.minPrice));
+    if (filters.maxPrice != null) params.set('maxPrice', String(filters.maxPrice));
     if (sortBy) params.set('sort', sortBy);
     if (paginaActual) params.set('page', String(paginaActual));
     if (registrosPorPagina) params.set('limit', String(registrosPorPagina));
 
     const queryString = params.toString();
-    router.replace(queryString ? `?${queryString}` : '', { scroll: false });
+    const target = queryString ? `?${queryString}` : '';
+
+    // Avoid unnecessary router.replace which can retrigger URL listeners
+    if (typeof window !== 'undefined' && window.location.search === target) return;
+
+    router.replace(target, { scroll: false });
   }, [search, filters, sortBy, paginaActual, registrosPorPagina, router]);
 };

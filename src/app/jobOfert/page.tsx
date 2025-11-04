@@ -26,6 +26,7 @@ import {
 } from './lib/slice';
 import { getSortValue, sortMapInverse } from './lib/constants/sortOptions';
 import { useSyncUrlParams } from './hooks/useSyncUrlParams';
+import useApplyQueryToStore from './hooks/useApplyQueryToStore';
 
 export default function JobOffersPage() {
   const dispatch = useAppDispatch();
@@ -36,6 +37,8 @@ export default function JobOffersPage() {
     filters,
     sortBy,
     search,
+    titleOnly,
+    exact,
     paginaActual,
     registrosPorPagina,
     totalRegistros,
@@ -45,6 +48,11 @@ export default function JobOffersPage() {
   const stickyRef = useRef<HTMLDivElement | null>(null);
   const isInitialMount = useRef(true);
 
+  // Apply query params (if any) to the store and trigger fetch
+  // Minimal change: this hook will run on mount and dispatch/fetch if the URL has query params
+  // so we can skip the default initial fetch below when query exists.
+  useApplyQueryToStore();
+
   // --- Sincroniza URL ---
   useSyncUrlParams({
     search,
@@ -52,22 +60,31 @@ export default function JobOffersPage() {
     sortBy,
     paginaActual,
     registrosPorPagina,
+    titleOnly,
+    exact,
   });
 
   // --- Carga inicial ---
   useEffect(() => {
-    if (isInitialMount.current) {
-      dispatch(
-        fetchOffers({
-          searchText: '',
-          filters: { range: [], city: '', category: [] },
-          sortBy: 'recent',
-          page: 1,
-          limit: 10,
-        }),
-      );
+    if (!isInitialMount.current) return;
+
+    // If the URL already has query params, assume the hook `useApplyQueryToStore`
+    // handled initialization and skip the default fetch to avoid duplicate calls.
+    if (typeof window !== 'undefined' && window.location.search && window.location.search !== '') {
       isInitialMount.current = false;
+      return;
     }
+
+    dispatch(
+      fetchOffers({
+        searchText: '',
+        filters: { range: [], city: '', category: [] },
+        sortBy: 'recent',
+        page: 1,
+        limit: 10,
+      }),
+    );
+    isInitialMount.current = false;
   }, [dispatch]);
 
   // --- Sticky header handler ---
@@ -106,6 +123,8 @@ export default function JobOffersPage() {
         sortBy,
         page: 1,
         limit: valor,
+        titleOnly,
+        exact,
       }),
     );
   };
@@ -119,6 +138,8 @@ export default function JobOffersPage() {
         sortBy,
         page: 1,
         limit: registrosPorPagina,
+        titleOnly,
+        exact,
       }),
     );
   };
@@ -133,6 +154,8 @@ export default function JobOffersPage() {
         sortBy: backendSort,
         page: 1,
         limit: registrosPorPagina,
+        titleOnly,
+        exact,
       }),
     );
   };
@@ -146,6 +169,8 @@ export default function JobOffersPage() {
         sortBy,
         page: 1,
         limit: registrosPorPagina,
+        titleOnly,
+        exact,
       }),
     );
   };
@@ -158,6 +183,8 @@ export default function JobOffersPage() {
         sortBy,
         page: newPage,
         limit: registrosPorPagina,
+        titleOnly,
+        exact,
       }),
     );
   };

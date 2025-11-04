@@ -2,6 +2,8 @@
 import { useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 
+import { MutableRefObject } from 'react';
+
 interface Params {
   search?: string;
   filters?: { range?: string[]; city?: string; category?: string[]; tags?: string[]; minPrice?: number | null; maxPrice?: number | null };
@@ -9,12 +11,21 @@ interface Params {
   exact?: boolean;
   page?: number;
   limit?: number;
+  // optional ref to temporarily skip syncing (set true before navigation)
+  skipSyncRef?: MutableRefObject<boolean | null>;
 }
 
 export const useSyncUrlParamsAdv = (p: Params) => {
   const router = useRouter();
   useEffect(() => {
-    const { search, filters, titleOnly, exact, page, limit } = p;
+    const { search, filters, titleOnly, exact, page, limit, skipSyncRef } = p;
+
+    // If parent signals skipping sync (e.g. about to navigate), consume the flag and skip one run
+    if (skipSyncRef && skipSyncRef.current) {
+      // reset flag and skip this sync to avoid overriding navigation
+      skipSyncRef.current = false;
+      return;
+    }
 
     const hasAny = !!(
       (search && search.trim() !== '') ||

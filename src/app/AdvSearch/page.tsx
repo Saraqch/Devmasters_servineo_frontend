@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import Header from '@/app/jobOfert/components_jo/Header';
 import { ResultsCounter } from '@/app/AdvSearch/components_AS/ResultsCounter';
 import { InputOnlySearch } from '@/app/jobOfert/components_jo/Search/InputOnlySearch';
@@ -8,6 +8,7 @@ import { SearchCheckboxes } from './components_AS/SearchCheckboxes';
 import { HelpButton } from './components_AS/HelpButton';
 import DropdownList from './components_AS/DropdownList'; // <-- Nuevo componente
 import useSyncUrlParamsAdv from './hooks/useSyncUrlParams'; // ajustar ruta si hace falta
+import { useRouter } from 'next/navigation';
 
 interface FilterState {
   range: string[];
@@ -73,6 +74,8 @@ const AdvancedSearchPage: React.FC = () => {
   // Estado para resultados (permitiendo la mutabilidad)
   const [resultsCount, setResultsCount] = useState<number | null>(null); // Permitir null para estado inicial/carga
   const [loading, setLoading] = useState(false); // Permitir cambiar el estado de carga
+  const router = useRouter();
+  const skipSyncRef = useRef<boolean | null>(null);
 
   const toggleSection = (section: string) => {
     setOpenSections((prev) => ({
@@ -228,15 +231,33 @@ const AdvancedSearchPage: React.FC = () => {
 // Reemplaza handleSearch y handleDropdownChange:
 
   // Handler para el Input de Búsqueda (con debounce)
-  const handleSearch = (query: string) => {
-    setSearchQuery(query);
-    if (searchTimeout) clearTimeout(searchTimeout);
-    searchTimeout = setTimeout(() => {
-        updateSearchOnStateChange({ newSearchQuery: query }); 
-    }, 300); // Debounce de 300ms
+  const handleSearch = (query: string) => {
+  setSearchQuery(query);
+  // Prevent the AdvSearch URL-sync hook from overriding the navigation
+  skipSyncRef.current = true;
+  // Navigate to jobOfert with current filters + this query
+  const params = new URLSearchParams();
+  if (query.trim()) params.set('search', query.trim());
+  if (titleOnly) params.set('titleOnly', 'true');
+  if (exactWords) params.set('exact', 'true');
+  selectedRanges.forEach(r => params.append('range', r));
+  if (selectedCity) params.set('city', selectedCity);
+  if (selectedJobs.length) params.set('category', selectedJobs.join(','));
+  if (selectedTags.length) params.set('tags', selectedTags.join(','));
+  const { minPrice, maxPrice } = parsePriceRange(selectedPriceKey);
+  if (minPrice != null) params.set('minPrice', String(minPrice));
+  if (maxPrice != null) params.set('maxPrice', String(maxPrice));
+  params.set('page', '1');
+  params.set('limit', '10');
+  // Force a full navigation to /jobOfert to ensure the page component mounts and shows results.
+  // Using window.location avoids client-side URL-replace races with the local sync hook.
+  if (typeof window !== 'undefined') {
+    window.location.href = `/jobOfert?${params.toString()}`;
+  } else {
+    router.push(`/jobOfert?${params.toString()}`);
+  }
   };
-  let searchTimeout: ReturnType<typeof setTimeout> | null = null;
-
+ 
   // --- Handler que recibe cambios desde DropdownList ---
   const handleDropdownChange = (payload: { tag?: string; price?: string }) => {
     const { tag, price } = payload;
@@ -264,6 +285,7 @@ const AdvancedSearchPage: React.FC = () => {
     },
     titleOnly,
     exact: exactWords,
+    skipSyncRef,
   });
 
   return (

@@ -38,6 +38,21 @@ export const SearchBar = ({ onSearch, onFilter }: SearchBarProps) => {
    }
   };
 
+  const clearAllHistoryBackend = async () => {
+  try {
+    const sessionId = localStorage.getItem('sessionId');
+    if (!sessionId) {
+      return;
+    }
+
+    const url = `${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000'}/api/devmaster/offers?action=clearAllHistory&sessionId=${encodeURIComponent(sessionId)}`;
+    
+    await fetch(url);
+  } catch (error) {
+    console.error('Error limpiando historial del backend:', error);
+  }
+};
+
   const loadHistory = () => {
     try {
       const raw = localStorage.getItem(HISTORY_KEY);
@@ -83,7 +98,7 @@ export const SearchBar = ({ onSearch, onFilter }: SearchBarProps) => {
   const clearHistory = () => {
     persistHistory([]);
     setHistory([]);
-    // mantener el dropdown abierto para que el usuario vea el estado vacío
+    clearAllHistoryBackend();
     setIsOpen(true);
   };
 
@@ -311,9 +326,9 @@ export const SearchBar = ({ onSearch, onFilter }: SearchBarProps) => {
                 <div className="w-8 flex items-center justify-center sm:justify-end sm:w-auto">
                   <button
                     type="button"
-                    onClick={(e) => {
+                    onClick={async (e) => {
                       e.stopPropagation();
-                      clearHistory();
+                      await clearHistory();
                     }}
                     className="mr-1 flex items-center gap-1 text-sm text-red-500 cursor-pointer px-2 py-1 rounded hover:bg-red-50 whitespace-nowrap"
                     aria-label="Borrar historial"

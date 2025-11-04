@@ -7,12 +7,14 @@ import { InputOnlySearch } from '@/app/jobOfert/components_jo/Search/InputOnlySe
 import { SearchCheckboxes } from './components_AS/SearchCheckboxes';
 import { HelpButton } from './components_AS/HelpButton';
 import DropdownList from './components_AS/DropdownList';
+import PriceRangeList from './components_AS/PriceRangeList';
 
 interface FilterState {
   range: string[];
   city: string;
   category: string[];
   tags: string[];
+  priceRanges: string[];
   minPrice: number | null;
   maxPrice: number | null;
 }
@@ -46,12 +48,14 @@ function AdvancedSearchPage() {
     ciudad: false,
     trabajo: false,
     categorias: false,
+    precio: false,
   });
 
   const [selectedRanges, setSelectedRanges] = useState<string[]>([]);
   const [selectedCity, setSelectedCity] = useState<string>('');
   const [selectedJobs, setSelectedJobs] = useState<string[]>([]);
   const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
+  const [selectedPriceRanges, setSelectedPriceRanges] = useState<string[]>([]);
 
   const [resultsCount, setResultsCount] = useState<number | null>(null);
   const [loading, setLoading] = useState(false);
@@ -100,6 +104,13 @@ function AdvancedSearchPage() {
           urlParams.append('categories', params.filters.tags.join(','));
       }
 
+      if (params.filters.priceRanges && params.filters.priceRanges.length > 0) {
+          params.filters.priceRanges.forEach((r) => {
+              urlParams.append('priceRange', r);
+          });
+      }
+      // ⚠️ NOTA IMPORTANTE: Los rangos (ej. "$100 - $200") deben ser parseados en el Backend.
+      // Aquí solo enviamos el string del rango como filtro.
       urlParams.append('page', '1');
       urlParams.append('limit', '10'); 
 
@@ -116,6 +127,7 @@ function AdvancedSearchPage() {
     newCity = selectedCity, 
     newJobs = selectedJobs, 
     newCategories = selectedCategories,
+    newPriceRanges = selectedPriceRanges,
     newSearchQuery = searchQuery,
     newTitleOnly = titleOnly,
     newExactWords = exactWords
@@ -124,13 +136,14 @@ function AdvancedSearchPage() {
     newCity?: string, 
     newJobs?: string[], 
     newCategories?: string[],
+    newPriceRanges?: string[],
     newSearchQuery?: string,
     newTitleOnly?: boolean,
     newExactWords?: boolean
   }) => {
     
-    if (!newSearchQuery && newRanges.length === 0 && newCity === '' && 
-        newJobs.length === 0 && newCategories.length === 0) {
+   if (!newSearchQuery && newRanges.length === 0 && newCity === '' && 
+        newJobs.length === 0 && newCategories.length === 0 && newPriceRanges.length === 0) { //  Condición actualizada
         console.log('Debe ingresar al menos un parámetro de búsqueda.');
         setResultsCount(0);
         return;
@@ -141,6 +154,7 @@ function AdvancedSearchPage() {
         city: newCity,
         category: newJobs,
         tags: newCategories,
+        priceRanges: newPriceRanges,
         minPrice: null,
         maxPrice: null,
     };
@@ -189,10 +203,23 @@ function AdvancedSearchPage() {
     }, 300);
   };
 
-  const handleCategoryChange = (payload: { categories: string[] }) => {
+const handleCategoryChange = (payload: { categories: string[] }) => {
     const newCategories = payload.categories;
     setSelectedCategories(newCategories);
-    updateSearchOnStateChange({ newCategories });
+    // Aplicando un pequeño timeout (debounce) para no disparar la búsqueda inmediatamente después de cada clic
+    if (searchTimeout) clearTimeout(searchTimeout);
+    searchTimeout = setTimeout(() => {
+        updateSearchOnStateChange({ newCategories });
+    }, 150); // Debounce leve de 150ms
+  };
+  const handlePriceRangeChange = (payload: { priceRanges: string[] }) => {
+    const newPriceRanges = payload.priceRanges;
+    setSelectedPriceRanges(newPriceRanges);
+    // Aplicando debounce
+    if (searchTimeout) clearTimeout(searchTimeout);
+    searchTimeout = setTimeout(() => {
+        updateSearchOnStateChange({ newPriceRanges });
+    }, 150);
   };
 
   return (
@@ -398,7 +425,36 @@ function AdvancedSearchPage() {
                 </div>
               )}
             </div>
+<div className="mb-6">
+              <h3 className="text-base mb-2">Precio :</h3>
 
+              <div
+                className={`bg-gray-100 text-gray-500 px-4 py-2 text-sm cursor-pointer hover:bg-gray-200 transition-colors flex justify-between items-center 
+                  ${openSections.precio
+                    ? 'rounded-t-lg border border-b-0 border-gray-300'
+                    : 'rounded-lg border border-gray-300'
+                  }`}
+                onClick={() => toggleSection('precio')}
+              >
+                <span className="truncate">Seleccionar Rangos de Precio</span>
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  className={`h-4 w-4 transform transition-transform duration-200 ${openSections.precio ? 'rotate-180' : 'rotate-0'}`}
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                >
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" />
+                </svg>
+              </div>
+
+              {openSections.precio && (
+                <div className="bg-white border border-t-0 border-gray-300 rounded-b-lg shadow-sm">
+                  <PriceRangeList onFilterChange={handlePriceRangeChange} /> 
+                </div>
+              )}
+            </div>
           </div>
         </div>
       </main>

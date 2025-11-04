@@ -7,6 +7,7 @@ import { InputOnlySearch } from '@/app/jobOfert/components_jo/Search/InputOnlySe
 import { SearchCheckboxes } from './components_AS/SearchCheckboxes';
 import { HelpButton } from './components_AS/HelpButton';
 import DropdownList from './components_AS/DropdownList'; // <-- Nuevo componente
+import useSyncUrlParamsAdv from './hooks/useSyncUrlParams'; // ajustar ruta si hace falta
 
 interface FilterState {
   range: string[];
@@ -250,6 +251,21 @@ const AdvancedSearchPage: React.FC = () => {
     // Ejecutar búsqueda con el estado recién calculado.
     updateSearchOnStateChange({ newTags, newPriceKey });
   };
+
+  useSyncUrlParamsAdv({
+    search: searchQuery,
+    filters: {
+      range: selectedRanges,
+      city: selectedCity,
+      category: selectedJobs,
+      tags: selectedTags,
+      minPrice: parsePriceRange(selectedPriceKey).minPrice,
+      maxPrice: parsePriceRange(selectedPriceKey).maxPrice,
+    },
+    titleOnly,
+    exact: exactWords,
+  });
+
   return (
     <>
       <Header />
@@ -382,7 +398,7 @@ const AdvancedSearchPage: React.FC = () => {
                 </div>
               )}
             </div>
-
+ 
             {/* Trabajo filter */}
             <div className="mb-6">
               <h3 className="text-base mb-2">Tipo de Trabajo :</h3>

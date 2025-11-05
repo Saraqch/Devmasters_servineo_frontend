@@ -26,6 +26,9 @@ import {
 } from './lib/slice';
 import { getSortValue, sortMapInverse } from './lib/constants/sortOptions';
 import { useSyncUrlParams } from './hooks/useSyncUrlParams';
+import useApplyQueryToStore from './hooks/useApplyQueryToStore';
+import AppliedFilters from './components_jo/Search/AppliedFilters';
+import useAppliedFilters from './hooks/useAppliedFilters';
 
 export default function JobOffersPage() {
   const dispatch = useAppDispatch();
@@ -36,38 +39,59 @@ export default function JobOffersPage() {
     filters,
     sortBy,
     search,
+    titleOnly,
+    exact,
     paginaActual,
     registrosPorPagina,
     totalRegistros,
+    date,
+    rating,
   } = useAppSelector((state) => state.jobOffers);
 
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
   const stickyRef = useRef<HTMLDivElement | null>(null);
+  const { showAppliedFilters, appliedParams, handleClearApplied } = useAppliedFilters();
   const isInitialMount = useRef(true);
+
+  // Apply query params (if any) to the store and trigger fetch
+  // Minimal change: this hook will run on mount and dispatch/fetch if the URL has query params
+  // so we can skip the default initial fetch below when query exists.
+  useApplyQueryToStore();
 
   // --- Sincroniza URL ---
   useSyncUrlParams({
     search,
     filters,
     sortBy,
+    date,
+    rating,
     paginaActual,
     registrosPorPagina,
+    titleOnly,
+    exact,
   });
 
   // --- Carga inicial ---
   useEffect(() => {
-    if (isInitialMount.current) {
-      dispatch(
-        fetchOffers({
-          searchText: '',
-          filters: { range: [], city: '', category: [] },
-          sortBy: 'recent',
-          page: 1,
-          limit: 10,
-        }),
-      );
+    if (!isInitialMount.current) return;
+
+    // If the URL already has query params, assume the hook `useApplyQueryToStore`
+    // handled initialization and skip the default fetch to avoid duplicate calls.
+    if (typeof window !== 'undefined' && window.location.search && window.location.search !== '') {
       isInitialMount.current = false;
+      return;
     }
+
+    dispatch(
+      fetchOffers({
+        searchText: '',
+        filters: { range: [], city: '', category: [] },
+        sortBy: 'recent',
+        page: 1,
+        limit: 10,
+      }),
+    );
+    isInitialMount.current = false;
   }, [dispatch]);
 
   // --- Sticky header handler ---
@@ -106,6 +130,8 @@ export default function JobOffersPage() {
         sortBy,
         page: 1,
         limit: valor,
+        titleOnly,
+        exact,
       }),
     );
   };
@@ -119,6 +145,8 @@ export default function JobOffersPage() {
         sortBy,
         page: 1,
         limit: registrosPorPagina,
+        titleOnly,
+        exact,
       }),
     );
   };
@@ -133,6 +161,8 @@ export default function JobOffersPage() {
         sortBy: backendSort,
         page: 1,
         limit: registrosPorPagina,
+        titleOnly,
+        exact,
       }),
     );
   };
@@ -146,6 +176,8 @@ export default function JobOffersPage() {
         sortBy,
         page: 1,
         limit: registrosPorPagina,
+        titleOnly,
+        exact,
       }),
     );
   };
@@ -158,11 +190,15 @@ export default function JobOffersPage() {
         sortBy,
         page: newPage,
         limit: registrosPorPagina,
+        titleOnly,
+        exact,
       }),
     );
   };
 
   const toggleDrawer = () => setIsDrawerOpen(!isDrawerOpen);
+
+  
 
   // --- Render ---
   return (
@@ -196,6 +232,9 @@ export default function JobOffersPage() {
       </div>
 
       <main className="px-4 sm:px-6 md:px-12 lg:px-24">
+        {showAppliedFilters && appliedParams && (
+          <AppliedFilters params={appliedParams} onClear={handleClearApplied} />
+        )}
         {error && (
           <div className="text-red-500 text-center mb-4 p-3 bg-red-100 rounded">{error}</div>
         )}

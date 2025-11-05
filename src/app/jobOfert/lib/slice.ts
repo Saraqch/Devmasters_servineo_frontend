@@ -25,6 +25,10 @@ export interface FilterState {
   range: string[];
   city: string;
   category: string[];
+  // Optional extended filters
+  tags?: string[];
+  minPrice?: number | null;
+  maxPrice?: number | null;
 }
 
 interface JobOffersState {
@@ -34,6 +38,10 @@ interface JobOffersState {
   filters: FilterState;
   sortBy: string;
   search: string;
+  date?: string | null;
+  rating?: number | null;
+  titleOnly?: boolean;
+  exact?: boolean;
   paginaActual: number;
   registrosPorPagina: number;
   totalRegistros: number;
@@ -46,6 +54,10 @@ const initialState: JobOffersState = {
   filters: { range: [], city: '', category: [] },
   sortBy: 'recent',
   search: '',
+  date: null,
+  rating: null,
+  titleOnly: false,
+  exact: false,
   paginaActual: 1,
   registrosPorPagina: 10,
   totalRegistros: 0,
@@ -57,6 +69,11 @@ interface FetchOffersParams {
   sortBy: string;
   page: number;
   limit: number;
+  titleOnly?: boolean;
+  exact?: boolean;
+  date?: string;
+  // optional integer rating (1..5) meaning filter for that integer range (1 -> 1.0-1.9)
+  rating?: number;
 }
 
 export const fetchOffers = createAsyncThunk(
@@ -85,6 +102,34 @@ export const fetchOffers = createAsyncThunk(
 
       if (params.sortBy) {
         urlParams.append('sortBy', params.sortBy);
+      }
+
+      // optional exact date filter (YYYY-MM-DD)
+      if (params.date) {
+        urlParams.append('date', params.date);
+      }
+
+      // optional rating integer 1..5 -> backend should interpret as range [n, n+0.9]
+      if (params.rating != null) {
+        urlParams.append('rating', String(params.rating));
+      }
+
+      if (params.titleOnly) {
+        urlParams.append('titleOnly', 'true');
+      }
+      if (params.exact) {
+        urlParams.append('exact', 'true');
+      }
+
+      // Extended filters: tags, minPrice, maxPrice
+      if (params.filters.tags && params.filters.tags.length) {
+        urlParams.append('tags', params.filters.tags.join(','));
+      }
+      if (params.filters.minPrice != null) {
+        urlParams.append('minPrice', String(params.filters.minPrice));
+      }
+      if (params.filters.maxPrice != null) {
+        urlParams.append('maxPrice', String(params.filters.maxPrice));
       }
 
       urlParams.append('page', params.page.toString());
@@ -120,8 +165,20 @@ const jobOffersSlice = createSlice({
     setFilters: (state, action: PayloadAction<FilterState>) => {
       state.filters = action.payload;
     },
+    setTitleOnly: (state, action: PayloadAction<boolean>) => {
+      state.titleOnly = action.payload;
+    },
+    setExact: (state, action: PayloadAction<boolean>) => {
+      state.exact = action.payload;
+    },
     setSortBy: (state, action: PayloadAction<string>) => {
       state.sortBy = action.payload;
+    },
+    setDate: (state, action: PayloadAction<string | null>) => {
+      state.date = action.payload;
+    },
+    setRating: (state, action: PayloadAction<number | null>) => {
+      state.rating = action.payload;
     },
     setRegistrosPorPagina: (state, action: PayloadAction<number>) => {
       state.registrosPorPagina = action.payload;
@@ -161,7 +218,11 @@ const jobOffersSlice = createSlice({
 export const {
   setSearch,
   setFilters,
+  setTitleOnly,
+  setExact,
   setSortBy,
+  setDate,
+  setRating,
   setRegistrosPorPagina,
   setPaginaActual,
   resetFilters,

@@ -1,0 +1,184 @@
+'use client';
+import React, { useRef, useEffect, useState } from 'react';
+import { usePathname, useRouter } from 'next/navigation';
+import { Calendar, ChevronDown } from 'lucide-react';
+import CalendarComponent from './CalendarComponent';
+
+interface Props {
+  selectedFilter: string;
+  selectedDate: Date | null;
+  onChange: (filter: string, date?: Date | null) => void;
+}
+
+const DateFilterSelector: React.FC<Props> = ({ selectedFilter, selectedDate, onChange }) => {
+  const [showCalendar, setShowCalendar] = useState(false);
+  const [rawInput, setRawInput] = useState('');
+  const inputRef = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    if (selectedDate) {
+      const day = String(selectedDate.getDate()).padStart(2, '0');
+      const month = String(selectedDate.getMonth() + 1).padStart(2, '0');
+      const year = selectedDate.getFullYear();
+      setRawInput(`${day}${month}${year}`);
+    } else {
+      setRawInput('');
+    }
+  }, [selectedDate]);
+
+  // Keep the URL in sync: when specific date is active and a date exists, set ?date=YYYY-MM-DD
+  const pathname = usePathname();
+  const router = useRouter();
+
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    const sp = new URLSearchParams(window.location.search);
+    if (selectedFilter === 'specific' && selectedDate) {
+      const iso = selectedDate.toISOString().slice(0, 10); // YYYY-MM-DD
+      sp.set('date', iso);
+    } else {
+      sp.delete('date');
+    }
+
+    const qs = sp.toString();
+    const target = qs ? `${pathname}?${qs}` : pathname;
+    // use replace to avoid history clutter
+    router.replace(target);
+    // only when selectedFilter or selectedDate changes
+  }, [selectedFilter, selectedDate, pathname, router]);
+
+  const handleDateSelect = (date: Date) => {
+    setShowCalendar(false);
+    onChange('specific', date);
+  };
+
+  const formatDisplay = (value: string): string => {
+    const nums = value.replace(/\D/g, '').slice(0, 8);
+    const day = nums.slice(0, 2).padEnd(2, '_');
+    const month = nums.slice(2, 4).padEnd(2, '_');
+    const year = nums.slice(4, 8).padEnd(4, '_');
+    return `${day} / ${month} / ${year}`;
+  };
+
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value.replace(/\D/g, '').slice(0, 8);
+    setRawInput(value);
+
+    // If the user input a full date, notify parent
+    if (value.length === 8) {
+      const day = Number(value.slice(0, 2));
+      const month = Number(value.slice(2, 4));
+      const year = Number(value.slice(4, 8));
+      const dt = new Date(year, month - 1, day);
+      onChange('specific', dt);
+    }
+
+    const input = inputRef.current;
+    if (!input) return;
+
+    setTimeout(() => {
+      let pos = 0;
+      if (value.length <= 2) pos = value.length;
+      else if (value.length <= 4) pos = value.length + 3;
+      else pos = value.length + 6;
+      input.setSelectionRange(pos, pos);
+    }, 0);
+  };
+
+  const handleClick = (e: React.MouseEvent<HTMLInputElement>) => {
+    const input = e.target as HTMLInputElement;
+    const pos = input.selectionStart || 0;
+
+    setTimeout(() => {
+      let newPos = 0;
+      if (pos <= 2) newPos = Math.min(rawInput.length, 2);
+      else if (pos <= 7) newPos = Math.min(rawInput.length, 4) + 3;
+      else newPos = rawInput.length + 6;
+      input.setSelectionRange(newPos, newPos);
+    }, 0);
+  };
+
+  return (
+    <div>
+      {/* Título con el mismo estilo que los otros filtros */}
+      <h3 className="text-base mb-2">Fecha de publicación:</h3>
+      
+      {/* Contenedor principal con estilos consistentes - width ajustado */}
+      <div className="bg-white rounded-lg border border-gray-300 p-4 space-y-3 w-fit">
+
+        {/* Opciones de radio: Los más recientes y Los más antiguos */}
+        {['recent', 'oldest'].map((filter) => (
+          <label key={filter} className="flex items-center gap-2 text-sm cursor-pointer hover:text-[#2B31E0] transition-colors">
+            <input
+              type="radio"
+              name="dateFilter"
+              value={filter}
+              checked={selectedFilter === filter}
+              onChange={() => onChange(filter, null)}
+              className="w-4 h-4 cursor-pointer flex-shrink-0 text-[#2B6AE0] rounded-full border-gray-300 focus:ring-[#2B6AE0]"
+            />
+            <span className="text-gray-700 whitespace-nowrap">
+              {filter === 'recent' ? 'Los más recientes' : 'Los más antiguos'}
+            </span>
+          </label>
+        ))}
+
+        {/* Opción de fecha específica */}
+        <div className="space-y-2">
+          <label className="flex items-center gap-2 text-sm cursor-pointer hover:text-[#2B31E0] transition-colors">
+            <input
+              type="radio"
+              name="dateFilter"
+              value="specific"
+              checked={selectedFilter === 'specific'}
+              onChange={() => onChange('specific', null)}
+              className="w-4 h-4 cursor-pointer flex-shrink-0 text-[#2B6AE0] rounded-full border-gray-300 focus:ring-[#2B6AE0]"
+            />
+            <span className="text-gray-700 font-medium whitespace-nowrap">Fecha específica:</span>
+          </label>
+
+          {/* Input de fecha y botón de calendario - solo visible cuando "specific" está seleccionado */}
+          {selectedFilter === 'specific' && (
+            <div className="flex items-center gap-2 ml-6">
+              <input
+                ref={inputRef}
+                type="text"
+                value={formatDisplay(rawInput)}
+                onChange={handleInputChange}
+                onClick={handleClick}
+                placeholder="dd / mm / aaaa"
+                className="w-44 px-3 py-2 border border-gray-300 rounded-lg text-sm font-mono text-gray-800 bg-white focus:outline-none focus:ring-2 focus:ring-[#2B6AE0] transition-all"
+                style={{ letterSpacing: '1px' }}
+              />
+
+              <div className="relative">
+                <button
+                  onClick={() => setShowCalendar(!showCalendar)}
+                  className="flex items-center gap-1 px-3 py-2 border border-gray-300 rounded-lg bg-white hover:bg-gray-50 transition-colors"
+                  type="button"
+                >
+                  <Calendar size={18} className="text-gray-600" />
+                  <ChevronDown size={16} className="text-gray-500" />
+                </button>
+
+                {/* Calendario desplegable */}
+                {showCalendar && (
+                  <div className="absolute z-50 mt-2 -left-90">
+                    <CalendarComponent
+                      selectedDate={selectedDate || new Date()}
+                      onDateSelect={handleDateSelect}
+                      onClose={() => setShowCalendar(false)}
+                    />
+                  </div>
+                )}
+              </div>
+            </div>
+          )}
+        </div>
+
+      </div>
+    </div>
+  );
+};
+
+export default DateFilterSelector;

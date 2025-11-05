@@ -18,52 +18,85 @@ const DropdownList: React.FC<DropdownListProps> = ({ onFilterChange, clearSignal
     const fetchCategories = async () => {
       try {
         setLoading(true);
-        
-        // Detecta automáticamente el entorno
+
+        // Quick mock mode for development: generate suggestions locally so you don't need backend now.
         const isDevelopment = process.env.NODE_ENV === 'development';
-        const API_URL = isDevelopment 
-          ? 'http://localhost:8000'  // Desarrollo local
-          : (process.env.NEXT_PUBLIC_API_URL || 'https://devmastersservineobackend-ashy.vercel.app'); // Producción
-        
+
+        const MOCK_TAGS = [
+          'madera', 'herramientas', 'instalación', 'reparación', 'montaje',
+          'acabados', 'medición', 'transporte', 'electricidad', 'soldadura',
+          'pintura', 'barniz', 'vigas', 'puertas', 'ventanas', 'cerrajería',
+          'fontanería', 'limpieza', 'jardinería', 'aislamiento', 'cerramiento',
+        ];
+
+        // helper: try to read current search input value (InputOnlySearch) from the DOM as a fast fallback
+        const getInputSearchValue = (): string => {
+          try {
+            if (typeof window === 'undefined') return '';
+            // try query param first
+            const sp = new URLSearchParams(window.location.search);
+            const s = sp.get('search');
+            if (s) return String(s).trim();
+            // fallback: find input by placeholder (falls back if user typed but didn't apply)
+            const el = document.querySelector('input[placeholder="¿Qué servicio necesitas?"]') as HTMLInputElement | null;
+            if (el && el.value) return el.value.trim();
+          } catch {
+            // ignore
+          }
+          return '';
+        };
+
+        // simple synonym map for a couple of likely searches
+        const SYNONYMS: Record<string, string[]> = {
+          carpintero: ['madera', 'vigas', 'puertas'],
+          pintor: ['pintura', 'barniz', 'acabados'],
+          electricista: ['electricidad', 'instalación', 'reparación'],
+        };
+
+        if (isDevelopment) {
+          const currentSearch = getInputSearchValue().toLowerCase();
+          let suggestions: string[] = [];
+
+          if (currentSearch) {
+            // pick synonyms if available
+            const tokens = currentSearch.split(/\s+/).map(t => t.replace(/[^a-zA-ZñÑáéíóúÁÉÍÓÚüÜ]/g, ''));
+            for (const t of tokens) {
+              if (SYNONYMS[t]) {
+                suggestions = suggestions.concat(SYNONYMS[t]);
+              }
+            }
+
+            // also include mock tags that contain the token
+            suggestions = suggestions.concat(MOCK_TAGS.filter(tag => tokens.some(tok => tag.includes(tok))));
+          }
+
+          // If no search-based suggestions, show most common mock tags
+          if (suggestions.length === 0) suggestions = MOCK_TAGS.slice(0, 6);
+
+          // dedupe and limit to 6 (UI can display more), but user wanted up to 3 in real suggest flow
+          const deduped = Array.from(new Set(suggestions)).slice(0, 6);
+          setCategories(deduped);
+          setError(null);
+          return;
+        }
+
+        // Production: fallback to original network request
+        const API_URL = process.env.NEXT_PUBLIC_API_URL || 'https://devmastersservineobackend-ashy.vercel.app';
         const endpoint = `${API_URL}/api/devmaster/tags`;
-        
-        console.log('🔍 Entorno:', process.env.NODE_ENV);
-        console.log('🔍 Conectando con:', endpoint);
-        
-        const response = await fetch(endpoint, {
-          method: 'GET',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-        });
-        
-        console.log('📡 Respuesta:', response.status, response.statusText);
-        
-        if (!response.ok) {
-          throw new Error(`Error ${response.status}: ${response.statusText}`);
-        }
-        
+        const response = await fetch(endpoint, { method: 'GET', headers: { 'Content-Type': 'application/json' } });
+        if (!response.ok) throw new Error(`Error ${response.status}: ${response.statusText}`);
         const data = await response.json();
-        console.log('✅ Datos recibidos:', data);
-        
-        if (Array.isArray(data)) {
-          setCategories(data);
-        } else if (data.tags && Array.isArray(data.tags)) {
-          setCategories(data.tags);
-        } else {
-          throw new Error('Formato de respuesta inesperado');
-        }
-        
+        if (Array.isArray(data)) setCategories(data);
+        else if (data.tags && Array.isArray(data.tags)) setCategories(data.tags);
+        else throw new Error('Formato de respuesta inesperado');
         setError(null);
       } catch (err) {
         let errorMessage = 'Error desconocido';
-        
         if (err instanceof TypeError && err.message === 'Failed to fetch') {
           errorMessage = 'No se puede conectar con el servidor. Verifica que el backend esté corriendo.';
         } else if (err instanceof Error) {
           errorMessage = err.message;
         }
-        
         setError(errorMessage);
         console.error('❌ Error completo:', err);
       } finally {

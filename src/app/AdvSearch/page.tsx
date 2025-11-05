@@ -88,6 +88,16 @@ function AdvancedSearchPage() {
   const _minPrice = _priceMatches[0] ? Number(_priceMatches[0]) : null;
   const _maxPrice = _priceMatches[1] ? Number(_priceMatches[1]) : null;
 
+  // include date and sort selection so the URL keeps the date param set by the selector
+  let advDate: string | null = null;
+  if (selectedDateFilter === 'specific' && selectedSpecificDate) {
+    const y = selectedSpecificDate.getFullYear();
+    const m = String(selectedSpecificDate.getMonth() + 1).padStart(2, '0');
+    const d = String(selectedSpecificDate.getDate()).padStart(2, '0');
+    advDate = `${y}-${m}-${d}`;
+  }
+  const advSort = selectedDateFilter === 'recent' ? 'recent' : selectedDateFilter === 'oldest' ? 'oldest' : null;
+
   useSyncUrlParamsAdv({
     search: searchQuery,
     filters: {
@@ -98,6 +108,8 @@ function AdvancedSearchPage() {
       minPrice: _minPrice,
       maxPrice: _maxPrice,
     },
+    date: advDate,
+    sortBy: advSort,
     titleOnly,
     exact: exactWords,
     skipSyncRef,

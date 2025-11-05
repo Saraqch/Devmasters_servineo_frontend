@@ -9,6 +9,8 @@ interface Params {
   filters?: { range?: string[]; city?: string; category?: string[]; tags?: string[]; minPrice?: number | null; maxPrice?: number | null };
   titleOnly?: boolean;
   exact?: boolean;
+  date?: string | null;
+  sortBy?: string | null;
   page?: number;
   limit?: number;
   // optional ref to temporarily skip syncing (set true before navigation)
@@ -18,7 +20,7 @@ interface Params {
 export const useSyncUrlParamsAdv = (p: Params) => {
   const router = useRouter();
   // Destructure once so we can use stable primitives in deps
-  const { search, filters, titleOnly, exact, page, limit, skipSyncRef } = p;
+  const { search, filters, titleOnly, exact, date, sortBy, page, limit, skipSyncRef } = p;
   const filtersJson = JSON.stringify(filters || {});
 
   useEffect(() => {
@@ -33,6 +35,8 @@ export const useSyncUrlParamsAdv = (p: Params) => {
       (search && search.trim() !== '') ||
       titleOnly ||
       exact ||
+      (date && date.trim() !== '') ||
+      (sortBy && sortBy.trim() !== '') ||
       (filters?.range && filters.range.length) ||
       (filters?.city) ||
       (filters?.category && filters.category.length) ||
@@ -51,6 +55,8 @@ export const useSyncUrlParamsAdv = (p: Params) => {
     if (filters?.tags && filters.tags.length) params.set('tags', filters.tags.join(','));
     if (filters?.minPrice != null) params.set('minPrice', String(filters.minPrice));
     if (filters?.maxPrice != null) params.set('maxPrice', String(filters.maxPrice));
+  if (date) params.set('date', date);
+  if (sortBy) params.set('sort', sortBy);
     if (page != null) params.set('page', String(page));
     if (limit != null) params.set('limit', String(limit));
 
@@ -77,7 +83,7 @@ export const useSyncUrlParamsAdv = (p: Params) => {
       try { window.history.replaceState(null, '', window.location.pathname + targetSearch); } catch { /* noop */ }
     }
   // Use stable primitive deps to avoid re-running on new object identity
-  }, [search, titleOnly, exact, page, limit, filtersJson, router, skipSyncRef,
+  }, [search, titleOnly, exact, date, sortBy, page, limit, filtersJson, router, skipSyncRef,
     // include specific filter fields to satisfy linting (stable primitives)
     (filters && filters.range) || null,
     (filters && filters.category) || null,

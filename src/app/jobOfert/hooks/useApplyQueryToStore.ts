@@ -4,6 +4,7 @@ import {
   setSearch,
   setFilters,
   setSortBy,
+  setDate,
   setPaginaActual,
   setRegistrosPorPagina,
   fetchOffers,
@@ -65,6 +66,7 @@ const useApplyQueryToStore = () => {
     dispatch(setSearch(search));
     dispatch(setFilters(parsedFilters));
     dispatch(setSortBy(sort));
+  dispatch(setDate(date));
   // Note: date is not stored in redux filters; it's sent directly to the backend via fetch
     dispatch(setPaginaActual(page));
     dispatch(setRegistrosPorPagina(limit));

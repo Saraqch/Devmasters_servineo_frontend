@@ -38,6 +38,7 @@ interface JobOffersState {
   filters: FilterState;
   sortBy: string;
   search: string;
+  date?: string | null;
   titleOnly?: boolean;
   exact?: boolean;
   paginaActual: number;
@@ -52,6 +53,7 @@ const initialState: JobOffersState = {
   filters: { range: [], city: '', category: [] },
   sortBy: 'recent',
   search: '',
+  date: null,
   titleOnly: false,
   exact: false,
   paginaActual: 1,
@@ -163,6 +165,9 @@ const jobOffersSlice = createSlice({
     setSortBy: (state, action: PayloadAction<string>) => {
       state.sortBy = action.payload;
     },
+    setDate: (state, action: PayloadAction<string | null>) => {
+      state.date = action.payload;
+    },
     setRegistrosPorPagina: (state, action: PayloadAction<number>) => {
       state.registrosPorPagina = action.payload;
       state.paginaActual = 1;
@@ -204,6 +209,7 @@ export const {
   setTitleOnly,
   setExact,
   setSortBy,
+  setDate,
   setRegistrosPorPagina,
   setPaginaActual,
   resetFilters,

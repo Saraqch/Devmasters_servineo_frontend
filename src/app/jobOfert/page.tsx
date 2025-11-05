@@ -44,6 +44,7 @@ export default function JobOffersPage() {
     paginaActual,
     registrosPorPagina,
     totalRegistros,
+    date,
   } = useAppSelector((state) => state.jobOffers);
 
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
@@ -61,6 +62,7 @@ export default function JobOffersPage() {
     search,
     filters,
     sortBy,
+    date,
     paginaActual,
     registrosPorPagina,
     titleOnly,

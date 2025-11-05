@@ -6,6 +6,8 @@ interface UseSyncUrlParamsProps {
   search: string;
   filters: FilterState;
   sortBy: string;
+  // optional date from redux (YYYY-MM-DD)
+  date?: string | null;
   paginaActual: number;
   registrosPorPagina: number;
   titleOnly?: boolean;
@@ -16,6 +18,7 @@ export const useSyncUrlParams = ({
   search,
   filters,
   sortBy,
+  date,
   paginaActual,
   registrosPorPagina,
   titleOnly,
@@ -36,16 +39,8 @@ export const useSyncUrlParams = ({
     if (filters.minPrice != null) params.set('minPrice', String(filters.minPrice));
     if (filters.maxPrice != null) params.set('maxPrice', String(filters.maxPrice));
     if (sortBy) params.set('sort', sortBy);
-    // Preserve date param from the current URL if present (AdvSearch may have set it)
-    if (typeof window !== 'undefined') {
-      try {
-        const current = new URLSearchParams(window.location.search);
-        const existingDate = current.get('date');
-        if (existingDate) params.set('date', existingDate);
-      } catch {
-        // ignore
-      }
-    }
+    // include date from redux/store when present so it is not lost
+    if (date) params.set('date', date);
     if (paginaActual) params.set('page', String(paginaActual));
     if (registrosPorPagina) params.set('limit', String(registrosPorPagina));
 
@@ -56,5 +51,5 @@ export const useSyncUrlParams = ({
     if (typeof window !== 'undefined' && window.location.search === target) return;
 
     router.replace(target, { scroll: false });
-  }, [search, filters, sortBy, paginaActual, registrosPorPagina, titleOnly, exact, router]);
+  }, [search, filters, sortBy, date, paginaActual, registrosPorPagina, titleOnly, exact, router]);
 };

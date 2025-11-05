@@ -260,12 +260,25 @@ export default function useAdvSearchLogic() {
       maxPrice,
     };
 
+    // include date/sort in the small fetch used to update the results counter
+    let dateParam: string | undefined = undefined;
+    let sortParam = 'recent';
+    if (selectedDateFilter === 'recent') sortParam = 'recent';
+    else if (selectedDateFilter === 'oldest') sortParam = 'oldest';
+    else if (selectedDateFilter === 'specific' && selectedSpecificDate) {
+      const y = selectedSpecificDate.getFullYear();
+      const m = String(selectedSpecificDate.getMonth() + 1).padStart(2, '0');
+      const d = String(selectedSpecificDate.getDate()).padStart(2, '0');
+      dateParam = `${y}-${m}-${d}`;
+    }
+
     const t = window.setTimeout(() => {
       dispatch(
         fetchOffersThunk({
           searchText: searchQuery ?? '',
           filters: apiFilters,
-          sortBy: 'recent',
+          sortBy: sortParam,
+          date: dateParam,
           page: 1,
           limit: 1,
           titleOnly: titleOnly ?? false,
@@ -276,7 +289,7 @@ export default function useAdvSearchLogic() {
 
     return () => clearTimeout(t);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [searchQuery, selectedRanges, selectedCity, selectedJobs, selectedTags, selectedPriceRanges, selectedPriceKey, titleOnly, exactWords]);
+  }, [searchQuery, selectedRanges, selectedCity, selectedJobs, selectedTags, selectedPriceRanges, selectedPriceKey, titleOnly, exactWords, selectedDateFilter, selectedSpecificDate]);
 
   return {
     // state

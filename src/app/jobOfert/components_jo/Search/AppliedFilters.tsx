@@ -4,31 +4,78 @@ import { useRouter } from 'next/navigation';
 
 type FilterParamValue = string | string[] | number | boolean | null;
 
-interface Props {
+            {/* Render combined price tag if minPrice/maxPrice present */}
+            {(() => {
+              const min = params['minPrice'] as number | null | undefined;
+              const max = params['maxPrice'] as number | null | undefined;
+              if (min != null || max != null) {
+                let label = '';
+                if (min != null && max != null) label = `Precio: ${min}bs - ${max}bs`;
+                else if (min != null) label = `Precio: desde ${min}bs`;
+                else label = `Precio: hasta ${max}bs`;
+                return (
+                  <>
+                    <span key="price-range" className="inline-block bg-sky-50 text-sky-500 text-sm px-3 py-1 rounded">
+                      {label}
+                    </span>
+                    {Object.entries(params)
+                      .filter(([k]) => k !== 'minPrice' && k !== 'maxPrice')
+                      .map(([k, v]) => {
+                        if (k === 'titleOnly' && v === true) {
+                          return (
+                            <span key={k} className="inline-block bg-sky-50 text-sky-500 text-sm px-3 py-1 rounded">
+                              Buscar solo en el título de la Oferta de Trabajo
+                            </span>
+                          );
+                        }
+
+                        if (k === 'exact' && v === true) {
+                          return (
+                            <span key={k} className="inline-block bg-sky-50 text-sky-500 text-sm px-3 py-1 rounded">
+                              Palabras Exactas
+                            </span>
+                          );
+                        }
+
+                        const value = renderValue(v as FilterParamValue);
+                        if (!value) return null;
+                        return (
+                          <span key={k} className="inline-block bg-sky-50 text-sky-500 text-sm px-3 py-1 rounded">
+                            {value}
+                          </span>
+                        );
+                      })}
+                  </>
+                );
+              }
+
+              return Object.entries(params).map(([k, v]) => {
   params: Record<string, FilterParamValue>;
-  onClear?: () => void;
-  onModify?: () => void;
-}
+                if (k === 'titleOnly' && v === true) {
+                  return (
+                    <span key={k} className="inline-block bg-sky-50 text-sky-500 text-sm px-3 py-1 rounded">
+                      Buscar solo en el título de la Oferta de Trabajo
+                    </span>
+                  );
+                }
 
-function renderValue(v: FilterParamValue) {
-  if (v == null) return null;
-  if (Array.isArray(v)) return v.join(', ');
-  return String(v);
-}
+                if (k === 'exact' && v === true) {
+                  return (
+                    <span key={k} className="inline-block bg-sky-50 text-sky-500 text-sm px-3 py-1 rounded">
+                      Palabras Exactas
+                    </span>
+                  );
+                }
 
-export default function AppliedFilters({ params, onClear, onModify }: Props) {
-  const router = useRouter();
-
-  const handleModify = () => {
-    if (onModify) return onModify();
-    // default behavior: go back to AdvSearch preserving params
-    const sp = new URLSearchParams();
-    Object.entries(params).forEach(([k, val]) => {
-      if (val == null) return;
-      if (Array.isArray(val)) {
-        val.forEach((v) => sp.append(k, String(v)));
-      } else {
-        sp.set(k, String(val));
+                const value = renderValue(v as FilterParamValue);
+                if (!value) return null;
+                return (
+                  <span key={k} className="inline-block bg-sky-50 text-sky-500 text-sm px-3 py-1 rounded">
+                    {value}
+                  </span>
+                );
+              });
+            })()}
       }
     });
     router.push(`/AdvSearch?${sp.toString()}`);

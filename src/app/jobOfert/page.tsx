@@ -59,16 +59,18 @@ export default function JobOffersPage() {
     if (isInitialMount.current) {
       dispatch(
         fetchOffers({
-          searchText: '',
-          filters: { range: [], city: '', category: [] },
-          sortBy: 'recent',
+          searchText: search,
+          // filters: { range: [], city: '', category: [] },
+          filters: filters,
+          // sortBy: 'recent',
+          sortBy: sortBy,
           page: paginaActual,
           limit: registrosPorPagina,
         }),
       );
       isInitialMount.current = false;
     }
-  }, [dispatch,search, paginaActual, registrosPorPagina]);
+  }, [dispatch,search, filters, sortBy, paginaActual, registrosPorPagina]);
 
   // --- Sticky header handler ---
   useEffect(() => {

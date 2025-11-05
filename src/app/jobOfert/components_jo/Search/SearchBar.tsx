@@ -23,59 +23,70 @@ export const SearchBar = ({ onSearch, onFilter }: SearchBarProps) => {
 
   const HISTORY_KEY = 'job_search_history_v1';
 
-  const deleteFromBackend = async (searchTerm: string) => {
-   try {
-      const sessionId = localStorage.getItem('sessionId');
-      if (!sessionId) {
-        return;
-      }
+  // Obtener o crear sessionId
+  const getOrCreateSessionId = () => {
+    let sessionId = localStorage.getItem('sessionId');
+    if (!sessionId) {
+      sessionId = `client-${Date.now()}-${Math.floor(Math.random() * 10000)}`;
+      localStorage.setItem('sessionId', sessionId);
+    }
+    return sessionId;
+  };
 
+  const deleteFromBackend = async (searchTerm: string) => {
+    try {
+      const sessionId = getOrCreateSessionId();
       const url = `${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000'}/api/devmaster/offers?action=deleteHistory&searchTerm=${encodeURIComponent(searchTerm)}&sessionId=${encodeURIComponent(sessionId)}`;
     
-      await fetch(url);
+      const response = await fetch(url);
+      const data = await response.json();
+      
+      console.log('Delete response:', data);
+      
+      return data.success;
     } catch (error) {
       console.error('Error eliminando del backend:', error);
-   }
+      return false;
+    }
   };
 
   const clearAllHistoryBackend = async () => {
-  try {
-    const sessionId = localStorage.getItem('sessionId');
-    if (!sessionId) {
-      return;
+    try {
+      const sessionId = getOrCreateSessionId();
+      const url = `${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000'}/api/devmaster/offers?action=clearAllHistory&sessionId=${encodeURIComponent(sessionId)}`;
+      
+      const response = await fetch(url);
+      const data = await response.json();
+      
+      console.log('Clear all response:', data);
+      
+      return data.success;
+    } catch (error) {
+      console.error('Error limpiando historial del backend:', error);
+      return false;
     }
-
-    const url = `${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000'}/api/devmaster/offers?action=clearAllHistory&sessionId=${encodeURIComponent(sessionId)}`;
-    
-    await fetch(url);
-  } catch (error) {
-    console.error('Error limpiando historial del backend:', error);
-   }
   };
 
-   const fetchHistoryFromBackend = async (searchTerm: string = '') => {
+  const fetchHistoryFromBackend = async (searchTerm: string = '') => {
     try {
-    const sessionId = localStorage.getItem('sessionId');
-    if (!sessionId) {
+      const sessionId = getOrCreateSessionId();
+      const url = `${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000'}/api/devmaster/offers?action=getHistory&search=${encodeURIComponent(searchTerm)}&sessionId=${encodeURIComponent(sessionId)}`;
+      
+      const response = await fetch(url);
+      const data = await response.json();
+      
+      console.log('Fetch history response:', data);
+      
+      if (data.success && data.searchHistory) {
+        return data.searchHistory.map((item: any) => item.searchTerm);
+      }
+      
+      return [];
+    } catch (error) {
+      console.error('Error obteniendo historial del backend:', error);
       return [];
     }
-
-    // ✅ Usar el endpoint correcto de historial
-    const url = `${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000'}/api/devmaster/offers?action=getHistory&search=${encodeURIComponent(searchTerm)}&sessionId=${encodeURIComponent(sessionId)}`;
-    
-    const response = await fetch(url);
-    const data = await response.json();
-    
-    if (data.success && data.searchHistory) {
-      return data.searchHistory.map((item: any) => item.searchTerm);
-    }
-    
-    return [];
-  } catch (error) {
-    console.error('Error obteniendo historial del backend:', error);
-    return [];
-  }
-};
+  };
 
   const loadHistory = () => {
     try {
@@ -97,12 +108,12 @@ export const SearchBar = ({ onSearch, onFilter }: SearchBarProps) => {
   };
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-  const newValue = e.target.value;
-  setValue(newValue);
-  const { isValid, error } = validateSearch(newValue);
-  setError(isValid ? undefined : error);
-  setHighlighted(-1);
-};
+    const newValue = e.target.value;
+    setValue(newValue);
+    const { isValid, error } = validateSearch(newValue);
+    setError(isValid ? undefined : error);
+    setHighlighted(-1);
+  };
 
   const handleClear = () => {
     setValue('');
@@ -119,10 +130,12 @@ export const SearchBar = ({ onSearch, onFilter }: SearchBarProps) => {
     });
   };
 
-  const clearHistory = () => {
-    persistHistory([]);
-    setHistory([]);
-    clearAllHistoryBackend();
+  const clearHistory = async () => {
+    const success = await clearAllHistoryBackend();
+    if (success) {
+      persistHistory([]);
+      setHistory([]);
+    }
     setIsOpen(true);
   };
 
@@ -134,29 +147,38 @@ export const SearchBar = ({ onSearch, onFilter }: SearchBarProps) => {
   };
 
   const deleteHistoryItem = async (item: string) => {
-    await deleteFromBackend(item);
-    const updatedHistory = await fetchHistoryFromBackend(value.trim());
-    setHistory(updatedHistory);
-    persistHistory(updatedHistory);
+    console.log('Deleting item:', item);
+    
+    // Primero eliminamos del backend
+    const success = await deleteFromBackend(item);
+    
+    if (success) {
+      // Luego recargamos el historial completo desde el backend
+      // IMPORTANTE: Pasar string vacío para obtener TODO el historial activo
+      const updatedHistory = await fetchHistoryFromBackend('');
+      console.log('Updated history after delete:', updatedHistory);
+      
+      setHistory(updatedHistory);
+      persistHistory(updatedHistory);
+    } else {
+      console.error('Failed to delete from backend');
+    }
+    
     setHighlighted(-1);
   };
 
-  // soporte de toque / pulsación larga en móvil: mostrar acciones Eliminar/Cancelar
+  // Soporte de toque / pulsación larga en móvil
   const [longPressedItem, setLongPressedItem] = React.useState<string | null>(null);
   const touchTimerRef = React.useRef<number | null>(null);
 
   const handleTouchStart = (item: string) => () => {
-    // iniciar un temporizador para detectar pulsación larga (600 ms)
     clearTouchTimer();
     touchTimerRef.current = window.setTimeout(() => {
       setLongPressedItem(item);
     }, 600) as unknown as number;
   };
 
-  // eventos pointer (funciona con la emulación táctil de Opera/DevTools)
   const handlePointerDown = (item: string) => (e: React.PointerEvent) => {
-    // ignorar punteros de ratón
-    // pointerType puede ser 'touch' al emular en escritorio
     if (e.pointerType === 'mouse') return;
     clearTouchTimer();
     touchTimerRef.current = window.setTimeout(() => {
@@ -192,6 +214,7 @@ export const SearchBar = ({ onSearch, onFilter }: SearchBarProps) => {
     hasError ? 'border-red-500 border-[1.5px] outline-none shadow-[0_0_0_1px_red]' : ''
   }`;
 
+  // Cargar historial inicial
   React.useEffect(() => {
     const loadInitialHistory = async () => {
       const backendHistory = await fetchHistoryFromBackend('');
@@ -203,23 +226,21 @@ export const SearchBar = ({ onSearch, onFilter }: SearchBarProps) => {
       }
     };
   
-  loadInitialHistory();
+    loadInitialHistory();
   }, []);
 
+  // Filtrado dinámico mientras escribe
   React.useEffect(() => {
     const timer = setTimeout(async () => {
-     // Si está vacío, cargar todo el historial
-      // Si tiene texto, filtrar
-     const filteredHistory = await fetchHistoryFromBackend(value.trim());
-     setHistory(filteredHistory);
-    }, 0);
+      const filteredHistory = await fetchHistoryFromBackend(value.trim());
+      setHistory(filteredHistory);
+    }, 300); // Debounce de 300ms
   
     return () => clearTimeout(timer);
   }, [value]);
 
-  // limitar historial visible a 5 ítems
   const visibleHistory = React.useMemo(() => history.slice(0, 5), [history]);
-  // sugerencias de ejemplo (se puede reemplazar por una API más adelante)
+  
   const sampleSuggestions = React.useMemo(
     () => [
       'Albañil',
@@ -240,10 +261,8 @@ export const SearchBar = ({ onSearch, onFilter }: SearchBarProps) => {
     return sampleSuggestions.filter((s) => s.toLowerCase().includes(q));
   }, [value, sampleSuggestions]);
 
-  // limitar sugerencias visibles a 5
   const visibleSuggestions = React.useMemo(() => filteredSuggestions.slice(0, 5), [filteredSuggestions]);
 
-  // lista combinada usada para la navegación por teclado: historial primero, luego sugerencias
   const visibleCombined = React.useMemo(() => {
     return [...visibleHistory, ...visibleSuggestions];
   }, [visibleHistory, visibleSuggestions]);
@@ -257,14 +276,12 @@ export const SearchBar = ({ onSearch, onFilter }: SearchBarProps) => {
   };
 
   const previewItem = (item: string) => {
-    // poner el valor en el input pero NO ejecutar la búsqueda — permitir editar
     setValue(item);
     setError(undefined);
     setIsOpen(true);
     setHighlighted(-1);
     const input = inputRef.current;
     if (input) {
-      // enfocar el input y mover el cursor al final
       input.focus();
       try {
         const len = input.value.length;
@@ -274,7 +291,7 @@ export const SearchBar = ({ onSearch, onFilter }: SearchBarProps) => {
       }
     }
   };
-//funcionalidad para moverse por el dropdown con el teclado
+
   const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key === 'Enter') {
       const combinedLen = visibleCombined.length;
@@ -286,7 +303,7 @@ export const SearchBar = ({ onSearch, onFilter }: SearchBarProps) => {
       handleSearch();
       return;
     }
-    //flechas arriba/abajo para navegar
+
     if (e.key === 'ArrowDown') {
       e.preventDefault();
       setIsOpen(true);
@@ -306,7 +323,7 @@ export const SearchBar = ({ onSearch, onFilter }: SearchBarProps) => {
       });
       return;
     }
-    //tecla Escape para cerrar el dropdown
+
     if (e.key === 'Escape') {
       setIsOpen(false);
       setHighlighted(-1);
@@ -314,7 +331,7 @@ export const SearchBar = ({ onSearch, onFilter }: SearchBarProps) => {
     }
   };
 
-  // click fuera para cerrar
+  // Click fuera para cerrar
   React.useEffect(() => {
     const onDocClick = (ev: MouseEvent) => {
       if (!containerRef.current) return;
@@ -348,7 +365,6 @@ export const SearchBar = ({ onSearch, onFilter }: SearchBarProps) => {
           />
           {value.length > 0 && <ClearButton onClick={handleClear} />}
 
-          {/* Dropdown de historial (ahora siempre muestra el encabezado; lista puede estar vacía) */}
           {isOpen && (
             <div
               className="absolute left-0 right-0 mt-2 bg-white border rounded shadow-md z-50"
@@ -381,7 +397,7 @@ export const SearchBar = ({ onSearch, onFilter }: SearchBarProps) => {
               ) : (
                 <ul>
                   {visibleHistory.map((item, idx) => (
-                    <li key={item}>
+                    <li key={`${item}-${idx}`}>
                       {longPressedItem === item ? (
                         <div className="w-full flex items-center justify-between px-2 py-2 bg-red-50 border-l-4 border-red-500">
                           <div className="text-sm text-red-700 font-medium leading-tight">
@@ -411,7 +427,7 @@ export const SearchBar = ({ onSearch, onFilter }: SearchBarProps) => {
                         <div
                           role="button"
                           tabIndex={0}
-                          onMouseDown={(e) => e.preventDefault()} /* evitar blur antes de click */
+                          onMouseDown={(e) => e.preventDefault()}
                           onClick={() => selectHistory(item)}
                           onKeyDown={(e) => {
                             if (e.key === 'Enter') selectHistory(item);
@@ -466,15 +482,14 @@ export const SearchBar = ({ onSearch, onFilter }: SearchBarProps) => {
                 </ul>
               )}
 
-              {/* Sugerencias: aparece cuando el usuario escribe */}
               {value.trim().length > 0 && (
                 <div className="mt-2">
-                    <div className="px-2 py-1">
-                      <div className="flex items-center gap-2">
-                        <Star className="w-4 h-4 text-yellow-400" />
-                        <span className="text-xs font-semibold uppercase text-slate-500">Sugerencias</span>
-                      </div>
+                  <div className="px-2 py-1">
+                    <div className="flex items-center gap-2">
+                      <Star className="w-4 h-4 text-yellow-400" />
+                      <span className="text-xs font-semibold uppercase text-slate-500">Sugerencias</span>
                     </div>
+                  </div>
 
                   {filteredSuggestions.length === 0 ? (
                     <div className="p-3 text-sm text-slate-500">No hay sugerencias</div>
@@ -507,8 +522,6 @@ export const SearchBar = ({ onSearch, onFilter }: SearchBarProps) => {
                   )}
                 </div>
               )}
-
-              {/* footer removed per design: no clear history button */}
             </div>
           )}
         </div>

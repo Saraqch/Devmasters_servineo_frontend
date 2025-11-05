@@ -23,6 +23,7 @@ import {
   setFilters,
   setSortBy,
   setRegistrosPorPagina,
+  resetPagination,  // importar reset
   FilterState,
 } from './lib/slice';
 import { getSortValue, sortMapInverse } from './lib/constants/sortOptions';
@@ -99,6 +100,7 @@ export default function JobOffersPage() {
 
   const handleFiltersApply = (appliedFilters: FilterState) => {
     dispatch(setFilters(appliedFilters));
+    dispatch(resetPagination()); // Reiniciar página
     dispatch(
       fetchOffers({
         searchText: search,
@@ -113,6 +115,7 @@ export default function JobOffersPage() {
   const handleSortChange = (option: string) => {
     const backendSort = getSortValue(option);
     dispatch(setSortBy(backendSort));
+    dispatch(resetPagination()); // 🔹 Reiniciar página
     dispatch(
       fetchOffers({
         searchText: search,
@@ -126,6 +129,7 @@ export default function JobOffersPage() {
 
   const handleSearchSubmit = (query: string) => {
     dispatch(setSearch(query));
+    dispatch(resetPagination()); // Reiniciar página
     dispatch(
       fetchOffers({
         searchText: query,

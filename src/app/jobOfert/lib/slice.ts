@@ -154,10 +154,10 @@ const jobOffersSlice = createSlice({
       state.search = '';
       state.paginaActual = 1;
     },
-    // 🔹 NUEVA acción para reiniciar solo la paginación
+    // NUEVA acción para reiniciar solo la paginación
     resetPagination: (state) => {
-       state.paginaActual = 1;
-  },
+      state.paginaActual = 1;
+    },
   },
   extraReducers: (builder) => {
     builder
@@ -200,6 +200,7 @@ export const {
   setRegistrosPorPagina,
   setPaginaActual,
   resetFilters,
+  resetPagination, //  Nueva exportación
 } = jobOffersSlice.actions;
 
 export default jobOffersSlice.reducer;

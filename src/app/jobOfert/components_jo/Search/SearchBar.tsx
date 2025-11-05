@@ -65,6 +65,9 @@ export const SearchBar = ({ onSearch, onFilter }: SearchBarProps) => {
     }
   };
   interface HistoryPayload { searchHistory?: SearchHistoryItem[] }
+  interface SuggestionsPayload {
+    suggestions?: Array<{ term?: string; count?: number; score?: number; source?: string }>;
+  }
 
   const fetchHistoryFromBackend = React.useCallback(async (searchTerm: string = '') => {
     try {
@@ -233,9 +236,9 @@ export const SearchBar = ({ onSearch, onFilter }: SearchBarProps) => {
           try {
             if (!q || q.length === 0) return [] as string[];
             const endpoint = `/api/devmaster/offers?search=${encodeURIComponent(q)}&limit=6&record=false`;
-            const resp = await api.get<any>(endpoint);
-            if (resp.success && resp.data && Array.isArray((resp.data as any).suggestions)) {
-              return ((resp.data as any).suggestions as any[]).map((s) => String(s.term));
+            const resp = await api.get<SuggestionsPayload>(endpoint);
+            if (resp.success && resp.data && Array.isArray(resp.data.suggestions)) {
+              return resp.data.suggestions.map((s) => String(s.term ?? ''));
             }
             return [] as string[];
           } catch (e) {

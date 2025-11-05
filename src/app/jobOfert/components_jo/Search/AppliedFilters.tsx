@@ -36,18 +36,32 @@ export default function AppliedFilters({ params, onClear, onModify }: Props) {
 
   return (
     <div className="w-full max-w-5xl mx-auto mt-6 px-4">
-      <div className="bg-white border rounded-lg shadow-sm p-4 flex items-center justify-between">
+      <div className="bg-white border rounded-lg shadow-sm p-4 flex items-center justify-between font-['Roboto'] text-sm">
         <div>
           <p className="text-sm font-semibold text-gray-700">Búsqueda:</p>
           <div className="mt-2 flex flex-wrap gap-2">
             {Object.entries(params).map(([k, v]) => {
+              // Special labels for boolean flags
+              if (k === 'titleOnly' && v === true) {
+                return (
+                  <span key={k} className="inline-block bg-sky-50 text-sky-500 text-sm px-3 py-1 rounded">
+                    Buscar solo en el título de la Oferta de Trabajo
+                  </span>
+                );
+              }
+
+              if (k === 'exact' && v === true) {
+                return (
+                  <span key={k} className="inline-block bg-sky-50 text-sky-500 text-sm px-3 py-1 rounded">
+                    Palabras Exactas
+                  </span>
+                );
+              }
+
               const value = renderValue(v as FilterParamValue);
               if (!value) return null;
               return (
-                <span
-                  key={k}
-                  className="inline-block bg-green-50 text-green-800 text-sm px-3 py-1 rounded"
-                >
+                <span key={k} className="inline-block bg-sky-50 text-sky-500 text-sm px-3 py-1 rounded">
                   {value}
                 </span>
               );

@@ -1,3 +1,4 @@
+// src/app/jobOfert/page.tsx
 'use client';
 
 import React, { useEffect, useRef, useState } from 'react';
@@ -26,6 +27,7 @@ import {
 } from './lib/slice';
 import { getSortValue, sortMapInverse } from './lib/constants/sortOptions';
 import { useSyncUrlParams } from './hooks/useSyncUrlParams';
+import { useInitialUrlParams } from './hooks/useInitialUrlParams';
 
 export default function JobOffersPage() {
   const dispatch = useAppDispatch();
@@ -43,9 +45,10 @@ export default function JobOffersPage() {
 
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
   const stickyRef = useRef<HTMLDivElement | null>(null);
-  const isInitialMount = useRef(true);
+  // Hook para leer parámetros iniciales de la URL
+  useInitialUrlParams();
 
-  // --- Sincroniza URL ---
+  // Sincroniza URL con el estado
   useSyncUrlParams({
     search,
     filters,
@@ -53,22 +56,6 @@ export default function JobOffersPage() {
     paginaActual,
     registrosPorPagina,
   });
-
-  // --- Carga inicial ---
-  useEffect(() => {
-    if (isInitialMount.current) {
-      dispatch(
-        fetchOffers({
-          searchText: '',
-          filters: { range: [], city: '', category: [] },
-          sortBy: 'recent',
-          page: 1,
-          limit: 10,
-        }),
-      );
-      isInitialMount.current = false;
-    }
-  }, [dispatch]);
 
   // --- Sticky header handler ---
   useEffect(() => {

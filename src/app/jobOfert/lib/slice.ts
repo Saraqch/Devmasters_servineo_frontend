@@ -21,7 +21,7 @@ interface OfferResponse {
   count: number;
   data: OfferData[];
   currentPage?: number;
-  totalPages?: number;
+
 }
 
 export interface FilterState {
@@ -40,7 +40,7 @@ interface JobOffersState {
   paginaActual: number;
   registrosPorPagina: number;
   totalRegistros: number;
-  totalPages: number;
+
 }
 
 const getStoredValue = (key: string, defaultValue: any): any => {
@@ -52,7 +52,7 @@ const getStoredValue = (key: string, defaultValue: any): any => {
     console.error(`Error reading localStorage key "${key}":`, error);
     return defaultValue;
   }
-const initialState: JobOffersState = {
+/* const initialState: JobOffersState = {
   trabajos: [],
   loading: true,
   error: null,
@@ -63,6 +63,7 @@ const initialState: JobOffersState = {
   registrosPorPagina: 10,
   totalRegistros: 0,
   totalPages: 0,
+}; */
 };
 const getInitialJobOffersState = () => {
   // Verificar si existe una página guardada
@@ -192,6 +193,7 @@ const jobOffersSlice = createSlice({
         state.registrosPorPagina = action.payload;
         state.paginaActual = 1;
       }
+    }
     },
     setPaginaActual: (state, action: PayloadAction<number>) => {
       state.paginaActual = action.payload;
@@ -247,7 +249,7 @@ const jobOffersSlice = createSlice({
           localStorage.setItem('jobOffers_paginaActual', JSON.stringify(action.payload.page));
           localStorage.setItem('jobOffers_registrosPorPagina', JSON.stringify(action.payload.limit));
         }
-        state.totalPages = action.payload.totalPages;
+       // state.totalPages = action.payload.totalPages;
         
         // Si hubo redirección automática, mostrar info en consola
         if (action.payload.requestedPage > action.payload.totalPages && action.payload.totalPages > 0) {

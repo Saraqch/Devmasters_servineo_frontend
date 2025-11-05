@@ -1,4 +1,3 @@
-// src/lib/modular/types/base.types.ts
 export interface BaseItem {
   _id: string;
   [key: string]: any;
@@ -13,16 +12,23 @@ export interface SearchConfig {
 }
 
 export interface FilterOption {
-  value: string;
   label: string;
+  value: any;
+  disabled?: boolean;
 }
+
+export type FilterType = 
+  | 'checkbox-multi'
+  | 'checkbox-single'
+  | 'checkbox';
 
 export interface FilterConfig {
   key: string;
   label: string;
-  type: 'checkbox' | 'radio' | 'select' | 'range';
+  type: FilterType;
   options?: FilterOption[];
-  multiple?: boolean;
+  columns?: 1 | 2 | 3 | 4;
+  defaultOpen?: boolean;
 }
 
 export interface SortOption {

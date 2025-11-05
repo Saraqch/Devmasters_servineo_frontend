@@ -22,9 +22,9 @@ interface OfferResponse {
 }
 
 export interface FilterState {
-  range: string[];
-  city: string;
-  category: string[];
+  range: string[];           // Array (multi)
+  city: string | undefined;  // String único (single) - permite undefined
+  category: string[];        // Array (multi)
 }
 
 interface JobOffersState {
@@ -43,7 +43,7 @@ const initialState: JobOffersState = {
   trabajos: [],
   loading: true,
   error: null,
-  filters: { range: [], city: '', category: [] },
+  filters: { range: [], city: undefined, category: [], },
   sortBy: 'recent',
   search: '',
   paginaActual: 1,

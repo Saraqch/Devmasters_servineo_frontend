@@ -3,18 +3,20 @@
 
 import React, { useEffect, useRef } from 'react';
 import {
-  SearchBar,
-  NoResultsMessage,
-  FilterButton,
-  FilterDrawer,
-  Paginacion,
-  PaginationInfo,
-  PaginationSelector,
-  CardJob,
-  SortCard,
   Header,
   Footer,
+  NoResultsMessage,
+  CardJob,
 } from '@/app/jobOfert/components_jo';
+
+import {
+  SearchBox,
+  FilterButton,
+  FilterPanel,
+  Pagination,
+  PageSizeSelector,
+  SortSelect,
+} from '@/lib/modular/components';
 
 import { useAppDispatch, useAppSelector } from './hooks/hook';
 import {
@@ -27,8 +29,74 @@ import {
   FilterState,
 } from './lib/slice';
 import { useSyncUrlParams } from './hooks/useSyncUrlParams';
+import { FilterConfig } from '@/lib/modular/types/base.types';
 
-// Opciones de ordenamiento
+// ✅ Configuración actualizada con los nuevos tipos
+const FILTER_CONFIG: FilterConfig[] = [
+  {
+    key: 'range',
+    label: 'Nombre de Fixer',
+    type: 'checkbox-multi', // ✅ Nuevo tipo explícito
+    columns: 2, // ✅ Layout de 2 columnas
+    defaultOpen: true, // ✅ Abierto por defecto
+    options: [
+      { value: 'De (A-C)', label: 'De (A-C)' },
+      { value: 'De (D-F)', label: 'De (D-F)' },
+      { value: 'De (G-I)', label: 'De (G-I)' },
+      { value: 'De (J-L)', label: 'De (J-L)' },
+      { value: 'De (M-Ñ)', label: 'De (M-Ñ)' },
+      { value: 'De (O-Q)', label: 'De (O-Q)' },
+      { value: 'De (R-T)', label: 'De (R-T)' },
+      { value: 'De (U-W)', label: 'De (U-W)' },
+      { value: 'De (X-Z)', label: 'De (X-Z)' },
+    ],
+  },
+  {
+    key: 'city',
+    label: 'Ciudad',
+    type: 'checkbox-single', 
+    defaultOpen: false,
+    options: [
+      { value: 'Beni', label: 'Beni' },
+      { value: 'Chuquisaca', label: 'Chuquisaca' },
+      { value: 'Cochabamba', label: 'Cochabamba' },
+      { value: 'La Paz', label: 'La Paz' },
+      { value: 'Oruro', label: 'Oruro' },
+      { value: 'Pando', label: 'Pando' },
+      { value: 'Potosí', label: 'Potosí' },
+      { value: 'Santa Cruz', label: 'Santa Cruz' },
+      { value: 'Tarija', label: 'Tarija' },
+    ],
+  },
+  {
+    key: 'category',
+    label: 'Tipo de Trabajo',
+    type: 'checkbox-multi', // ✅ Selección múltiple
+    columns: 1,
+    defaultOpen: false,
+    options: [
+      { value: 'Albañil', label: 'Albañil' },
+      { value: 'Carpintero', label: 'Carpintero' },
+      { value: 'Cerrajero', label: 'Cerrajero' },
+      { value: 'Decorador', label: 'Decorador' },
+      { value: 'Electricista', label: 'Electricista' },
+      { value: 'Fontanero', label: 'Fontanero' },
+      { value: 'Fumigador', label: 'Fumigador' },
+      { value: 'Instalador', label: 'Instalador' },
+      { value: 'Jardinero', label: 'Jardinero' },
+      { value: 'Limpiador', label: 'Limpiador' },
+      { value: 'Mecánico', label: 'Mecánico' },
+      { value: 'Montador', label: 'Montador' },
+      { value: 'Pintor', label: 'Pintor' },
+      { value: 'Pulidor', label: 'Pulidor' },
+      { value: 'Soldador', label: 'Soldador' },
+      { value: 'Techador', label: 'Techador' },
+      { value: 'Vidriero', label: 'Vidriero' },
+      { value: 'Yesero', label: 'Yesero' },
+    ],
+  },
+];
+
 const SORT_OPTIONS = [
   { label: 'Destacados', value: 'rating' },
   { label: 'Los más recientes', value: 'recent' },
@@ -42,7 +110,6 @@ const SORT_OPTIONS = [
 export default function JobOffersPage() {
   const dispatch = useAppDispatch();
 
-  // ✅ Redux state (mantenido)
   const {
     trabajos,
     loading,
@@ -59,7 +126,6 @@ export default function JobOffersPage() {
   const stickyRef = useRef<HTMLDivElement | null>(null);
   const isInitialMount = useRef(true);
 
-  // --- Sincroniza URL ---
   useSyncUrlParams({
     search,
     filters,
@@ -68,7 +134,6 @@ export default function JobOffersPage() {
     registrosPorPagina,
   });
 
-  // --- Carga inicial ---
   useEffect(() => {
     if (isInitialMount.current) {
       dispatch(
@@ -84,7 +149,6 @@ export default function JobOffersPage() {
     }
   }, [dispatch]);
 
-  // --- Sticky header handler ---
   useEffect(() => {
     if (typeof window === 'undefined') return;
 
@@ -110,7 +174,6 @@ export default function JobOffersPage() {
     };
   }, []);
 
-  // --- Handlers que despachan acciones a Redux ---
   const handleSearchSubmit = (query: string) => {
     dispatch(setSearch(query));
     dispatch(setPaginaActual(1));
@@ -125,6 +188,7 @@ export default function JobOffersPage() {
     );
   };
 
+  // ✅ Ajustado para recibir los filtros correctamente tipados
   const handleFiltersApply = (appliedFilters: FilterState) => {
     dispatch(setFilters(appliedFilters));
     dispatch(setPaginaActual(1));
@@ -182,7 +246,6 @@ export default function JobOffersPage() {
 
   const toggleDrawer = () => setIsDrawerOpen(!isDrawerOpen);
 
-  // --- Render ---
   return (
     <>
       <Header />
@@ -198,22 +261,40 @@ export default function JobOffersPage() {
         }`}
       >
         <div className="flex flex-row items-center gap-2 mb-3">
-          <FilterButton onClick={toggleDrawer} />
+          <FilterButton onClick={() => setIsDrawerOpen(true)} />
           <div className="flex-1">
-            {/* ✅ SearchBar usa hook internamente */}
-            <SearchBar onSearch={handleSearchSubmit} />
+            <SearchBox
+              onSearch={handleSearchSubmit}
+              placeholder="¿Qué servicio necesitas?"
+              minLength={2}
+              maxLength={100}
+              regex={
+                /^[A-Za-z0-9ÁáÀàÂâÄäÃãÅåĀāĂăǍǎȦȧÉéÈèÊêËëĒēĔĕĚěĖėÍíÌìÎîÏïĨĩĪīĬĭǏǐÓóÒòÔôÖöÕõŌōŎŏǑǒȮȯÚúÙùÛûÜüŨũŮůŪūŬŭǓǔU̇u̇ñÑ,_. -]+$/
+              }
+              debounceMs={300}
+              size="md"
+              variant="default"
+            />
           </div>
         </div>
 
         {!loading && trabajos.length > 0 && (
           <div className="flex flex-col gap-2 sm:flex-row justify-between items-stretch">
-            {/* ✅ PaginationSelector usa hook internamente */}
-            <PaginationSelector
-              registrosPorPagina={registrosPorPagina}
+            <PageSizeSelector
+              value={registrosPorPagina}
               onChange={handleRegistrosPorPaginaChange}
+              options={[10, 20, 50, 100]}
+              label="Mostrar"
+              variant="headlessui"
             />
-            {/* ✅ SortCard usa hook internamente */}
-            <SortCard options={SORT_OPTIONS} initialSort={sortBy} onSelect={handleSortChange} />
+            <SortSelect
+              options={SORT_OPTIONS}
+              value={sortBy}
+              onChange={handleSortChange}
+              variant="card"
+              size="md"
+              label=""
+            />
           </div>
         )}
       </div>
@@ -228,23 +309,30 @@ export default function JobOffersPage() {
           </div>
         )}
 
-        {/* ✅ FilterDrawer usa hook internamente */}
-        <FilterDrawer
+        {/* ✅ Drawer simplificado - FilterPanel maneja overlay y panel */}
+        <FilterPanel
+          variant="drawer"
           isOpen={isDrawerOpen}
-          onClose={() => setIsDrawerOpen(false)}
-          onFiltersApply={handleFiltersApply}
+          config={FILTER_CONFIG}
           initialFilters={filters}
+          onClose={() => setIsDrawerOpen(false)}
+          onApply={handleFiltersApply}
+          autoApply={true}
+          closeOnApply={false}
+          showResetButton={true}
+          drawerWidth="30%"
+          drawerPosition="left"
+          showOverlay={true}
         />
 
         {!loading && trabajos.length > 0 && (
           <div className="w-full max-w-5xl mx-auto mb-4">
             <div className="flex justify-center">
-              {/* ✅ PaginationInfo usa hook internamente */}
-              <PaginationInfo
-                paginaActual={paginaActual}
-                registrosPorPagina={registrosPorPagina}
-                totalRegistros={totalRegistros}
-              />
+              <div className="text-sm text-gray-600 mt-3">
+                Mostrando {(paginaActual - 1) * registrosPorPagina + 1} -{' '}
+                {Math.min(paginaActual * registrosPorPagina, totalRegistros)} de {totalRegistros}{' '}
+                resultados
+              </div>
             </div>
           </div>
         )}
@@ -259,12 +347,15 @@ export default function JobOffersPage() {
 
         {!loading && trabajos.length > 0 && (
           <div className="mt-8 mb-24 flex justify-center">
-            {/* ✅ Paginacion usa hook internamente */}
-            <Paginacion
-              paginaActual={paginaActual}
-              registrosPorPagina={registrosPorPagina}
-              totalRegistros={totalRegistros}
-              onChange={handlePageChange}
+            <Pagination
+              currentPage={paginaActual}
+              totalItems={totalRegistros}
+              pageSize={registrosPorPagina}
+              onPageChange={handlePageChange}
+              maxVisible={5}
+              showFirstLast={false}
+              showInfo={false}
+              variant="default"
             />
           </div>
         )}

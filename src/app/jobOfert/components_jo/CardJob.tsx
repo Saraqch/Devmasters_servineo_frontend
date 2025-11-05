@@ -95,6 +95,7 @@ const CardJob = ({ trabajos }: CardJobProps) => {
                     fill
                     sizes="(max-width: 640px) 100vw, 12rem"
                     className="object-cover"
+                    priority
                   />
                   
                   {/* Ciudad - Dentro de la imagen */}

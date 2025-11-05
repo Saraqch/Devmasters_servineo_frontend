@@ -291,6 +291,8 @@ export const SearchBar = ({ onSearch, onFilter }: SearchBarProps) => {
     }
   };
 
+  const [previewValue, setPreviewValue] = React.useState<string | null>(null);
+
   const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key === 'Enter') {
       const combinedLen = visibleCombined.length;
@@ -298,17 +300,23 @@ export const SearchBar = ({ onSearch, onFilter }: SearchBarProps) => {
         const item = visibleCombined[highlighted];
         selectItem(item);
         return;
-      }
+     }
       handleSearch();
       return;
-    }
+   }
 
     if (e.key === 'ArrowDown') {
       e.preventDefault();
       setIsOpen(true);
       setHighlighted((h) => {
         const max = visibleCombined.length - 1;
-        return h < max ? h + 1 : 0;
+        const next = h < max ? h + 1 : 0;
+
+        if (typeof window !== 'undefined' && window.innerWidth >= 640 && visibleCombined[next]) {
+          setPreviewValue(visibleCombined[next]);
+        }
+
+        return next;
       });
       return;
     }
@@ -318,16 +326,23 @@ export const SearchBar = ({ onSearch, onFilter }: SearchBarProps) => {
       setIsOpen(true);
       setHighlighted((h) => {
         const max = visibleCombined.length - 1;
-        return h > 0 ? h - 1 : Math.max(0, max);
-      });
-      return;
+        const next = h > 0 ? h - 1 : Math.max(0, max);
+
+       if (typeof window !== 'undefined' && window.innerWidth >= 640 && visibleCombined[next]) {
+         setPreviewValue(visibleCombined[next]);
+        }
+
+        return next;
+     });
+     return;
     }
 
     if (e.key === 'Escape') {
-      setIsOpen(false);
-      setHighlighted(-1);
-      return;
-    }
+     setIsOpen(false);
+     setHighlighted(-1);
+     setPreviewValue(null);
+     return;
+   }
   };
 
   // Click fuera para cerrar
@@ -352,8 +367,11 @@ export const SearchBar = ({ onSearch, onFilter }: SearchBarProps) => {
             type="text"
             placeholder="¿Qué servicio necesitas?"
             className={inputClasses}
-            value={value}
-            onChange={handleChange}
+            value={previewValue ?? value}
+            onChange={(e) => {
+              setValue(e.target.value);
+              setPreviewValue(null);
+            }}
             ref={(el) => {
               inputRef.current = el as HTMLInputElement | null;
             }}

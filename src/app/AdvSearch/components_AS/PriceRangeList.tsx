@@ -5,6 +5,12 @@ import { api } from '@/lib/api';
 
 type RangeItem = { label: string; min: number | null; max: number | null };
 
+interface PriceRangesResponse {
+  min: number | null;
+  max: number | null;
+  ranges: Array<{ label: string; min?: number | null; max?: number | null }>;
+}
+
 interface PriceRangeListProps {
   onFilterChange?: (filters: { priceRanges: string[]; priceKey?: string }) => void;
   // When this numeric prop changes, the component will clear its selection
@@ -33,35 +39,35 @@ const PriceRangeList: React.FC<PriceRangeListProps> = ({ onFilterChange, clearSi
           setLoading(false);
         }
       }
-    } catch (e) {
+    } catch {
       // ignore cache errors
     }
 
     // Always attempt to refresh in background to keep data current
     api
-      .get<any>('/api/devmaster/offers?action=getPriceRanges')
+      .get<PriceRangesResponse>('/api/devmaster/offers?action=getPriceRanges')
       .then((res) => {
         if (!mounted) return;
         if (res.success && res.data) {
-          // backend returns { min, max, ranges }
-          const payload = res.data as any;
+          const payload = res.data;
           const items: RangeItem[] = Array.isArray(payload.ranges)
-            ? payload.ranges.map((r: any) => ({ label: r.label, min: r.min ?? null, max: r.max ?? null }))
+            ? payload.ranges.map((r) => ({ label: r.label, min: r.min ?? null, max: r.max ?? null }))
             : [];
           setRanges(items);
           // cache for faster subsequent mounts
           try {
             sessionStorage.setItem('adv_price_ranges', JSON.stringify(items));
-          } catch (e) {
+          } catch {
             // ignore storage errors
           }
         } else {
           setError(res.error || 'No se pudieron cargar los rangos de precio');
         }
       })
-      .catch((e) => {
+      .catch((err: unknown) => {
         if (!mounted) return;
-        setError(e?.message || 'Error desconocido');
+        if (err instanceof Error) setError(err.message);
+        else setError('Error desconocido');
       })
       .finally(() => {
         if (!mounted) return;

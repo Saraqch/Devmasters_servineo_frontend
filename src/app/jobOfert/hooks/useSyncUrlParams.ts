@@ -36,6 +36,16 @@ export const useSyncUrlParams = ({
     if (filters.minPrice != null) params.set('minPrice', String(filters.minPrice));
     if (filters.maxPrice != null) params.set('maxPrice', String(filters.maxPrice));
     if (sortBy) params.set('sort', sortBy);
+    // Preserve date param from the current URL if present (AdvSearch may have set it)
+    if (typeof window !== 'undefined') {
+      try {
+        const current = new URLSearchParams(window.location.search);
+        const existingDate = current.get('date');
+        if (existingDate) params.set('date', existingDate);
+      } catch {
+        // ignore
+      }
+    }
     if (paginaActual) params.set('page', String(paginaActual));
     if (registrosPorPagina) params.set('limit', String(registrosPorPagina));
 

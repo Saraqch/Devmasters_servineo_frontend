@@ -1,5 +1,6 @@
 'use client';
 import React, { useRef, useEffect, useState } from 'react';
+import { usePathname, useRouter } from 'next/navigation';
 import { Calendar, ChevronDown } from 'lucide-react';
 import CalendarComponent from './CalendarComponent';
 
@@ -24,6 +25,27 @@ const DateFilterSelector: React.FC<Props> = ({ selectedFilter, selectedDate, onC
       setRawInput('');
     }
   }, [selectedDate]);
+
+  // Keep the URL in sync: when specific date is active and a date exists, set ?date=YYYY-MM-DD
+  const pathname = usePathname();
+  const router = useRouter();
+
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    const sp = new URLSearchParams(window.location.search);
+    if (selectedFilter === 'specific' && selectedDate) {
+      const iso = selectedDate.toISOString().slice(0, 10); // YYYY-MM-DD
+      sp.set('date', iso);
+    } else {
+      sp.delete('date');
+    }
+
+    const qs = sp.toString();
+    const target = qs ? `${pathname}?${qs}` : pathname;
+    // use replace to avoid history clutter
+    router.replace(target);
+    // only when selectedFilter or selectedDate changes
+  }, [selectedFilter, selectedDate, pathname, router]);
 
   const handleDateSelect = (date: Date) => {
     setShowCalendar(false);

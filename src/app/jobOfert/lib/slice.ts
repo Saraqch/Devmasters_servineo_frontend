@@ -1,5 +1,6 @@
 import { createSlice, createAsyncThunk, PayloadAction } from '@reduxjs/toolkit';
 import { api, ApiResponse } from '@/lib/api';
+import { JOBOFERT_ALLOWED_LIMITS } from '../validators/pagination.validator';
 
 export interface OfferData {
   _id: string;
@@ -67,6 +68,12 @@ export const fetchOffers = createAsyncThunk(
   'jobOffers/fetchOffers',
   async (params: FetchOffersParams, { rejectWithValue}) => {
     try {
+
+      // Validar que el límite sea uno de los permitidos
+      if (!JOBOFERT_ALLOWED_LIMITS.includes(params.limit as any)) {
+        return rejectWithValue(`Límite no permitido. Valores permitidos: ${JOBOFERT_ALLOWED_LIMITS.join(', ')}`);
+      }
+
       const urlParams = new URLSearchParams();
 
       if (params.searchText.trim()) {
@@ -132,8 +139,11 @@ const jobOffersSlice = createSlice({
       state.sortBy = action.payload;
     },
     setRegistrosPorPagina: (state, action: PayloadAction<number>) => {
-      state.registrosPorPagina = action.payload;
-      state.paginaActual = 1;
+      // Validar que el límite sea permitido
+      if (JOBOFERT_ALLOWED_LIMITS.includes(action.payload as any)) {
+        state.registrosPorPagina = action.payload;
+        state.paginaActual = 1;
+      }
     },
     setPaginaActual: (state, action: PayloadAction<number>) => {
       state.paginaActual = action.payload;

@@ -8,7 +8,7 @@ import { SearchCheckboxes } from './components_AS/SearchCheckboxes';
 import { HelpButton } from './components_AS/HelpButton';
 import DropdownList from './components_AS/DropdownList'; // <-- Nuevo componente
 import useSyncUrlParamsAdv from './hooks/useSyncUrlParams'; // ajustar ruta si hace falta
-import { useRouter } from 'next/navigation';
+// removed unused useRouter
 import useAdvSearchLogic from './hooks/useAdvSearchLogic';
 import PriceRangeList from './components_AS/PriceRangeList';
 import DateFilterSelector from './components_AS/DateFilterSelector';
@@ -16,16 +16,6 @@ import CalificacionEstrella from './components_AS/CalificacionEstrella';
 import ButtonAplicarBus from './components_AS/ButtonAplicarBus';
 import ClearButton from './components_AS/ClearButton';
 import Footer from './components_AS/Footer';
-
-interface FilterState {
-  range: string[];
-  city: string;
-  category: string[];
-  tags: string[];
-  priceRanges: string[];
-  minPrice: number | null;
-  maxPrice: number | null;
-}
 
 const FIXER_RANGES = [
   ['De (A-C)', 'De (D-F)', 'De (G-I)', 'De (J-L)', 'De (M-Ñ)'],
@@ -46,30 +36,7 @@ const JOBS = [
 
 
 
-// Small helper to parse a price-range key into numeric min/max values.
-// Accepts strings like "$100 - $200", "100-200", "100", "Menos de $90", "Más de $400"
-// and returns {minPrice, maxPrice}. Correctly handles "Menos de" => max, "Más de" => min.
-function parsePriceRange(key: string): { minPrice: number | null; maxPrice: number | null } {
-  if (!key) return { minPrice: null, maxPrice: null };
-  const normalized = key.replace(/[$€£,]/g, '').trim();
-  const lowerLabel = normalized.toLowerCase();
-  const matches = normalized.match(/-?\d+(?:\.\d+)?/g) || [];
-
-  if (/(^|\s)menos(\s|$)|menos\s+de|^<\s*/i.test(lowerLabel)) {
-    if (matches[0]) return { minPrice: null, maxPrice: Number(matches[0]) };
-    return { minPrice: null, maxPrice: null };
-  }
-
-  if (/(^|\s)m(a|á)s(\s|$)|m(a|á)s\s+de|^>\s*/i.test(lowerLabel)) {
-    if (matches[0]) return { minPrice: Number(matches[0]), maxPrice: null };
-    return { minPrice: null, maxPrice: null };
-  }
-
-  if (matches.length >= 2) return { minPrice: Number(matches[0]), maxPrice: Number(matches[1]) };
-  if (matches.length === 1) return { minPrice: Number(matches[0]), maxPrice: null };
-
-  return { minPrice: null, maxPrice: null };
-}
+// removed unused FilterState and parsePriceRange to eliminate lint warnings
 
 function AdvancedSearchPage() {
   const {
@@ -81,11 +48,8 @@ function AdvancedSearchPage() {
     selectedRanges,
     selectedCity,
     selectedJobs,
-    selectedCategories,
-    selectedPriceRanges,
     selectedTags,
     selectedPriceKey,
-    resultsCount,
     loading,
     totalRegistros,
     storeLoading,
@@ -109,8 +73,12 @@ function AdvancedSearchPage() {
     setSelectedJobs,
     setSelectedCategories,
     setSelectedPriceRanges,
-    setSelectedPriceKey,
     setResultsCount,
+    // date filter state from hook
+    selectedDateFilter,
+    setSelectedDateFilter,
+    selectedSpecificDate,
+    setSelectedSpecificDate,
     fetchGlobalTotal,
   } = useAdvSearchLogic();
 
@@ -369,7 +337,14 @@ function AdvancedSearchPage() {
             {/* NUEVO: Filtro de Fecha y Calificación */}
             <div className="mb-6 flex gap-6 items-start">
               <div className="flex-shrink-0">
-                <DateFilterSelector />
+                <DateFilterSelector
+                  selectedFilter={selectedDateFilter}
+                  selectedDate={selectedSpecificDate}
+                  onChange={(f, d) => {
+                    setSelectedDateFilter(f);
+                    setSelectedSpecificDate(d ?? null);
+                  }}
+                />
               </div>
               <div className="flex-shrink-0">
                 <CalificacionEstrella />
@@ -390,6 +365,9 @@ function AdvancedSearchPage() {
                 setTitleOnly(false);
                 setExactWords(false);
                 setResultsCount(null);
+                // reset date filter
+                setSelectedDateFilter('specific');
+                setSelectedSpecificDate(null);
                 // notify children (DropdownList, PriceRangeList) to clear
                 setClearSignal((s) => s + 1);
                 // fetch global total again (hook exposes helper)

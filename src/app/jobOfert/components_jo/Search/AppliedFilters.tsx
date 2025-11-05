@@ -4,78 +4,38 @@ import { useRouter } from 'next/navigation';
 
 type FilterParamValue = string | string[] | number | boolean | null;
 
-            {/* Render combined price tag if minPrice/maxPrice present */}
-            {(() => {
-              const min = params['minPrice'] as number | null | undefined;
-              const max = params['maxPrice'] as number | null | undefined;
-              if (min != null || max != null) {
-                let label = '';
-                if (min != null && max != null) label = `Precio: ${min}bs - ${max}bs`;
-                else if (min != null) label = `Precio: desde ${min}bs`;
-                else label = `Precio: hasta ${max}bs`;
-                return (
-                  <>
-                    <span key="price-range" className="inline-block bg-sky-50 text-sky-500 text-sm px-3 py-1 rounded">
-                      {label}
-                    </span>
-                    {Object.entries(params)
-                      .filter(([k]) => k !== 'minPrice' && k !== 'maxPrice')
-                      .map(([k, v]) => {
-                        if (k === 'titleOnly' && v === true) {
-                          return (
-                            <span key={k} className="inline-block bg-sky-50 text-sky-500 text-sm px-3 py-1 rounded">
-                              Buscar solo en el título de la Oferta de Trabajo
-                            </span>
-                          );
-                        }
-
-                        if (k === 'exact' && v === true) {
-                          return (
-                            <span key={k} className="inline-block bg-sky-50 text-sky-500 text-sm px-3 py-1 rounded">
-                              Palabras Exactas
-                            </span>
-                          );
-                        }
-
-                        const value = renderValue(v as FilterParamValue);
-                        if (!value) return null;
-                        return (
-                          <span key={k} className="inline-block bg-sky-50 text-sky-500 text-sm px-3 py-1 rounded">
-                            {value}
-                          </span>
-                        );
-                      })}
-                  </>
-                );
-              }
-
-              return Object.entries(params).map(([k, v]) => {
+interface Props {
   params: Record<string, FilterParamValue>;
-                if (k === 'titleOnly' && v === true) {
-                  return (
-                    <span key={k} className="inline-block bg-sky-50 text-sky-500 text-sm px-3 py-1 rounded">
-                      Buscar solo en el título de la Oferta de Trabajo
-                    </span>
-                  );
-                }
+  onClear?: () => void;
+  onModify?: () => void;
+}
 
-                if (k === 'exact' && v === true) {
-                  return (
-                    <span key={k} className="inline-block bg-sky-50 text-sky-500 text-sm px-3 py-1 rounded">
-                      Palabras Exactas
-                    </span>
-                  );
-                }
+function renderValue(v: FilterParamValue) {
+  if (v == null) return null;
+  if (Array.isArray(v)) return v.join(', ');
+  return String(v);
+}
 
-                const value = renderValue(v as FilterParamValue);
-                if (!value) return null;
-                return (
-                  <span key={k} className="inline-block bg-sky-50 text-sky-500 text-sm px-3 py-1 rounded">
-                    {value}
-                  </span>
-                );
-              });
-            })()}
+function formatPriceString(s: string) {
+  if (!s) return s;
+  // Replace occurrences like "$90" or "$ 90" with "90bs"
+  const replaced = s.replace(/\$\s*([0-9]+(?:\.[0-9]+)?)/g, '$1bs');
+  return replaced;
+}
+
+export default function AppliedFilters({ params, onClear, onModify }: Props) {
+  const router = useRouter();
+
+  const handleModify = () => {
+    if (onModify) return onModify();
+    // default behavior: go back to AdvSearch preserving params
+    const sp = new URLSearchParams();
+    Object.entries(params).forEach(([k, val]) => {
+      if (val == null) return;
+      if (Array.isArray(val)) {
+        val.forEach((v) => sp.append(k, String(v)));
+      } else {
+        sp.set(k, String(val));
       }
     });
     router.push(`/AdvSearch?${sp.toString()}`);
@@ -87,32 +47,88 @@ type FilterParamValue = string | string[] | number | boolean | null;
         <div>
           <p className="text-sm font-semibold text-gray-700">Búsqueda:</p>
           <div className="mt-2 flex flex-wrap gap-2">
-            {Object.entries(params).map(([k, v]) => {
-              // Special labels for boolean flags
-              if (k === 'titleOnly' && v === true) {
-                return (
-                  <span key={k} className="inline-block bg-sky-50 text-sky-500 text-sm px-3 py-1 rounded">
-                    Buscar solo en el título de la Oferta de Trabajo
-                  </span>
+            {(() => {
+              // Render combined price tag when minPrice and/or maxPrice exist
+              const minRaw = params['minPrice'] as FilterParamValue;
+              const maxRaw = params['maxPrice'] as FilterParamValue;
+              const tags: React.ReactNode[] = [];
+
+              const hasMin = minRaw != null && minRaw !== '';
+              const hasMax = maxRaw != null && maxRaw !== '';
+
+              if (hasMin || hasMax) {
+                const minN = Number(minRaw);
+                const maxN = Number(maxRaw);
+                const minValid = !Number.isNaN(minN);
+                const maxValid = !Number.isNaN(maxN);
+                let text = 'Precio:';
+                if (minValid && maxValid) {
+                  text = `Precio: ${minN}bs - ${maxN}bs`;
+                } else if (minValid && !maxValid) {
+                  // Selector shows "Más de $X"
+                  text = `Precio: Más de ${minN}bs`;
+                } else if (!minValid && maxValid) {
+                  // Selector shows "Menos de $X"
+                  text = `Precio: Menos de ${maxN}bs`;
+                }
+
+                tags.push(
+                  <span key="price" className="inline-block bg-sky-50 text-sky-500 text-sm px-3 py-1 rounded">
+                    {text}
+                  </span>,
                 );
               }
 
-              if (k === 'exact' && v === true) {
-                return (
-                  <span key={k} className="inline-block bg-sky-50 text-sky-500 text-sm px-3 py-1 rounded">
-                    Palabras Exactas
-                  </span>
-                );
-              }
+              // Render other params except minPrice/maxPrice
+              Object.entries(params).forEach(([k, v]) => {
+                if (k === 'minPrice' || k === 'maxPrice') return;
 
-              const value = renderValue(v as FilterParamValue);
-              if (!value) return null;
-              return (
-                <span key={k} className="inline-block bg-sky-50 text-sky-500 text-sm px-3 py-1 rounded">
-                  {value}
-                </span>
-              );
-            })}
+                if (k === 'titleOnly' && v === true) {
+                  tags.push(
+                    <span key={k} className="inline-block bg-sky-50 text-sky-500 text-sm px-3 py-1 rounded">
+                      Buscar solo en el título de la Oferta de Trabajo
+                    </span>,
+                  );
+                  return;
+                }
+
+                if (k === 'exact' && v === true) {
+                  tags.push(
+                    <span key={k} className="inline-block bg-sky-50 text-sky-500 text-sm px-3 py-1 rounded">
+                      Palabras Exactas
+                    </span>,
+                  );
+                  return;
+                }
+
+                // Special display for date
+                if (k === 'date' && typeof v === 'string') {
+                  // expect YYYY-MM-DD
+                  const m = v.match(/^(\d{4})-(\d{2})-(\d{2})$/);
+                  const dateLabel = m ? `${m[3]}/${m[2]}/${m[1]}` : String(v);
+                  tags.push(
+                    <span key={k} className="inline-block bg-sky-50 text-sky-500 text-sm px-3 py-1 rounded">
+                      {`Fecha: ${dateLabel}`}
+                    </span>,
+                  );
+                  return;
+                }
+
+                let value = renderValue(v as FilterParamValue);
+                if (!value) return;
+                // If the value contains a dollar sign, convert to 'bs' like in selectors
+                if (value.includes('$')) {
+                  value = formatPriceString(value);
+                }
+                tags.push(
+                  <span key={k} className="inline-block bg-sky-50 text-sky-500 text-sm px-3 py-1 rounded">
+                    {value}
+                  </span>,
+                );
+              });
+
+              return tags;
+            })()}
           </div>
         </div>
 

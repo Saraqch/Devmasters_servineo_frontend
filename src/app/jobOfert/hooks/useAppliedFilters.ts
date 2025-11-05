@@ -35,7 +35,7 @@ export default function useAppliedFilters() {
         }
 
         const params: ParamsMap = {};
-        const keys = ['search', 'titleOnly', 'exact', 'tags', 'category', 'city', 'minPrice', 'maxPrice', 'range'];
+        const keys = ['search', 'titleOnly', 'exact', 'tags', 'category', 'city', 'minPrice', 'maxPrice', 'range', 'date'];
         keys.forEach((k) => {
           const val = sp.get(k);
           if (val == null) return;
@@ -46,6 +46,9 @@ export default function useAppliedFilters() {
           } else if (k === 'minPrice' || k === 'maxPrice') {
             const n = Number(val);
             params[k] = Number.isNaN(n) ? null : n;
+          } else if (k === 'date') {
+            // keep raw date string (YYYY-MM-DD) => display handled by AppliedFilters
+            params[k] = val;
           } else {
             params[k] = val;
           }

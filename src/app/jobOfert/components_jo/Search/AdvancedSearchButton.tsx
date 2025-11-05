@@ -2,6 +2,7 @@
 
 import React from 'react';
 import { useRouter } from 'next/navigation';
+import Image from 'next/image';
 import { Button } from '@/components/ui/button';
 
 interface AdvancedSearchButtonProps {
@@ -36,7 +37,9 @@ export function AdvancedSearchButton({ src = '/img/advSearch.jpg', alt = 'Búsqu
       `}
     >
       {/* Imagen que se adapta al tamaño del botón */}
-      <img src={src} alt={alt} className="w-6 h-6 sm:w-8 sm:h-8 object-cover rounded-full" />
+      <div className="flex-shrink-0">
+        <Image src={src} alt={alt} width={32} height={32} className="rounded-full object-cover" />
+      </div>
     </Button>
   );
 }

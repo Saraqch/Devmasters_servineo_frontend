@@ -79,6 +79,9 @@ export default function useAdvSearchLogic() {
 
   const [resultsCount, setResultsCount] = useState<number | null>(null);
   const [loading] = useState(false);
+  // Date filter state: 'recent' | 'oldest' | 'specific'
+  const [selectedDateFilter, setSelectedDateFilter] = useState<string>('specific');
+  const [selectedSpecificDate, setSelectedSpecificDate] = useState<Date | null>(null);
 
   const dispatch = useAppDispatch();
   const totalRegistros = useAppSelector((s) => s.jobOffers.totalRegistros);
@@ -200,6 +203,18 @@ export default function useAdvSearchLogic() {
     if (selectedJobs.length) params.set('category', selectedJobs.join(','));
     if (selectedTags.length) params.set('tags', selectedTags.join(','));
     const { minPrice, maxPrice } = parsePriceRange(selectedPriceKey);
+    // Apply date/sort choices
+    if (selectedDateFilter === 'recent') {
+      params.set('sortBy', 'recent');
+    } else if (selectedDateFilter === 'oldest') {
+      params.set('sortBy', 'oldest');
+    } else if (selectedDateFilter === 'specific' && selectedSpecificDate) {
+      // format date as YYYY-MM-DD
+      const y = selectedSpecificDate.getFullYear();
+      const m = String(selectedSpecificDate.getMonth() + 1).padStart(2, '0');
+      const d = String(selectedSpecificDate.getDate()).padStart(2, '0');
+      params.set('date', `${y}-${m}-${d}`);
+    }
     if (minPrice != null) params.set('minPrice', String(minPrice));
     if (maxPrice != null) params.set('maxPrice', String(maxPrice));
     params.set('page', '1');
@@ -303,6 +318,11 @@ export default function useAdvSearchLogic() {
     setSelectedPriceRanges,
     setSelectedPriceKey,
     setResultsCount,
+    // date filter API
+    selectedDateFilter,
+    setSelectedDateFilter,
+    selectedSpecificDate,
+    setSelectedSpecificDate,
     fetchGlobalTotal,
   };
 }

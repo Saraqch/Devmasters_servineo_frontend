@@ -1,6 +1,7 @@
 "use client"
 
 import React, { useMemo } from 'react';
+import Image from 'next/image';
 
 interface OfferData {
   _id: string;
@@ -26,8 +27,8 @@ const CardJob = ({ trabajos }: CardJobProps) => {
     console.log('Card clicked:', id);
   };
 
-  // Mapeo de imágenes por categoría (3 imágenes por cada una)
-  const categoryImages: {[key: string]: string[]} = {
+// Mapeo de imágenes por categoría (3 imágenes por cada una)
+const categoryImages: {[key: string]: string[]} = {
     "Albañil": ["/img/albañil1.jpg", "/img/albañil2.jpg", "/img/albañil3.jpg"],
     "Carpintero": ["/img/carpintero1.jpg", "/img/carpintero2.jpg", "/img/carpintero3.jpg"],
     "Fontanero": ["/img/fontanero1.jpg", "/img/fontanero2.jpg", "/img/fontanero3.jpg"],
@@ -47,27 +48,29 @@ const CardJob = ({ trabajos }: CardJobProps) => {
     "Pulidor": ["/img/pulidor1.jpg", "/img/pulidor2.jpg", "/img/pulidor3.jpg"],
     "Techador": ["/img/techador1.jpg", "/img/techador2.jpg", "/img/techador3.jpg"],
     "Default": ["/img/default1.jpg", "/img/default2.jpg", "/img/default3.jpg"]
-  };
+};
 
-  // Función para obtener una imagen basada en el ID (determinística)
-  const getImageForJob = (jobId: string, category: string): string => {
-    const images = categoryImages[category] || categoryImages["Default"];
-    // Usar el ID para generar un índice consistente
-    let hash = 0;
-    for (let i = 0; i < jobId.length; i++) {
-      hash = jobId.charCodeAt(i) + ((hash << 5) - hash);
-    }
-    const index = Math.abs(hash) % images.length;
-    return images[index];
-  };
+// Función para obtener una imagen basada en el ID (determinística)
+const getImageForJob = (jobId: string, category: string): string => {
+  const images = categoryImages[category] || categoryImages["Default"];
+  // Usar el ID para generar un índice consistente
+  let hash = 0;
+  for (let i = 0; i < jobId.length; i++) {
+    hash = jobId.charCodeAt(i) + ((hash << 5) - hash);
+  }
+  const index = Math.abs(hash) % images.length;
+  return images[index];
+};
+
+// Memorizar las imágenes asignadas para cada trabajo
+const trabajosWithImages = (trabajos: OfferData[]) =>
+  trabajos.map((trabajo) => ({
+    ...trabajo,
+    imagenAsignada: trabajo.imagenUrl || getImageForJob(trabajo._id, trabajo.category),
+  }));
 
   // Memorizar las imágenes asignadas para cada trabajo
-  const trabajosConImagenes = useMemo(() => {
-    return trabajos.map(trabajo => ({
-      ...trabajo,
-      imagenAsignada: trabajo.imagenUrl || getImageForJob(trabajo._id, trabajo.category)
-    }));
-  }, [trabajos]);
+  const trabajosConImagenes = useMemo(() => trabajosWithImages(trabajos), [trabajos]);
 
   return (
     <div className="w-full">
@@ -87,11 +90,13 @@ const CardJob = ({ trabajos }: CardJobProps) => {
                 className="group relative w-full overflow-hidden rounded-xl border border-[#2B6AE0] bg-white transition-all duration-300 hover:shadow-lg flex flex-col sm:flex-row"
               >
                 {/* Imagen */}
-                <div className="relative w-full sm:w-48 h-48 sm:h-50 flex-shrink-0 overflow-hidden bg-gray-200">
-                  <img 
-                    src={t.imagenAsignada} 
+                  <div className="relative w-full sm:w-48 h-48 sm:h-50 flex-shrink-0 overflow-hidden bg-gray-200">
+                  <Image
+                    src={t.imagenAsignada}
                     alt={`Trabajo de ${t.fixerName}`}
-                    className="w-full h-full object-cover"
+                    fill
+                    sizes="(max-width: 640px) 100vw, 200px"
+                    className="object-cover"
                   />
                   
                   {/* Ciudad - Dentro de la imagen */}

@@ -67,6 +67,7 @@ interface FetchOffersParams {
   limit: number;
   titleOnly?: boolean;
   exact?: boolean;
+  date?: string;
 }
 
 export const fetchOffers = createAsyncThunk(
@@ -95,6 +96,11 @@ export const fetchOffers = createAsyncThunk(
 
       if (params.sortBy) {
         urlParams.append('sortBy', params.sortBy);
+      }
+
+      // optional exact date filter (YYYY-MM-DD)
+      if (params.date) {
+        urlParams.append('date', params.date);
       }
 
       if (params.titleOnly) {

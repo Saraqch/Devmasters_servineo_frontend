@@ -1,22 +1,33 @@
 'use client';
-import React, { useState, useRef } from 'react';
+import React, { useRef, useEffect, useState } from 'react';
 import { Calendar, ChevronDown } from 'lucide-react';
 import CalendarComponent from './CalendarComponent';
 
-const DateFilterSelector: React.FC = () => {
-  const [selectedFilter, setSelectedFilter] = useState('specific');
-  const [selectedDate, setSelectedDate] = useState<Date | null>(null);
+interface Props {
+  selectedFilter: string;
+  selectedDate: Date | null;
+  onChange: (filter: string, date?: Date | null) => void;
+}
+
+const DateFilterSelector: React.FC<Props> = ({ selectedFilter, selectedDate, onChange }) => {
   const [showCalendar, setShowCalendar] = useState(false);
   const [rawInput, setRawInput] = useState('');
   const inputRef = useRef<HTMLInputElement>(null);
 
+  useEffect(() => {
+    if (selectedDate) {
+      const day = String(selectedDate.getDate()).padStart(2, '0');
+      const month = String(selectedDate.getMonth() + 1).padStart(2, '0');
+      const year = selectedDate.getFullYear();
+      setRawInput(`${day}${month}${year}`);
+    } else {
+      setRawInput('');
+    }
+  }, [selectedDate]);
+
   const handleDateSelect = (date: Date) => {
-    setSelectedDate(date);
-    const day = String(date.getDate()).padStart(2, '0');
-    const month = String(date.getMonth() + 1).padStart(2, '0');
-    const year = date.getFullYear();
-    setRawInput(`${day}${month}${year}`);
     setShowCalendar(false);
+    onChange('specific', date);
   };
 
   const formatDisplay = (value: string): string => {
@@ -30,6 +41,15 @@ const DateFilterSelector: React.FC = () => {
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value.replace(/\D/g, '').slice(0, 8);
     setRawInput(value);
+
+    // If the user input a full date, notify parent
+    if (value.length === 8) {
+      const day = Number(value.slice(0, 2));
+      const month = Number(value.slice(2, 4));
+      const year = Number(value.slice(4, 8));
+      const dt = new Date(year, month - 1, day);
+      onChange('specific', dt);
+    }
 
     const input = inputRef.current;
     if (!input) return;
@@ -72,7 +92,7 @@ const DateFilterSelector: React.FC = () => {
               name="dateFilter"
               value={filter}
               checked={selectedFilter === filter}
-              onChange={(e) => setSelectedFilter(e.target.value)}
+              onChange={() => onChange(filter, null)}
               className="w-4 h-4 cursor-pointer flex-shrink-0 text-[#2B6AE0] rounded-full border-gray-300 focus:ring-[#2B6AE0]"
             />
             <span className="text-gray-700 whitespace-nowrap">
@@ -89,7 +109,7 @@ const DateFilterSelector: React.FC = () => {
               name="dateFilter"
               value="specific"
               checked={selectedFilter === 'specific'}
-              onChange={(e) => setSelectedFilter(e.target.value)}
+              onChange={() => onChange('specific', null)}
               className="w-4 h-4 cursor-pointer flex-shrink-0 text-[#2B6AE0] rounded-full border-gray-300 focus:ring-[#2B6AE0]"
             />
             <span className="text-gray-700 font-medium whitespace-nowrap">Fecha específica:</span>

@@ -77,6 +77,14 @@ export const useSyncUrlParamsAdv = (p: Params) => {
       try { window.history.replaceState(null, '', window.location.pathname + targetSearch); } catch { /* noop */ }
     }
   // Use stable primitive deps to avoid re-running on new object identity
-  }, [search, titleOnly, exact, page, limit, filtersJson, router, skipSyncRef]);
+  }, [search, titleOnly, exact, page, limit, filtersJson, router, skipSyncRef,
+    // include specific filter fields to satisfy linting (stable primitives)
+    (filters && filters.range) || null,
+    (filters && filters.category) || null,
+    (filters && filters.city) || null,
+    (filters && filters.tags) || null,
+    (filters && filters.minPrice) || null,
+    (filters && filters.maxPrice) || null,
+  ]);
 };
 export default useSyncUrlParamsAdv;

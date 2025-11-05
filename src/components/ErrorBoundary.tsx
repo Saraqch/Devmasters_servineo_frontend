@@ -17,9 +17,6 @@ class ErrorBoundary extends React.Component<React.PropsWithChildren<unknown>, St
   }
 
   componentDidCatch(error: Error, info: React.ErrorInfo) {
-    // Log error details to the console so the developer can inspect the stack trace
-    // You can extend this to send errors to a logging service if desired.
-    // eslint-disable-next-line no-console
     console.error("ErrorBoundary caught an error:", error, info);
   }
 

@@ -111,6 +111,12 @@ const PriceRangeList: React.FC<PriceRangeListProps> = ({ onFilterChange, clearSi
     return <div className="p-4 text-sm text-gray-500">No hay rangos disponibles</div>;
   }
 
+  function formatRangeLabel(label: string) {
+    if (!label) return label;
+    // Convert occurrences like "$90" or "$ 90" to "90bs"
+    return label.replace(/\$\s*([0-9]+(?:\.[0-9]+)?)/g, '$1bs');
+  }
+
   return (
     <div className="w-full border border-gray-300 rounded-lg overflow-hidden">
       <div className="max-h-64 overflow-y-auto">
@@ -127,7 +133,7 @@ const PriceRangeList: React.FC<PriceRangeListProps> = ({ onFilterChange, clearSi
               onChange={() => handleCheckboxChange(r.label)}
               className="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-2 focus:ring-blue-500 cursor-pointer"
             />
-            <span className="ml-3 text-sm text-gray-700 capitalize">{r.label}</span>
+            <span className="ml-3 text-sm text-gray-700 capitalize">{formatRangeLabel(r.label)}</span>
           </label>
         ))}
       </div>

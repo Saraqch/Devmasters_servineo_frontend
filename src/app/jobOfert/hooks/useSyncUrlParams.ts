@@ -46,5 +46,5 @@ export const useSyncUrlParams = ({
     if (typeof window !== 'undefined' && window.location.search === target) return;
 
     router.replace(target, { scroll: false });
-  }, [search, filters, sortBy, paginaActual, registrosPorPagina, router]);
+  }, [search, filters, sortBy, paginaActual, registrosPorPagina, titleOnly, exact, router]);
 };

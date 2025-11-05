@@ -132,7 +132,6 @@ export default function JobOffersPage() {
         limit: valor,
         titleOnly,
         exact,
-        rating: rating ?? undefined,
       }),
     );
   };
@@ -148,7 +147,6 @@ export default function JobOffersPage() {
         limit: registrosPorPagina,
         titleOnly,
         exact,
-        rating: rating ?? undefined,
       }),
     );
   };
@@ -165,7 +163,6 @@ export default function JobOffersPage() {
         limit: registrosPorPagina,
         titleOnly,
         exact,
-        rating: rating ?? undefined,
       }),
     );
   };
@@ -181,7 +178,6 @@ export default function JobOffersPage() {
         limit: registrosPorPagina,
         titleOnly,
         exact,
-        rating: rating ?? undefined,
       }),
     );
   };
@@ -196,7 +192,6 @@ export default function JobOffersPage() {
         limit: registrosPorPagina,
         titleOnly,
         exact,
-        rating: rating ?? undefined,
       }),
     );
   };

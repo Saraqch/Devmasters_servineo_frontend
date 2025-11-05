@@ -57,6 +57,25 @@ export default function JobOffersPage() {
     registrosPorPagina,
   });
 
+  // --- Carga inicial ---
+  useEffect(() => {
+    if (isInitialMount.current) {
+      dispatch(
+        fetchOffers({
+          searchText: search,
+          // filters: { range: [], city: '', category: [] },
+          filters: filters,
+          // sortBy: 'recent',
+          sortBy: sortBy,
+          page: paginaActual,
+          limit: registrosPorPagina,
+        }),
+      );
+      isInitialMount.current = false;
+    }
+  }, [dispatch,search, filters, sortBy, paginaActual, registrosPorPagina]);
+
+ feature/john_paginacion
   // --- Sticky header handler ---
   useEffect(() => {
     if (typeof window === 'undefined') return;

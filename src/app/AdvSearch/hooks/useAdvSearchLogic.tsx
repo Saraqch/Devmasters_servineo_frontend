@@ -14,13 +14,34 @@ interface FilterStateLocal {
 }
 
 // Small helper to parse a price-range key into numeric min/max values.
+// Small helper to parse a price-range key into numeric min/max values.
+// Handles labels like "Menos de $90" (max=90), "Más de $400" (min=400),
+// "$100 - $200" (min=100, max=200) and equality or single-number labels.
 function parsePriceRange(key: string): { minPrice: number | null; maxPrice: number | null } {
   if (!key) return { minPrice: null, maxPrice: null };
-  const normalized = key.replace(/[$€£,]/g, '');
-  const matches = normalized.match(/-?\d+(?:\.\d+)?/g);
-  if (!matches || matches.length === 0) return { minPrice: null, maxPrice: null };
+  const normalized = key.replace(/[$€£,]/g, '').trim();
+  const lowerLabel = normalized.toLowerCase();
+  const matches = normalized.match(/-?\d+(?:\.\d+)?/g) || [];
+
+  // Detect "Menos de" (less than) => max = number
+  if (/(^|\s)menos(\s|$)|menos\s+de|^<\s*/i.test(lowerLabel)) {
+    if (matches[0]) return { minPrice: null, maxPrice: Number(matches[0]) };
+    return { minPrice: null, maxPrice: null };
+  }
+
+  // Detect "Más de" (greater than) => min = number
+  if (/(^|\s)m(a|á)s(\s|$)|m(a|á)s\s+de|^>\s*/i.test(lowerLabel)) {
+    if (matches[0]) return { minPrice: Number(matches[0]), maxPrice: null };
+    return { minPrice: null, maxPrice: null };
+  }
+
+  // Range with two numbers
+  if (matches.length >= 2) return { minPrice: Number(matches[0]), maxPrice: Number(matches[1]) };
+
+  // Single number without qualifiers -> treat as min (>=)
   if (matches.length === 1) return { minPrice: Number(matches[0]), maxPrice: null };
-  return { minPrice: Number(matches[0]), maxPrice: Number(matches[1]) };
+
+  return { minPrice: null, maxPrice: null };
 }
 
 type UpdateParams = {
@@ -141,10 +162,18 @@ export default function useAdvSearchLogic() {
     updateSearchOnStateChange({ newCategories: newTags });
   };
 
-  const handlePriceRangeChange = (filters: { priceRanges: string[] }) => {
+  const handlePriceRangeChange = (filters: { priceRanges: string[]; priceKey?: string }) => {
     const newPriceRanges = Array.isArray(filters.priceRanges) ? filters.priceRanges : [];
     setSelectedPriceRanges(newPriceRanges);
-    updateSearchOnStateChange({ newPriceRanges });
+    // If a single range was selected, the component may send a priceKey that can be parsed
+    if (filters.priceKey && typeof filters.priceKey === 'string') {
+      setSelectedPriceKey(filters.priceKey);
+      updateSearchOnStateChange({ newPriceRanges, newPriceKey: filters.priceKey });
+    } else {
+      // Clear priceKey if multiple or none selected
+      setSelectedPriceKey('');
+      updateSearchOnStateChange({ newPriceRanges, newPriceKey: '' });
+    }
   };
 
   const fetchGlobalTotal = () => {

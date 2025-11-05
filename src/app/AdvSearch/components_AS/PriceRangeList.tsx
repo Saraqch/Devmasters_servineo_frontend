@@ -1,29 +1,77 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
+import { api } from '@/lib/api';
 
-// Genera rangos de 100 en 100 hasta un máximo.
-const generatePriceRanges = (max: number = 1000) => {
-  const ranges: string[] = [];
-  for (let start = 0; start < max; start += 100) {
-    const end = start + 100;
-    ranges.push(`$${start} - $${end}`);
-  }
-  ranges.push(`Más de $${max}`); // Opcional: un rango superior
-  return ranges;
-};
-
-const PRICE_RANGES = generatePriceRanges(500); // Rango de ejemplo: $0 a $500+
+type RangeItem = { label: string; min: number | null; max: number | null };
 
 interface PriceRangeListProps {
-  onFilterChange?: (filters: { priceRanges: string[] }) => void;
+  onFilterChange?: (filters: { priceRanges: string[]; priceKey?: string }) => void;
   // When this numeric prop changes, the component will clear its selection
   clearSignal?: number;
 }
 
 const PriceRangeList: React.FC<PriceRangeListProps> = ({ onFilterChange, clearSignal }) => {
   const [selectedRanges, setSelectedRanges] = useState<string[]>([]);
-  // No necesitamos loading/error ya que los rangos son estáticos
+  const [ranges, setRanges] = useState<RangeItem[]>([]);
+  // Start in loading state to avoid rendering any static/previous markup during mount
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  // Fetch dynamic ranges from backend on mount
+  useEffect(() => {
+    let mounted = true;
+    setError(null);
+
+    // Try to read cached ranges from sessionStorage to avoid flicker on remount
+    try {
+      const cached = sessionStorage.getItem('adv_price_ranges');
+      if (cached) {
+        const parsed = JSON.parse(cached) as RangeItem[];
+        if (Array.isArray(parsed) && parsed.length) {
+          setRanges(parsed);
+          setLoading(false);
+        }
+      }
+    } catch (e) {
+      // ignore cache errors
+    }
+
+    // Always attempt to refresh in background to keep data current
+    api
+      .get<any>('/api/devmaster/offers?action=getPriceRanges')
+      .then((res) => {
+        if (!mounted) return;
+        if (res.success && res.data) {
+          // backend returns { min, max, ranges }
+          const payload = res.data as any;
+          const items: RangeItem[] = Array.isArray(payload.ranges)
+            ? payload.ranges.map((r: any) => ({ label: r.label, min: r.min ?? null, max: r.max ?? null }))
+            : [];
+          setRanges(items);
+          // cache for faster subsequent mounts
+          try {
+            sessionStorage.setItem('adv_price_ranges', JSON.stringify(items));
+          } catch (e) {
+            // ignore storage errors
+          }
+        } else {
+          setError(res.error || 'No se pudieron cargar los rangos de precio');
+        }
+      })
+      .catch((e) => {
+        if (!mounted) return;
+        setError(e?.message || 'Error desconocido');
+      })
+      .finally(() => {
+        if (!mounted) return;
+        setLoading(false);
+      });
+
+    return () => {
+      mounted = false;
+    };
+  }, []);
 
   const handleCheckboxChange = (rangeValue: string) => {
     const newSelectedRanges = selectedRanges.includes(rangeValue)
@@ -31,35 +79,49 @@ const PriceRangeList: React.FC<PriceRangeListProps> = ({ onFilterChange, clearSi
       : [...selectedRanges, rangeValue];
 
     setSelectedRanges(newSelectedRanges);
-    // Notifica al componente padre
-    onFilterChange?.({ priceRanges: newSelectedRanges });
+
+    // If exactly one range is selected, provide priceKey so parent can parse min/max
+    const priceKey = newSelectedRanges.length === 1 ? newSelectedRanges[0] : '';
+    onFilterChange?.({ priceRanges: newSelectedRanges, priceKey });
   };
 
   // Reset selections when parent signals a clear
   useEffect(() => {
     if (typeof clearSignal === 'undefined') return;
     setSelectedRanges([]);
-    onFilterChange?.({ priceRanges: [] });
+    onFilterChange?.({ priceRanges: [], priceKey: '' });
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [clearSignal]);
+
+  if (loading) {
+    return <div className="p-4 text-sm text-gray-500">Cargando rangos de precio...</div>;
+  }
+
+  if (error) {
+    return <div className="p-4 text-sm text-red-500">Error: {error}</div>;
+  }
+
+  if (!ranges.length) {
+    return <div className="p-4 text-sm text-gray-500">No hay rangos disponibles</div>;
+  }
 
   return (
     <div className="w-full border border-gray-300 rounded-lg overflow-hidden">
       <div className="max-h-64 overflow-y-auto">
-        {PRICE_RANGES.map((range, index) => (
+        {ranges.map((r, index) => (
           <label
-            key={`${range}-${index}`}
+            key={`${r.label}-${index}`}
             className={`flex items-center px-4 py-3 cursor-pointer hover:bg-gray-50 transition-colors ${
-              index !== PRICE_RANGES.length - 1 ? 'border-b border-gray-200' : ''
+              index !== ranges.length - 1 ? 'border-b border-gray-200' : ''
             }`}
           >
             <input
               type="checkbox"
-              checked={selectedRanges.includes(range)}
-              onChange={() => handleCheckboxChange(range)}
+              checked={selectedRanges.includes(r.label)}
+              onChange={() => handleCheckboxChange(r.label)}
               className="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-2 focus:ring-blue-500 cursor-pointer"
             />
-            <span className="ml-3 text-sm text-gray-700 capitalize">{range}</span>
+            <span className="ml-3 text-sm text-gray-700 capitalize">{r.label}</span>
           </label>
         ))}
       </div>

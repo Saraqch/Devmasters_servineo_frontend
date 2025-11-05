@@ -274,7 +274,7 @@ export const SearchBar = ({ onSearch, onFilter }: SearchBarProps) => {
       }
     }
   };
-
+//funcionalidad para moverse por el dropdown con el teclado
   const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key === 'Enter') {
       const combinedLen = visibleCombined.length;
@@ -286,7 +286,7 @@ export const SearchBar = ({ onSearch, onFilter }: SearchBarProps) => {
       handleSearch();
       return;
     }
-
+    //flechas arriba/abajo para navegar
     if (e.key === 'ArrowDown') {
       e.preventDefault();
       setIsOpen(true);
@@ -306,7 +306,7 @@ export const SearchBar = ({ onSearch, onFilter }: SearchBarProps) => {
       });
       return;
     }
-
+    //tecla Escape para cerrar el dropdown
     if (e.key === 'Escape') {
       setIsOpen(false);
       setHighlighted(-1);

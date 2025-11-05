@@ -62,13 +62,13 @@ export default function JobOffersPage() {
           searchText: '',
           filters: { range: [], city: '', category: [] },
           sortBy: 'recent',
-          page: 1,
-          limit: 10,
+          page: paginaActual,
+          limit: registrosPorPagina,
         }),
       );
       isInitialMount.current = false;
     }
-  }, [dispatch]);
+  }, [dispatch,search, paginaActual, registrosPorPagina]);
 
   // --- Sticky header handler ---
   useEffect(() => {

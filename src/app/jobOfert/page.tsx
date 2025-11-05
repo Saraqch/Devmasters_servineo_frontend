@@ -45,6 +45,7 @@ export default function JobOffersPage() {
     registrosPorPagina,
     totalRegistros,
     date,
+    rating,
   } = useAppSelector((state) => state.jobOffers);
 
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
@@ -63,6 +64,7 @@ export default function JobOffersPage() {
     filters,
     sortBy,
     date,
+    rating,
     paginaActual,
     registrosPorPagina,
     titleOnly,
@@ -130,6 +132,7 @@ export default function JobOffersPage() {
         limit: valor,
         titleOnly,
         exact,
+        rating: rating ?? undefined,
       }),
     );
   };
@@ -145,6 +148,7 @@ export default function JobOffersPage() {
         limit: registrosPorPagina,
         titleOnly,
         exact,
+        rating: rating ?? undefined,
       }),
     );
   };
@@ -161,6 +165,7 @@ export default function JobOffersPage() {
         limit: registrosPorPagina,
         titleOnly,
         exact,
+        rating: rating ?? undefined,
       }),
     );
   };
@@ -176,6 +181,7 @@ export default function JobOffersPage() {
         limit: registrosPorPagina,
         titleOnly,
         exact,
+        rating: rating ?? undefined,
       }),
     );
   };
@@ -190,6 +196,7 @@ export default function JobOffersPage() {
         limit: registrosPorPagina,
         titleOnly,
         exact,
+        rating: rating ?? undefined,
       }),
     );
   };

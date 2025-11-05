@@ -8,6 +8,8 @@ interface UseSyncUrlParamsProps {
   sortBy: string;
   // optional date from redux (YYYY-MM-DD)
   date?: string | null;
+  // optional rating from redux (integer 1..5)
+  rating?: number | null;
   paginaActual: number;
   registrosPorPagina: number;
   titleOnly?: boolean;
@@ -19,6 +21,7 @@ export const useSyncUrlParams = ({
   filters,
   sortBy,
   date,
+  rating,
   paginaActual,
   registrosPorPagina,
   titleOnly,
@@ -41,6 +44,8 @@ export const useSyncUrlParams = ({
     if (sortBy) params.set('sort', sortBy);
     // include date from redux/store when present so it is not lost
     if (date) params.set('date', date);
+  // include rating when present
+  if (rating != null) params.set('rating', String(rating));
     if (paginaActual) params.set('page', String(paginaActual));
     if (registrosPorPagina) params.set('limit', String(registrosPorPagina));
 

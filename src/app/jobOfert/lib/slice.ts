@@ -39,6 +39,7 @@ interface JobOffersState {
   sortBy: string;
   search: string;
   date?: string | null;
+  rating?: number | null;
   titleOnly?: boolean;
   exact?: boolean;
   paginaActual: number;
@@ -54,6 +55,7 @@ const initialState: JobOffersState = {
   sortBy: 'recent',
   search: '',
   date: null,
+  rating: null,
   titleOnly: false,
   exact: false,
   paginaActual: 1,
@@ -70,6 +72,8 @@ interface FetchOffersParams {
   titleOnly?: boolean;
   exact?: boolean;
   date?: string;
+  // optional integer rating (1..5) meaning filter for that integer range (1 -> 1.0-1.9)
+  rating?: number;
 }
 
 export const fetchOffers = createAsyncThunk(
@@ -103,6 +107,11 @@ export const fetchOffers = createAsyncThunk(
       // optional exact date filter (YYYY-MM-DD)
       if (params.date) {
         urlParams.append('date', params.date);
+      }
+
+      // optional rating integer 1..5 -> backend should interpret as range [n, n+0.9]
+      if (params.rating != null) {
+        urlParams.append('rating', String(params.rating));
       }
 
       if (params.titleOnly) {
@@ -168,6 +177,9 @@ const jobOffersSlice = createSlice({
     setDate: (state, action: PayloadAction<string | null>) => {
       state.date = action.payload;
     },
+    setRating: (state, action: PayloadAction<number | null>) => {
+      state.rating = action.payload;
+    },
     setRegistrosPorPagina: (state, action: PayloadAction<number>) => {
       state.registrosPorPagina = action.payload;
       state.paginaActual = 1;
@@ -210,6 +222,7 @@ export const {
   setExact,
   setSortBy,
   setDate,
+  setRating,
   setRegistrosPorPagina,
   setPaginaActual,
   resetFilters,

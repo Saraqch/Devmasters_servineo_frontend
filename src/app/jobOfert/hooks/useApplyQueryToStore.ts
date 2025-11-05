@@ -5,6 +5,7 @@ import {
   setFilters,
   setSortBy,
   setDate,
+  setRating,
   setPaginaActual,
   setRegistrosPorPagina,
   fetchOffers,
@@ -49,6 +50,8 @@ const useApplyQueryToStore = () => {
     const minPrice = searchParams.get('minPrice');
     const maxPrice = searchParams.get('maxPrice');
   const date = searchParams.get('date') ?? null;
+    const ratingRaw = searchParams.get('rating');
+    const rating = ratingRaw != null ? (Number.isNaN(Number(ratingRaw)) ? null : Number(ratingRaw)) : null;
 
     const parsedFilters = {
       range: ranges || [],
@@ -67,6 +70,7 @@ const useApplyQueryToStore = () => {
     dispatch(setFilters(parsedFilters));
     dispatch(setSortBy(sort));
   dispatch(setDate(date));
+  dispatch(setRating(rating));
   // Note: date is not stored in redux filters; it's sent directly to the backend via fetch
     dispatch(setPaginaActual(page));
     dispatch(setRegistrosPorPagina(limit));
@@ -81,6 +85,7 @@ const useApplyQueryToStore = () => {
         filters: parsedFilters,
         sortBy: sort,
         date: date || undefined,
+        rating: rating ?? undefined,
         page,
         limit,
         titleOnly,

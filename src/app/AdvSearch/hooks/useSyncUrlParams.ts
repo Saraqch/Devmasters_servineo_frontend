@@ -10,6 +10,7 @@ interface Params {
   titleOnly?: boolean;
   exact?: boolean;
   date?: string | null;
+  rating?: number | null;
   sortBy?: string | null;
   page?: number;
   limit?: number;
@@ -21,6 +22,8 @@ export const useSyncUrlParamsAdv = (p: Params) => {
   const router = useRouter();
   // Destructure once so we can use stable primitives in deps
   const { search, filters, titleOnly, exact, date, sortBy, page, limit, skipSyncRef } = p;
+  // rating is declared on Params; use it directly to avoid `any` casts
+  const rating: number | null | undefined = p.rating;
   const filtersJson = JSON.stringify(filters || {});
 
   useEffect(() => {
@@ -37,6 +40,7 @@ export const useSyncUrlParamsAdv = (p: Params) => {
       exact ||
       (date && date.trim() !== '') ||
       (sortBy && sortBy.trim() !== '') ||
+      (rating != null) ||
       (filters?.range && filters.range.length) ||
       (filters?.city) ||
       (filters?.category && filters.category.length) ||
@@ -56,6 +60,7 @@ export const useSyncUrlParamsAdv = (p: Params) => {
     if (filters?.minPrice != null) params.set('minPrice', String(filters.minPrice));
     if (filters?.maxPrice != null) params.set('maxPrice', String(filters.maxPrice));
   if (date) params.set('date', date);
+  if (rating != null) params.set('rating', String(rating));
   if (sortBy) params.set('sort', sortBy);
     if (page != null) params.set('page', String(page));
     if (limit != null) params.set('limit', String(limit));
@@ -91,6 +96,8 @@ export const useSyncUrlParamsAdv = (p: Params) => {
     (filters && filters.tags) || null,
     (filters && filters.minPrice) || null,
     (filters && filters.maxPrice) || null,
+    // rating must be included so changing the star selection updates the URL
+    rating,
   ]);
 };
 export default useSyncUrlParamsAdv;

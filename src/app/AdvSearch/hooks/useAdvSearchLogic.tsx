@@ -82,6 +82,7 @@ export default function useAdvSearchLogic() {
   // Date filter state: 'recent' | 'oldest' | 'specific'
   const [selectedDateFilter, setSelectedDateFilter] = useState<string>('specific');
   const [selectedSpecificDate, setSelectedSpecificDate] = useState<Date | null>(null);
+  const [selectedRating, setSelectedRating] = useState<number | null>(null);
 
   const dispatch = useAppDispatch();
   const totalRegistros = useAppSelector((s) => s.jobOffers.totalRegistros);
@@ -217,6 +218,8 @@ export default function useAdvSearchLogic() {
     }
     if (minPrice != null) params.set('minPrice', String(minPrice));
     if (maxPrice != null) params.set('maxPrice', String(maxPrice));
+  // rating: integer 1..5 -> backend will interpret as range 1.0-1.9 etc
+  if (selectedRating != null) params.set('rating', String(selectedRating));
     params.set('page', '1');
     params.set('limit', '10');
     if (typeof window !== 'undefined') {
@@ -279,6 +282,7 @@ export default function useAdvSearchLogic() {
           filters: apiFilters,
           sortBy: sortParam,
           date: dateParam,
+          rating: selectedRating ?? undefined,
           page: 1,
           limit: 1,
           titleOnly: titleOnly ?? false,
@@ -289,7 +293,8 @@ export default function useAdvSearchLogic() {
 
     return () => clearTimeout(t);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [searchQuery, selectedRanges, selectedCity, selectedJobs, selectedTags, selectedPriceRanges, selectedPriceKey, titleOnly, exactWords, selectedDateFilter, selectedSpecificDate]);
+  }, [searchQuery, selectedRanges, selectedCity, selectedJobs, selectedTags, selectedPriceRanges, selectedPriceKey, titleOnly, exactWords, selectedDateFilter, selectedSpecificDate, selectedRating]);
+
 
   return {
     // state
@@ -334,8 +339,11 @@ export default function useAdvSearchLogic() {
     // date filter API
     selectedDateFilter,
     setSelectedDateFilter,
-    selectedSpecificDate,
-    setSelectedSpecificDate,
-    fetchGlobalTotal,
+  selectedSpecificDate,
+  setSelectedSpecificDate,
+  // rating
+  selectedRating,
+  setSelectedRating,
+  fetchGlobalTotal,
   };
 }

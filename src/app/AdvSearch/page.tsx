@@ -79,6 +79,9 @@ function AdvancedSearchPage() {
     setSelectedDateFilter,
     selectedSpecificDate,
     setSelectedSpecificDate,
+  // rating
+  selectedRating,
+  setSelectedRating,
     fetchGlobalTotal,
   } = useAdvSearchLogic();
 
@@ -109,6 +112,7 @@ function AdvancedSearchPage() {
       maxPrice: _maxPrice,
     },
     date: advDate,
+    rating: selectedRating,
     sortBy: advSort,
     titleOnly,
     exact: exactWords,
@@ -359,7 +363,7 @@ function AdvancedSearchPage() {
                 />
               </div>
               <div className="flex-shrink-0">
-                <CalificacionEstrella />
+                <CalificacionEstrella value={selectedRating} onChange={setSelectedRating} />
               </div>
             </div>
 
@@ -380,6 +384,8 @@ function AdvancedSearchPage() {
                 // reset date filter
                 setSelectedDateFilter('specific');
                 setSelectedSpecificDate(null);
+                // reset rating
+                setSelectedRating(null);
                 // notify children (DropdownList, PriceRangeList) to clear
                 setClearSignal((s) => s + 1);
                 // fetch global total again (hook exposes helper)

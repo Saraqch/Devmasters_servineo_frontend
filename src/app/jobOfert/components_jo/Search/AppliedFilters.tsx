@@ -125,6 +125,20 @@ export default function AppliedFilters({ params, onClear, onModify }: Props) {
                   return;
                 }
 
+                // Special display for rating
+                if (k === 'rating') {
+                  // v can be number|string|boolean|null; coerce safely to number without using `any`
+                  const r = Number(v as string | number | boolean);
+                  if (!Number.isNaN(r)) {
+                    tags.push(
+                      <span key={k} className="inline-block bg-sky-50 text-sky-500 text-sm px-3 py-1 rounded">
+                        {`Calificación: ${r}★`}
+                      </span>,
+                    );
+                  }
+                  return;
+                }
+
                 let value = renderValue(v as FilterParamValue);
                 if (!value) return;
                 // If the value contains a dollar sign, convert to 'bs' like in selectors

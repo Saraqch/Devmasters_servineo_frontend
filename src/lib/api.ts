@@ -1,6 +1,5 @@
 // lib/api.ts
 export const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'https://devmasters-servineo-backend-tdck.vercel.app';
-//export const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8080';
 
 export interface ApiResponse<T> {
   success: boolean;
@@ -10,7 +9,7 @@ export interface ApiResponse<T> {
 }
 
 interface RequestConfig extends RequestInit {
-  timeout?: number; // opcional si quieres manejar timeout
+  timeout?: number;
 }
 
 class ApiClient {
@@ -26,10 +25,25 @@ class ApiClient {
     const { timeout, ...fetchConfig } = config;
 
     try {
+      let sessionId = '';
+      
+      // ✅ CAMBIO: Siempre leer del localStorage
+      if (typeof window !== 'undefined') {
+        sessionId = localStorage.getItem('sessionId') || '';
+      }
+
+      const endpointWithSid = sessionId
+        ? endpoint.includes('?')
+          ? `${endpoint}&sessionId=${encodeURIComponent(sessionId)}`
+          : `${endpoint}?sessionId=${encodeURIComponent(sessionId)}`
+        : endpoint;
+
+      const finalUrl = `${this.baseURL}${endpointWithSid}`;
+
       const controller = new AbortController();
       const id = setTimeout(() => controller.abort(), timeout || this.defaultTimeout);
 
-      const res = await fetch(`${this.baseURL}${endpoint}`, {
+      const res = await fetch(finalUrl, {
         ...fetchConfig,
         signal: controller.signal,
         headers: {
@@ -40,7 +54,16 @@ class ApiClient {
 
       clearTimeout(id);
 
-      const data = await res.json();
+      const data = await res.json().catch(() => null);
+
+      // ✅ CAMBIO: Si el backend devuelve un sessionId, SIEMPRE guardarlo
+      if (typeof window !== 'undefined' && data && data.sessionId) {
+        const currentSid = localStorage.getItem('sessionId');
+        if (currentSid !== data.sessionId) {
+          console.log('🔄 Actualizando sessionId:', data.sessionId);
+          localStorage.setItem('sessionId', data.sessionId);
+        }
+      }
 
       if (!res.ok) {
         return { success: false, error: data?.message || 'Error en la solicitud' };
@@ -81,5 +104,4 @@ class ApiClient {
   }
 }
 
-// Exporta una instancia lista para usar
 export const api = new ApiClient(API_BASE_URL);

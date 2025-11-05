@@ -215,11 +215,9 @@ export default function JobOffersPage() {
           isDrawerOpen ? 'z-10' : 'z-50'
         }`}
       >
-        <div className="flex flex-row items-center gap-2 mb-3">
+        <div className="flex 1 gap-2">
           <FilterButton onClick={toggleDrawer} />
-          <div className="flex-1">
-            <SearchBar onSearch={handleSearchSubmit} />
-          </div>
+          <SearchBar onSearch={handleSearchSubmit} />
         </div>
 
         {!loading && trabajos.length > 0 && (

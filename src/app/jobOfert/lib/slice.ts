@@ -65,7 +65,7 @@ interface FetchOffersParams {
 
 export const fetchOffers = createAsyncThunk(
   'jobOffers/fetchOffers',
-  async (params: FetchOffersParams, { rejectWithValue, dispatch }) => {
+  async (params: FetchOffersParams, { rejectWithValue}) => {
     try {
       const urlParams = new URLSearchParams();
 
@@ -100,38 +100,13 @@ export const fetchOffers = createAsyncThunk(
       if (response.success && response.data) {
           const totalPages = Math.ceil(response.data.total / params.limit) || 1;
 
-        // Validar si la página solicitada existe
-        if (params.page > totalPages && totalPages > 0) {
-          // Si la página no existe, hacer una nueva petición a página 1
-          console.warn(`Página ${params.page} no existe. Total de páginas: ${totalPages}. Redirigiendo a página 1.`);
-          
-          // Actualizar la página actual a 1
-          dispatch(setPaginaActual(1));
-          
-          // Hacer una nueva petición a página 1
-          urlParams.set('page', '1');
-          const retryUrl = `/api/devmaster/offers?${urlParams.toString()}`;
-          const retryResponse: ApiResponse<OfferResponse> = await api.get(retryUrl);
-          
-          if (retryResponse.success && retryResponse.data) {
-            return {
-              data: retryResponse.data.data,
-              total: retryResponse.data.total,
-              page: 1,
-              limit: params.limit,
-              totalPages: totalPages,
-              wasRedirected: true,
-            };
-          }
-        }
-
         return {
           data: response.data.data,
           total: response.data.total,
           page: params.page,
           limit: params.limit,
           totalPages: totalPages,
-          wasRedirected: false,
+          requestedPage: params.page,
         };
       } else {
         return rejectWithValue(response.error || 'Error al cargar las ofertas');
@@ -185,9 +160,15 @@ const jobOffersSlice = createSlice({
         state.totalPages = action.payload.totalPages;
         
         // Si hubo redirección automática, mostrar info en consola
-        if (action.payload.wasRedirected) {
-          console.info('Se redirigió automáticamente a la página 1 porque la página solicitada no existe');
+        if (action.payload.requestedPage > action.payload.totalPages && action.payload.totalPages > 0) {
+          // Si la página no existe, ajustar a página 1
+          console.warn(`Página ${action.payload.requestedPage} no existe. Total de páginas: ${action.payload.totalPages}. Ajustando a página 1.`);
+          state.paginaActual = 1;
+        } else {
+          state.paginaActual = action.payload.page;
         }
+        
+        state.registrosPorPagina = action.payload.limit;
       })
       .addCase(fetchOffers.rejected, (state, action) => {
         state.loading = false;

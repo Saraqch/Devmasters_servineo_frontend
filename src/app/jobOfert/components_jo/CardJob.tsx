@@ -1,6 +1,30 @@
 "use client"
 
-import React, { useMemo } from 'react';
+import React, { useMemo, useCallback } from 'react';
+import Image from 'next/image';
+
+// Mapeo de imágenes por categoría (3 imágenes por cada una)
+const categoryImages: {[key: string]: string[]} = {
+  "Albañil": ["/img/albañil1.jpg", "/img/albañil2.jpg", "/img/albañil3.jpg"],
+  "Carpintero": ["/img/carpintero1.jpg", "/img/carpintero2.jpg", "/img/carpintero3.jpg"],
+  "Fontanero": ["/img/fontanero1.jpg", "/img/fontanero2.jpg", "/img/fontanero3.jpg"],
+  "Electricista": ["/img/electricista1.jpg", "/img/electricista2.jpg", "/img/electricista3.jpg"],
+  "Pintor": ["/img/pintor1.jpg", "/img/pintor2.jpg", "/img/pintor3.jpg"],
+  "Soldador": ["/img/soldador1.jpg", "/img/soldador2.jpg", "/img/soldador3.jpg"],
+  "Jardinero": ["/img/jardinero1.jpg", "/img/jardinero2.jpg", "/img/jardinero3.jpg"],
+  "Cerrajero": ["/img/cerrajero1.jpg", "/img/cerrajero2.jpg", "/img/cerrajero3.jpg"],
+  "Mecánico": ["/img/mecanico1.jpg", "/img/mecanico2.jpg", "/img/mecanico3.jpg"],
+  "Vidriero": ["/img/vidriero1.jpg", "/img/vidriero2.jpg", "/img/vidriero3.jpg"],
+  "Yesero": ["/img/yesero1.jpg", "/img/yesero2.jpg", "/img/yesero3.jpg"],
+  "Fumigador": ["/img/fumigador1.jpg", "/img/fumigador2.jpg", "/img/fumigador3.jpg"],
+  "Limpiador": ["/img/limpiador1.jpg", "/img/limpiador2.jpg", "/img/limpiador3.jpg"],
+  "Instalador": ["/img/instalador1.jpg", "/img/instalador2.jpg", "/img/instalador3.jpg"],
+  "Montador": ["/img/montador1.jpg", "/img/montador2.jpg", "/img/montador3.jpg"],
+  "Decorador": ["/img/decorador1.jpg", "/img/decorador2.jpg", "/img/decorador3.jpg"],
+  "Pulidor": ["/img/pulidor1.jpg", "/img/pulidor2.jpg", "/img/pulidor3.jpg"],
+  "Techador": ["/img/techador1.jpg", "/img/techador2.jpg", "/img/techador3.jpg"],
+  "Default": ["/img/default1.jpg", "/img/default2.jpg", "/img/default3.jpg"]
+};
 
 interface OfferData {
   _id: string;
@@ -26,31 +50,8 @@ const CardJob = ({ trabajos }: CardJobProps) => {
     console.log('Card clicked:', id);
   };
 
-  // Mapeo de imágenes por categoría (3 imágenes por cada una)
-  const categoryImages: {[key: string]: string[]} = {
-    "Albañil": ["/img/albañil1.jpg", "/img/albañil2.jpg", "/img/albañil3.jpg"],
-    "Carpintero": ["/img/carpintero1.jpg", "/img/carpintero2.jpg", "/img/carpintero3.jpg"],
-    "Fontanero": ["/img/fontanero1.jpg", "/img/fontanero2.jpg", "/img/fontanero3.jpg"],
-    "Electricista": ["/img/electricista1.jpg", "/img/electricista2.jpg", "/img/electricista3.jpg"],
-    "Pintor": ["/img/pintor1.jpg", "/img/pintor2.jpg", "/img/pintor3.jpg"],
-    "Soldador": ["/img/soldador1.jpg", "/img/soldador2.jpg", "/img/soldador3.jpg"],
-    "Jardinero": ["/img/jardinero1.jpg", "/img/jardinero2.jpg", "/img/jardinero3.jpg"],
-    "Cerrajero": ["/img/cerrajero1.jpg", "/img/cerrajero2.jpg", "/img/cerrajero3.jpg"],
-    "Mecánico": ["/img/mecanico1.jpg", "/img/mecanico2.jpg", "/img/mecanico3.jpg"],
-    "Vidriero": ["/img/vidriero1.jpg", "/img/vidriero2.jpg", "/img/vidriero3.jpg"],
-    "Yesero": ["/img/yesero1.jpg", "/img/yesero2.jpg", "/img/yesero3.jpg"],
-    "Fumigador": ["/img/fumigador1.jpg", "/img/fumigador2.jpg", "/img/fumigador3.jpg"],
-    "Limpiador": ["/img/limpiador1.jpg", "/img/limpiador2.jpg", "/img/limpiador3.jpg"],
-    "Instalador": ["/img/instalador1.jpg", "/img/instalador2.jpg", "/img/instalador3.jpg"],
-    "Montador": ["/img/montador1.jpg", "/img/montador2.jpg", "/img/montador3.jpg"],
-    "Decorador": ["/img/decorador1.jpg", "/img/decorador2.jpg", "/img/decorador3.jpg"],
-    "Pulidor": ["/img/pulidor1.jpg", "/img/pulidor2.jpg", "/img/pulidor3.jpg"],
-    "Techador": ["/img/techador1.jpg", "/img/techador2.jpg", "/img/techador3.jpg"],
-    "Default": ["/img/default1.jpg", "/img/default2.jpg", "/img/default3.jpg"]
-  };
-
   // Función para obtener una imagen basada en el ID (determinística)
-  const getImageForJob = (jobId: string, category: string): string => {
+  const getImageForJob = useCallback((jobId: string, category: string): string => {
     const images = categoryImages[category] || categoryImages["Default"];
     // Usar el ID para generar un índice consistente
     let hash = 0;
@@ -59,7 +60,7 @@ const CardJob = ({ trabajos }: CardJobProps) => {
     }
     const index = Math.abs(hash) % images.length;
     return images[index];
-  };
+  }, []);
 
   // Memorizar las imágenes asignadas para cada trabajo
   const trabajosConImagenes = useMemo(() => {
@@ -67,7 +68,7 @@ const CardJob = ({ trabajos }: CardJobProps) => {
       ...trabajo,
       imagenAsignada: trabajo.imagenUrl || getImageForJob(trabajo._id, trabajo.category)
     }));
-  }, [trabajos]);
+  }, [trabajos, getImageForJob]);
 
   return (
     <div className="w-full">
@@ -88,10 +89,12 @@ const CardJob = ({ trabajos }: CardJobProps) => {
               >
                 {/* Imagen */}
                 <div className="relative w-full sm:w-48 h-48 sm:h-50 flex-shrink-0 overflow-hidden bg-gray-200">
-                  <img 
-                    src={t.imagenAsignada} 
+                  <Image
+                    src={t.imagenAsignada}
                     alt={`Trabajo de ${t.fixerName}`}
-                    className="w-full h-full object-cover"
+                    fill
+                    sizes="(max-width: 640px) 100vw, 12rem"
+                    className="object-cover"
                   />
                   
                   {/* Ciudad - Dentro de la imagen */}

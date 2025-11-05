@@ -1,3 +1,5 @@
+"use client";
+
 import React from 'react';
 import { Input } from '@/components/ui/input';
 import { SearchIcon } from './SearchIcon';
@@ -16,7 +18,19 @@ interface SearchHistoryItem {
   searchTerm: string;
 }
 
+// NOTE: getOrCreateSessionId must NOT run at module import time (server).
+// It will be defined inside the component below so it only runs on the client.
+
 export const SearchBar = ({ onSearch, onFilter }: SearchBarProps) => {
+  // Obtener o crear sessionId (cliente)
+  const getOrCreateSessionId = React.useCallback(() => {
+    let sessionId = localStorage.getItem('sessionId');
+    if (!sessionId) {
+      sessionId = `client-${Date.now()}-${Math.floor(Math.random() * 10000)}`;
+      localStorage.setItem('sessionId', sessionId);
+    }
+    return sessionId;
+  }, []);
   const [value, setValue] = React.useState('');
   const [error, setError] = React.useState<string | undefined>();
   const [isOpen, setIsOpen] = React.useState(false);
@@ -27,15 +41,7 @@ export const SearchBar = ({ onSearch, onFilter }: SearchBarProps) => {
 
   const HISTORY_KEY = 'job_search_history_v1';
 
-  // Obtener o crear sessionId
-  const getOrCreateSessionId = () => {
-    let sessionId = localStorage.getItem('sessionId');
-    if (!sessionId) {
-      sessionId = `client-${Date.now()}-${Math.floor(Math.random() * 10000)}`;
-      localStorage.setItem('sessionId', sessionId);
-    }
-    return sessionId;
-  };
+  // (getOrCreateSessionId moved to module scope)
 
   const deleteFromBackend = async (searchTerm: string) => {
     try {
@@ -70,8 +76,7 @@ export const SearchBar = ({ onSearch, onFilter }: SearchBarProps) => {
       return false;
     }
   };
-
-  const fetchHistoryFromBackend = async (searchTerm: string = '') => {
+  const fetchHistoryFromBackend = React.useCallback(async (searchTerm: string = '') => {
     try {
       const sessionId = getOrCreateSessionId();
       const url = `${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000'}/api/devmaster/offers?action=getHistory&search=${encodeURIComponent(searchTerm)}&sessionId=${encodeURIComponent(sessionId)}`;
@@ -90,7 +95,7 @@ export const SearchBar = ({ onSearch, onFilter }: SearchBarProps) => {
       console.error('Error obteniendo historial del backend:', error);
       return [];
     }
-  };
+  }, [getOrCreateSessionId]);
 
   const loadHistory = () => {
     try {
@@ -231,7 +236,7 @@ export const SearchBar = ({ onSearch, onFilter }: SearchBarProps) => {
     };
   
     loadInitialHistory();
-  }, []);
+  }, [fetchHistoryFromBackend]);
 
   // Filtrado dinámico mientras escribe
   React.useEffect(() => {
@@ -241,7 +246,7 @@ export const SearchBar = ({ onSearch, onFilter }: SearchBarProps) => {
     }, 300); // Debounce de 300ms
   
     return () => clearTimeout(timer);
-  }, [value]);
+  }, [value, fetchHistoryFromBackend]);
 
   const visibleHistory = React.useMemo(() => history.slice(0, 5), [history]);
   

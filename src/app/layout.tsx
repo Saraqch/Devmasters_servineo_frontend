@@ -25,7 +25,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className={roboto.className}>
+    <html lang="en" className={`${roboto.className} ${geistSans.variable} ${geistMono.variable}`}>
       <body className="antialiased">
         <Providers>{children}</Providers>
       </body>

@@ -29,6 +29,7 @@ export const SearchBar = ({ onSearch, onFilter }: SearchBarProps) => {
   const [error, setError] = React.useState<string | undefined>();
   const [isOpen, setIsOpen] = React.useState(false);
   const [history, setHistory] = React.useState<string[]>([]);
+  const [suggestionsFromBackend, setSuggestionsFromBackend] = React.useState<string[]>([]);
   const [highlighted, setHighlighted] = React.useState<number>(-1);
   const containerRef = React.useRef<HTMLDivElement | null>(null);
   const inputRef = React.useRef<HTMLInputElement | null>(null);
@@ -225,8 +226,27 @@ export const SearchBar = ({ onSearch, onFilter }: SearchBarProps) => {
   // Filtrado dinámico mientras escribe
   React.useEffect(() => {
     const timer = setTimeout(async () => {
-      const filteredHistory = await fetchHistoryFromBackend(value.trim());
+      const q = value.trim();
+      const [filteredHistory, fetchedSuggestions] = await Promise.all([
+        fetchHistoryFromBackend(q),
+        (async () => {
+          try {
+            if (!q || q.length === 0) return [] as string[];
+            const endpoint = `/api/devmaster/offers?search=${encodeURIComponent(q)}&limit=6&record=false`;
+            const resp = await api.get<any>(endpoint);
+            if (resp.success && resp.data && Array.isArray((resp.data as any).suggestions)) {
+              return ((resp.data as any).suggestions as any[]).map((s) => String(s.term));
+            }
+            return [] as string[];
+          } catch (e) {
+            console.error('Error fetching suggestions from backend', e);
+            return [] as string[];
+          }
+        })(),
+      ]);
+
       setHistory(filteredHistory);
+      setSuggestionsFromBackend(fetchedSuggestions);
     }, 300); // Debounce de 300ms
   
     return () => clearTimeout(timer);
@@ -234,27 +254,10 @@ export const SearchBar = ({ onSearch, onFilter }: SearchBarProps) => {
 
   const visibleHistory = React.useMemo(() => history.slice(0, 5), [history]);
   
-  const sampleSuggestions = React.useMemo(
-    () => [
-      'Albañil',
-      'Carpintero',
-      'Electricista',
-      'Fontanero',
-      'Plomero',
-      'Pintor',
-      'Cerrajero',
-      'Jardinero',
-    ],
-    []
-  );
-
-  const filteredSuggestions = React.useMemo(() => {
-    const q = value.trim().toLowerCase();
-    if (q.length === 0) return [] as string[];
-    return sampleSuggestions.filter((s) => s.toLowerCase().includes(q));
-  }, [value, sampleSuggestions]);
-
-  const visibleSuggestions = React.useMemo(() => filteredSuggestions.slice(0, 5), [filteredSuggestions]);
+  const visibleSuggestions = React.useMemo(() => {
+    if (!suggestionsFromBackend || suggestionsFromBackend.length === 0) return [] as string[];
+    return suggestionsFromBackend.slice(0, 5);
+  }, [suggestionsFromBackend]);
 
   const visibleCombined = React.useMemo(() => {
     return [...visibleHistory, ...visibleSuggestions];
@@ -484,7 +487,7 @@ export const SearchBar = ({ onSearch, onFilter }: SearchBarProps) => {
                     </div>
                   </div>
 
-                  {filteredSuggestions.length === 0 ? (
+                  {visibleSuggestions.length === 0 ? (
                     <div className="p-3 text-sm text-slate-500">No hay sugerencias</div>
                   ) : (
                     <ul>

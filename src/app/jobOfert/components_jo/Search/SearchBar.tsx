@@ -12,6 +12,10 @@ interface SearchBarProps {
   onFilter?: () => void;
 }
 
+interface SearchHistoryItem {
+  searchTerm: string;
+}
+
 export const SearchBar = ({ onSearch, onFilter }: SearchBarProps) => {
   const [value, setValue] = React.useState('');
   const [error, setError] = React.useState<string | undefined>();
@@ -78,7 +82,7 @@ export const SearchBar = ({ onSearch, onFilter }: SearchBarProps) => {
       console.log('Fetch history response:', data);
       
       if (data.success && data.searchHistory) {
-        return data.searchHistory.map((item: any) => item.searchTerm);
+        return (data.searchHistory as SearchHistoryItem[]).map((item) => item.searchTerm);
       }
       
       return [];
@@ -155,7 +159,7 @@ export const SearchBar = ({ onSearch, onFilter }: SearchBarProps) => {
     if (success) {
       // Luego recargamos el historial completo desde el backend
       // IMPORTANTE: Pasar string vacío para obtener TODO el historial activo
-      const updatedHistory = await fetchHistoryFromBackend('');
+  const updatedHistory = await fetchHistoryFromBackend('');
       console.log('Updated history after delete:', updatedHistory);
       
       setHistory(updatedHistory);

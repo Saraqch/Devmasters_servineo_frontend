@@ -172,10 +172,11 @@ const jobOffersSlice = createSlice({
         // Si hubo redirección automática, mostrar info en consola
         if (action.payload.requestedPage > action.payload.totalPages && action.payload.totalPages > 0) {
           // Si la página no existe, ajustar a página 1
-          console.warn(`Página ${action.payload.requestedPage} no existe. Total de páginas: ${action.payload.totalPages}. Ajustando a página 1.`);
+          state.error = `Página ${action.payload.requestedPage} no existe. Total de páginas: ${action.payload.totalPages}. Ajustando a página 1.`;
           state.paginaActual = 1;
         } else {
           state.paginaActual = action.payload.page;
+          state.error = null;
         }
         
         state.registrosPorPagina = action.payload.limit;

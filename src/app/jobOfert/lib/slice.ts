@@ -39,6 +39,17 @@ interface JobOffersState {
   totalRegistros: number;
 }
 
+const getStoredValue = (key: string, defaultValue: any) => {
+  if (typeof window === 'undefined') return defaultValue;
+  try{
+  const item = window.localStorage.getItem(key);
+    return item ? JSON.parse(item) : defaultValue;
+  }catch (error){
+     console.error(`Error reading localStorage key "${key}":`, error);
+    return defaultValue;
+  }
+}
+
 const initialState: JobOffersState = {
   trabajos: [],
   loading: true,
@@ -46,8 +57,8 @@ const initialState: JobOffersState = {
   filters: { range: [], city: '', category: [] },
   sortBy: 'recent',
   search: '',
-  paginaActual: 1,
-  registrosPorPagina: 10,
+  paginaActual: getStoredValue('jobOffers_paginaActual', 1),
+  registrosPorPagina: getStoredValue('jobOffers_registrosPorPagina', 10),
   totalRegistros: 0,
 };
 
@@ -126,15 +137,32 @@ const jobOffersSlice = createSlice({
     setRegistrosPorPagina: (state, action: PayloadAction<number>) => {
       state.registrosPorPagina = action.payload;
       state.paginaActual = 1;
+      if (typeof window !== 'undefined') {
+         localStorage.setItem('jobOffers_registrosPorPagina', JSON.stringify(action.payload));
+      }
     },
     setPaginaActual: (state, action: PayloadAction<number>) => {
       state.paginaActual = action.payload;
+        if (typeof window !== 'undefined') {
+        localStorage.setItem('jobOffers_paginaActual', JSON.stringify(action.payload));
+      }
     },
     resetFilters: (state) => {
       state.filters = { range: [], city: '', category: [] };
       state.sortBy = 'recent';
       state.search = '';
       state.paginaActual = 1;
+      if (typeof window !== 'undefined') {
+        localStorage.setItem('jobOffers_paginaActual', JSON.stringify(1));
+      }
+    },
+    clearPersistedState: (state) => {
+      if (typeof window !== 'undefined') {
+        localStorage.removeItem('jobOffers_paginaActual');
+        localStorage.removeItem('jobOffers_registrosPorPagina');
+      }
+      state.paginaActual = 1;
+      state.registrosPorPagina = 10;
     },
   },
   extraReducers: (builder) => {
@@ -149,6 +177,10 @@ const jobOffersSlice = createSlice({
         state.totalRegistros = action.payload.total;
         state.paginaActual = action.payload.page;
         state.registrosPorPagina = action.payload.limit;
+        if (typeof window !== 'undefined') {
+          localStorage.setItem('jobOffers_paginaActual', JSON.stringify(action.payload.page));
+          localStorage.setItem('jobOffers_registrosPorPagina', JSON.stringify(action.payload.limit));
+        }
       })
       .addCase(fetchOffers.rejected, (state, action) => {
         state.loading = false;
@@ -165,6 +197,7 @@ export const {
   setRegistrosPorPagina,
   setPaginaActual,
   resetFilters,
+  clearPersistedState,
 } = jobOffersSlice.actions;
 
 export default jobOffersSlice.reducer;

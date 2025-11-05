@@ -10,14 +10,14 @@ export function ResultsCounter({ total, loading = false }: ResultsCounterProps) 
   return (
     <div className="flex flex-col items-center justify-center py-8 px-4">
       {/* Título FUERA de la forma - letra más grande */}
-      <p className="text-sm font-bold text-gray-900 mb-4 text-center leading-tight">
+      <p className="text-sm font-bold text-gray-900 mb-1 text-center leading-tight">
         CANTIDAD
         <br />
         DE RESULTADOS
       </p>
       
       {/* Contenedor con forma de escudo - más ancho */}
-      <div className="relative w-36 h-36">
+      <div className="relative w-34 h-34">
         {/* Forma de escudo SVG */}
         <svg 
           viewBox="0 0 120 150" 

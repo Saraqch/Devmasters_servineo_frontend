@@ -1,5 +1,6 @@
 import { createSlice, createAsyncThunk, PayloadAction } from '@reduxjs/toolkit';
 import { api, ApiResponse } from '@/lib/api';
+import { JOBOFERT_ALLOWED_LIMITS } from '../validators/pagination.validator';
 
 export interface OfferData {
   _id: string;
@@ -19,6 +20,8 @@ interface OfferResponse {
   total: number;
   count: number;
   data: OfferData[];
+  currentPage?: number;
+  totalPages?: number;
 }
 
 export interface FilterState {
@@ -37,6 +40,7 @@ interface JobOffersState {
   paginaActual: number;
   registrosPorPagina: number;
   totalRegistros: number;
+  totalPages: number;
 }
 
 const getStoredValue = (key: string, defaultValue: any): any => {
@@ -48,6 +52,17 @@ const getStoredValue = (key: string, defaultValue: any): any => {
     console.error(`Error reading localStorage key "${key}":`, error);
     return defaultValue;
   }
+const initialState: JobOffersState = {
+  trabajos: [],
+  loading: true,
+  error: null,
+  filters: { range: [], city: '', category: [] },
+  sortBy: 'recent',
+  search: '',
+  paginaActual: 1,
+  registrosPorPagina: 10,
+  totalRegistros: 0,
+  totalPages: 0,
 };
 const getInitialJobOffersState = () => {
   // Verificar si existe una página guardada
@@ -86,8 +101,14 @@ interface FetchOffersParams {
 
 export const fetchOffers = createAsyncThunk(
   'jobOffers/fetchOffers',
-  async (params: FetchOffersParams, { rejectWithValue }) => {
+  async (params: FetchOffersParams, { rejectWithValue}) => {
     try {
+
+      // Validar que el límite sea uno de los permitidos
+      if (!JOBOFERT_ALLOWED_LIMITS.includes(params.limit as any)) {
+        return rejectWithValue(`Límite no permitido. Valores permitidos: ${JOBOFERT_ALLOWED_LIMITS.join(', ')}`);
+      }
+
       const urlParams = new URLSearchParams();
 
       if (params.searchText.trim()) {
@@ -119,11 +140,15 @@ export const fetchOffers = createAsyncThunk(
       const response: ApiResponse<OfferResponse> = await api.get(url);
 
       if (response.success && response.data) {
+          const totalPages = Math.ceil(response.data.total / params.limit) || 1;
+
         return {
           data: response.data.data,
           total: response.data.total,
           page: params.page,
           limit: params.limit,
+          totalPages: totalPages,
+          requestedPage: params.page,
         };
       } else {
         return rejectWithValue(response.error || 'Error al cargar las ofertas');
@@ -162,6 +187,10 @@ const jobOffersSlice = createSlice({
       state.paginaActual = 1;
       if (typeof window !== 'undefined') {
         localStorage.setItem('jobOffers_registrosPorPagina', JSON.stringify(action.payload));
+      // Validar que el límite sea permitido
+      if (JOBOFERT_ALLOWED_LIMITS.includes(action.payload as any)) {
+        state.registrosPorPagina = action.payload;
+        state.paginaActual = 1;
       }
     },
     setPaginaActual: (state, action: PayloadAction<number>) => {
@@ -218,6 +247,19 @@ const jobOffersSlice = createSlice({
           localStorage.setItem('jobOffers_paginaActual', JSON.stringify(action.payload.page));
           localStorage.setItem('jobOffers_registrosPorPagina', JSON.stringify(action.payload.limit));
         }
+        state.totalPages = action.payload.totalPages;
+        
+        // Si hubo redirección automática, mostrar info en consola
+        if (action.payload.requestedPage > action.payload.totalPages && action.payload.totalPages > 0) {
+          // Si la página no existe, ajustar a página 1
+          state.error = `Página ${action.payload.requestedPage} no existe. Total de páginas: ${action.payload.totalPages}. Ajustando a página 1.`;
+          state.paginaActual = 1;
+        } else {
+          state.paginaActual = action.payload.page;
+          state.error = null;
+        }
+        
+        state.registrosPorPagina = action.payload.limit;
       })
       .addCase(fetchOffers.rejected, (state, action) => {
         state.loading = false;

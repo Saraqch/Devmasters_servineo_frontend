@@ -3,7 +3,7 @@
 import { Fragment } from 'react';
 import { Listbox, Transition } from '@headlessui/react';
 import { ChevronDown } from 'lucide-react';
-import { validatePagination } from '../../validators/pagination.validator';
+import { validatePagination, JOBOFERT_ALLOWED_LIMITS } from '../../validators/pagination.validator';
 
 interface PaginationSelectorProps {
   registrosPorPagina: number;
@@ -14,7 +14,7 @@ const PaginationSelector: React.FC<PaginationSelectorProps> = ({
   registrosPorPagina,
   onChange,
 }) => {
-  const opciones = [10, 20, 50, 100];
+  const opciones = [...JOBOFERT_ALLOWED_LIMITS];
 
   const handleChange = (valor: number) => {
     // Validamos usando Zod

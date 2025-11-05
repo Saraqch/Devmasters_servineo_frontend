@@ -1,3 +1,4 @@
+// src/app/jobOfert/page.tsx
 'use client';
 
 import React, { useEffect, useRef, useState } from 'react';
@@ -26,6 +27,7 @@ import {
 } from './lib/slice';
 import { getSortValue, sortMapInverse } from './lib/constants/sortOptions';
 import { useSyncUrlParams } from './hooks/useSyncUrlParams';
+import { useInitialUrlParams } from './hooks/useInitialUrlParams';
 
 export default function JobOffersPage() {
   const dispatch = useAppDispatch();
@@ -43,9 +45,10 @@ export default function JobOffersPage() {
 
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
   const stickyRef = useRef<HTMLDivElement | null>(null);
-  const isInitialMount = useRef(true);
+  // Hook para leer parámetros iniciales de la URL
+  useInitialUrlParams();
 
-  // --- Sincroniza URL ---
+  // Sincroniza URL con el estado
   useSyncUrlParams({
     search,
     filters,
@@ -72,6 +75,7 @@ export default function JobOffersPage() {
     }
   }, [dispatch,search, filters, sortBy, paginaActual, registrosPorPagina]);
 
+ feature/john_paginacion
   // --- Sticky header handler ---
   useEffect(() => {
     if (typeof window === 'undefined') return;

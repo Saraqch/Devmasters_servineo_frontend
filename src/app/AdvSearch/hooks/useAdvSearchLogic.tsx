@@ -176,8 +176,16 @@ export default function useAdvSearchLogic() {
     params.set('page', '1');
     params.set('limit', '10');
     if (typeof window !== 'undefined') {
+      try {
+        window.sessionStorage.setItem('fromAdv', 'true');
+      } catch {
+        // ignore
+      }
+      // ensure the query also contains the flag (backup)
+      params.set('fromAdv', 'true');
       window.location.href = `/jobOfert?${params.toString()}`;
     } else {
+      params.set('fromAdv', 'true');
       router.push(`/jobOfert?${params.toString()}`);
     }
   };

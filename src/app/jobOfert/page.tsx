@@ -45,6 +45,7 @@ export default function JobOffersPage() {
 
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
   const stickyRef = useRef<HTMLDivElement | null>(null);
+   const isInitialMount = useRef(true);
   // Hook para leer parámetros iniciales de la URL
   useInitialUrlParams();
 
@@ -74,8 +75,6 @@ export default function JobOffersPage() {
       isInitialMount.current = false;
     }
   }, [dispatch,search, filters, sortBy, paginaActual, registrosPorPagina]);
-
- feature/john_paginacion
   // --- Sticky header handler ---
   useEffect(() => {
     if (typeof window === 'undefined') return;

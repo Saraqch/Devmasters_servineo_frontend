@@ -15,6 +15,22 @@ export const InputOnlySearch = ({ onSearch, onValueChange }: InputOnlySearchProp
   const [value, setValue] = React.useState('');
   const [error, setError] = React.useState<string | undefined>();
 
+  // On mount, if there's a `search` query param (coming from AdvSearch "Modificar"), populate the input
+  React.useEffect(() => {
+    if (typeof window === 'undefined') return;
+    try {
+      const sp = new URLSearchParams(window.location.search);
+      const s = sp.get('search');
+      if (s && s.length && value === '') {
+        setValue(s);
+        if (typeof onValueChange === 'function') onValueChange(s);
+      }
+    } catch {
+      // ignore
+    }
+  // run once
+  }, []);
+
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setValue(e.target.value);
   if (typeof onValueChange === 'function') onValueChange(e.target.value);

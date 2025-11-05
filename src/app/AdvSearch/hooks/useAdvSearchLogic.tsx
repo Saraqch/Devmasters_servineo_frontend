@@ -192,6 +192,75 @@ export default function useAdvSearchLogic() {
     );
   };
 
+  // On mount: if the page was opened with query params (e.g. via "Modificar"), restore the local UI state.
+  // Keep this minimal and local to the hook so we don't modify page.tsx.
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    const sp = new URLSearchParams(window.location.search);
+    if (!sp.toString()) return;
+
+    // prevent immediate URL sync from overwriting restored values
+    if (skipSyncRef) skipSyncRef.current = true;
+
+    const search = sp.get('search');
+    if (search != null) setSearchQuery(search);
+    const titleOnlyP = sp.get('titleOnly');
+    if (titleOnlyP != null) setTitleOnly(titleOnlyP === 'true');
+    const exactP = sp.get('exact');
+    if (exactP != null) setExactWords(exactP === 'true');
+
+    const ranges = sp.getAll('range');
+    if (ranges.length) setSelectedRanges(ranges);
+
+    const city = sp.get('city');
+    if (city != null) setSelectedCity(city);
+
+    const category = sp.get('category');
+    if (category != null) setSelectedJobs(category.split(',').filter(Boolean));
+
+    const tags = sp.get('tags');
+    if (tags != null) setSelectedTags(tags.split(',').filter(Boolean));
+
+    const min = sp.get('minPrice');
+    const max = sp.get('maxPrice');
+    if (min || max) setSelectedPriceKey(`${min ?? ''}${min && max ? ' - ' : ''}${max ?? ''}`);
+
+    const sort = sp.get('sortBy') ?? sp.get('sort');
+    if (sort === 'recent') setSelectedDateFilter('recent');
+    else if (sort === 'oldest') setSelectedDateFilter('oldest');
+    else {
+      const date = sp.get('date');
+      if (date) {
+        setSelectedDateFilter('specific');
+        const d = new Date(date);
+        if (!Number.isNaN(d.getTime())) setSelectedSpecificDate(d);
+      }
+    }
+
+    const rating = sp.get('rating');
+    if (rating != null) {
+      const r = Number(rating);
+      if (!Number.isNaN(r)) setSelectedRating(r);
+    }
+
+    // Open relevant sections so user sees applied filters when returning
+    const shouldOpenFixer = ranges.length > 0;
+    const shouldOpenCiudad = !!city;
+    const shouldOpenTrabajo = !!(category && category.split(',').filter(Boolean).length);
+    const shouldOpenCategorias = !!(tags && tags.split(',').filter(Boolean).length);
+    const shouldOpenPrecio = !!(min || max);
+
+    setOpenSections((prev) => ({
+      ...prev,
+      fixer: shouldOpenFixer || prev.fixer,
+      ciudad: shouldOpenCiudad || prev.ciudad,
+      trabajo: shouldOpenTrabajo || prev.trabajo,
+      categorias: shouldOpenCategorias || prev.categorias,
+      precio: shouldOpenPrecio || prev.precio,
+    }));
+  // run only once on mount
+  }, []);
+
   const handleSearch = (query: string) => {
     setSearchQuery(query);
     skipSyncRef.current = true;

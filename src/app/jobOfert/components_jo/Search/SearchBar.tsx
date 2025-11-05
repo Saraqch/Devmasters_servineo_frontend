@@ -1,6 +1,8 @@
 "use client";
 
 import React from 'react';
+import { api } from '@/lib/api';
+import { ensureSessionId } from '@/lib/session';
 import { Input } from '@/components/ui/input';
 import { SearchIcon } from './SearchIcon';
 import { Clock, X, Trash2, Star, ArrowUpLeft } from 'lucide-react';
@@ -22,15 +24,7 @@ interface SearchHistoryItem {
 // It will be defined inside the component below so it only runs on the client.
 
 export const SearchBar = ({ onSearch, onFilter }: SearchBarProps) => {
-  // Obtener o crear sessionId (cliente)
-  const getOrCreateSessionId = React.useCallback(() => {
-    let sessionId = localStorage.getItem('sessionId');
-    if (!sessionId) {
-      sessionId = `client-${Date.now()}-${Math.floor(Math.random() * 10000)}`;
-      localStorage.setItem('sessionId', sessionId);
-    }
-    return sessionId;
-  }, []);
+  // sessionId se gestiona mediante ensureSessionId() en tiempo de ejecución en cliente
   const [value, setValue] = React.useState('');
   const [error, setError] = React.useState<string | undefined>();
   const [isOpen, setIsOpen] = React.useState(false);
@@ -45,15 +39,12 @@ export const SearchBar = ({ onSearch, onFilter }: SearchBarProps) => {
 
   const deleteFromBackend = async (searchTerm: string) => {
     try {
-      const sessionId = getOrCreateSessionId();
-      const url = `${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000'}/api/devmaster/offers?action=deleteHistory&searchTerm=${encodeURIComponent(searchTerm)}&sessionId=${encodeURIComponent(sessionId)}`;
-    
-      const response = await fetch(url);
-      const data = await response.json();
-      
-      console.log('Delete response:', data);
-      
-      return data.success;
+      // Asegurar sessionId en localStorage
+      ensureSessionId();
+  const endpoint = `/api/devmaster/offers?action=deleteHistory&searchTerm=${encodeURIComponent(searchTerm)}`;
+  const resp = await api.get<unknown>(endpoint);
+      console.log('Delete response:', resp);
+      return resp.success;
     } catch (error) {
       console.error('Error eliminando del backend:', error);
       return false;
@@ -62,40 +53,33 @@ export const SearchBar = ({ onSearch, onFilter }: SearchBarProps) => {
 
   const clearAllHistoryBackend = async () => {
     try {
-      const sessionId = getOrCreateSessionId();
-      const url = `${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000'}/api/devmaster/offers?action=clearAllHistory&sessionId=${encodeURIComponent(sessionId)}`;
-      
-      const response = await fetch(url);
-      const data = await response.json();
-      
-      console.log('Clear all response:', data);
-      
-      return data.success;
+      ensureSessionId();
+  const endpoint = `/api/devmaster/offers?action=clearAllHistory`;
+  const resp = await api.get<unknown>(endpoint);
+      console.log('Clear all response:', resp);
+      return resp.success;
     } catch (error) {
       console.error('Error limpiando historial del backend:', error);
       return false;
     }
   };
+  interface HistoryPayload { searchHistory?: SearchHistoryItem[] }
+
   const fetchHistoryFromBackend = React.useCallback(async (searchTerm: string = '') => {
     try {
-      const sessionId = getOrCreateSessionId();
-      const url = `${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000'}/api/devmaster/offers?action=getHistory&search=${encodeURIComponent(searchTerm)}&sessionId=${encodeURIComponent(sessionId)}`;
-      
-      const response = await fetch(url);
-      const data = await response.json();
-      
-      console.log('Fetch history response:', data);
-      
-      if (data.success && data.searchHistory) {
-        return (data.searchHistory as SearchHistoryItem[]).map((item) => item.searchTerm);
+      ensureSessionId();
+  const endpoint = `/api/devmaster/offers?action=getHistory&search=${encodeURIComponent(searchTerm)}`;
+  const resp = await api.get<HistoryPayload>(endpoint);
+      console.log('Fetch history response:', resp);
+      if (resp.success && resp.data && resp.data.searchHistory) {
+        return (resp.data.searchHistory as SearchHistoryItem[]).map((item) => item.searchTerm);
       }
-      
       return [];
     } catch (error) {
       console.error('Error obteniendo historial del backend:', error);
       return [];
     }
-  }, [getOrCreateSessionId]);
+  }, []);
 
   const loadHistory = () => {
     try {

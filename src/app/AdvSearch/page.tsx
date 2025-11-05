@@ -47,16 +47,28 @@ const JOBS = [
 
 
 // Small helper to parse a price-range key into numeric min/max values.
-// Accepts strings like "$100 - $200", "100-200", "100" and returns {minPrice, maxPrice}.
+// Accepts strings like "$100 - $200", "100-200", "100", "Menos de $90", "Más de $400"
+// and returns {minPrice, maxPrice}. Correctly handles "Menos de" => max, "Más de" => min.
 function parsePriceRange(key: string): { minPrice: number | null; maxPrice: number | null } {
   if (!key) return { minPrice: null, maxPrice: null };
-  // Normalize: remove currency symbols and replace commas with nothing
-  const normalized = key.replace(/[$€£,]/g, '');
-  // Find numbers (integers or decimals)
-  const matches = normalized.match(/-?\d+(?:\.\d+)?/g);
-  if (!matches || matches.length === 0) return { minPrice: null, maxPrice: null };
+  const normalized = key.replace(/[$€£,]/g, '').trim();
+  const lowerLabel = normalized.toLowerCase();
+  const matches = normalized.match(/-?\d+(?:\.\d+)?/g) || [];
+
+  if (/(^|\s)menos(\s|$)|menos\s+de|^<\s*/i.test(lowerLabel)) {
+    if (matches[0]) return { minPrice: null, maxPrice: Number(matches[0]) };
+    return { minPrice: null, maxPrice: null };
+  }
+
+  if (/(^|\s)m(a|á)s(\s|$)|m(a|á)s\s+de|^>\s*/i.test(lowerLabel)) {
+    if (matches[0]) return { minPrice: Number(matches[0]), maxPrice: null };
+    return { minPrice: null, maxPrice: null };
+  }
+
+  if (matches.length >= 2) return { minPrice: Number(matches[0]), maxPrice: Number(matches[1]) };
   if (matches.length === 1) return { minPrice: Number(matches[0]), maxPrice: null };
-  return { minPrice: Number(matches[0]), maxPrice: Number(matches[1]) };
+
+  return { minPrice: null, maxPrice: null };
 }
 
 function AdvancedSearchPage() {

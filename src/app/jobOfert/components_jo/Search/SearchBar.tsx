@@ -188,7 +188,7 @@ export const SearchBar = ({ onSearch, onFilter }: SearchBarProps) => {
   };
 
   const hasError = !!error;
-  const inputClasses = `pl-10 ${value.length > 0 ? 'pr-10' : 'pr-9'} w-full sm:min-w-80 rounded ${
+  const inputClasses = `pl-10 ${value.length > 0 ? 'pr-10' : 'pr-9'} w-full sm:min-w-80 rounded overflow-hidden text-ellipsis ${
     hasError ? 'border-red-500 border-[1.5px] outline-none shadow-[0_0_0_1px_red]' : ''
   }`;
 

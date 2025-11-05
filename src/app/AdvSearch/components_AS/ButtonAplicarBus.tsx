@@ -18,7 +18,7 @@ const ButtonAplicarBus: React.FC<ButtonAplicarBusProps> = ({ onClick, loading = 
           : 'bg-[#2B6AE0] hover:bg-[#265ACC]'
       } text-white font-bold text-sm px-4 py-2 rounded-lg transition-colors duration-300 shadow-md`}
     >
-      {loading ? 'Buscando...' : 'Aplicar Búsqueda'}
+      Aplicar Búsqueda
     </button>
   );
 };

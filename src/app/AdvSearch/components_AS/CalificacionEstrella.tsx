@@ -20,8 +20,8 @@ const CalificacionEstrella: React.FC<Props> = ({ value = null, onChange }) => {
   return (
     <div>
       <h3 className="text-base mb-2">Calificación:</h3>
-      <div className="bg-white rounded-lg border border-gray-300 p-4 w-fit">
-        <div className="flex items-center gap-2">
+      <div className="bg-white rounded-lg border border-gray-300 p-4 w-fit overflow-hidden">
+        <div className="flex items-center gap-2 overflow-hidden">
           {Array.from({ length: totalStars }, (_, idx) => {
             const starNumber = idx + 1;
             const filled = (hoverStar ?? value ?? 0) >= starNumber;

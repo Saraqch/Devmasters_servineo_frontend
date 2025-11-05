@@ -83,6 +83,17 @@ export default function AppliedFilters({ params, onClear, onModify }: Props) {
               Object.entries(params).forEach(([k, v]) => {
                 if (k === 'minPrice' || k === 'maxPrice') return;
 
+                // Show sort tag when provided
+                if (k === 'sortBy' && typeof v === 'string') {
+                  const txt = v === 'recent' ? 'Los más recientes' : v === 'oldest' ? 'Los más antiguos' : String(v);
+                  tags.push(
+                    <span key={k} className="inline-block bg-sky-50 text-sky-500 text-sm px-3 py-1 rounded">
+                      {txt}
+                    </span>,
+                  );
+                  return;
+                }
+
                 if (k === 'titleOnly' && v === true) {
                   tags.push(
                     <span key={k} className="inline-block bg-sky-50 text-sky-500 text-sm px-3 py-1 rounded">

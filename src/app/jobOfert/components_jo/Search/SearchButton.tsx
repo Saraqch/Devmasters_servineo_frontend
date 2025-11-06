@@ -8,16 +8,24 @@ export function SearchButton(props: React.ButtonHTMLAttributes<HTMLButtonElement
   return (
     <Button
       className={`
-        bg-[#2B6AE0] text-white
-        ${disabled ? 'opacity-70 cursor-not-allowed' : 'hover:bg-[#2B6AE0]/90'}
-        w-full sm:w-auto
-        px-4 sm:px-6 
-        py-2 sm:py-5
+        bg-[#2B6AE0] 
+        text-white
+        ${disabled ? 'opacity-70 cursor-not-allowed' : 'hover:bg-[#2B6AE0]/90 active:bg-[#1e4a9f]'}
+        w-auto
+        min-w-[4.5rem] sm:min-w-[5rem]
+        px-3 sm:px-6 
+        h-10 sm:h-11
         text-sm sm:text-base 
         font-semibold 
         rounded 
-        shadow
-        transition-all duration-200
+        shadow-sm
+        hover:shadow-md
+        transition-all 
+        duration-200
+        flex 
+        items-center 
+        justify-center
+        shrink-0
       `}
       disabled={disabled}
       {...rest}

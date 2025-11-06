@@ -26,6 +26,7 @@ import {
 } from './lib/slice';
 import { getSortValue, sortMapInverse } from './lib/constants/sortOptions';
 import { useSyncUrlParams } from './hooks/useSyncUrlParams';
+import { AdvancedSearchButton } from './components_jo/Search/AdvancedSearchButton';
 
 export default function JobOffersPage() {
   const dispatch = useAppDispatch();
@@ -179,9 +180,9 @@ export default function JobOffersPage() {
           isDrawerOpen ? 'z-10' : 'z-50'
         }`}
       >
-        <div className="flex flex-row items-center gap-2 mb-3">
+        <div className="flex flex-row items-start gap-3 mb-3">
           <FilterButton onClick={toggleDrawer} />
-          <div className="flex-1">
+          <div className="flex-1 min-w-0"> 
             <SearchBar onSearch={handleSearchSubmit} />
           </div>
         </div>

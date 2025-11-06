@@ -42,14 +42,23 @@ export const SearchBar = ({ onSearch }: SearchBarProps) => {
   };
 
   const hasError = !!error;
-  const inputClasses = `pl-10 ${value.length > 0 ? 'pr-10' : 'pr-9'} w-full sm:min-w-80 rounded ${
-    hasError ? 'border-red-500 border-[1.5px] outline-none shadow-[0_0_0_1px_red]' : ''
-  }`
+  const inputClasses = `
+    pl-10 
+    ${value.length > 0 ? 'pr-10' : 'pr-3'} 
+    w-full 
+    h-10 sm:h-11
+    text-sm sm:text-base
+    rounded 
+    ${hasError ? 'border-red-500 border-[1.5px] outline-none shadow-[0_0_0_1px_red]' : ''}
+  `.trim();
   
   return (
     <div className="w-full">
-      <div className="flex flex-col w-full sm:flex-row sm:items-center gap-2">
-        <div className="relative flex-1">
+      {/* Contenedor principal - SIEMPRE en fila horizontal */}
+      <div className="flex flex-row items-stretch gap-2">
+        
+        {/* Input de búsqueda con iconos */}
+        <div className="relative flex-1 min-w-0">
           <SearchIcon hasError={hasError} />
           <Input
             type="text"
@@ -62,13 +71,19 @@ export const SearchBar = ({ onSearch }: SearchBarProps) => {
           {value.length > 0 && <ClearButton onClick={handleClear} />}
         </div>
 
-        {/* Contenedor de botones: Buscar + Búsqueda avanzada */}
-        <div className="flex gap-2 w-full sm:w-auto">
-          <SearchButton onClick={handleSearch} />
-          <AdvancedSearchButton />
-        </div>
+        {/* Botón Buscar */}
+        <SearchButton onClick={handleSearch} />
+        
+        {/* Botón Búsqueda Avanzada */}
+        <AdvancedSearchButton />
       </div>
-      <div className="h-2 mt-1">{hasError && <p className="text-red-500 text-sm">{error}</p>}</div>
+
+      {/* Mensaje de error */}
+      <div className="min-h-[1.5rem] mt-1">
+        {hasError && (
+          <p className="text-red-500 text-xs sm:text-sm">{error}</p>
+        )}
+      </div>
     </div>
   );
 };

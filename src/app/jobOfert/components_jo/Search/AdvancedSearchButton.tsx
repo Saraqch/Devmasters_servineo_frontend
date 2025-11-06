@@ -9,34 +9,47 @@ interface AdvancedSearchButtonProps {
   alt?: string;
 }
 
-export function AdvancedSearchButton({ src = '/img/advSearch.jpg', alt = 'Búsqueda avanzada' }: AdvancedSearchButtonProps) {
+export function AdvancedSearchButton({ 
+  src = '/img/advSearch.jpg', 
+  alt = 'Búsqueda avanzada' 
+}: AdvancedSearchButtonProps) {
   const router = useRouter();
 
   const handleClick = () => {
-    // Navega a la página AdvSearch (src/app/AdvancedSearch/page.tsx)
     router.push('/AdvSearch');
   };
 
   return (
-  <Button
+    <Button
       onClick={handleClick}
       aria-label="Ir a búsqueda avanzada"
       className={`
-        bg-[#2B6AE0] text-white
+        bg-[#2B6AE0] 
+        text-white
         hover:bg-[#2B6AE0]/90
-        w-full sm:w-auto
-        px-1 sm:px-1
-        py-2 sm:py-5
+        active:bg-[#1e4a9f]
+        w-auto
+        min-w-[2.5rem] sm:min-w-[2.75rem]
+        px-2 sm:px-2.5
+        h-10 sm:h-11
         text-sm sm:text-base
         font-semibold
         rounded
-        shadow
-        transition-all duration-200
-        flex items-center justify-center
+        shadow-sm
+        hover:shadow-md
+        transition-all 
+        duration-200
+        flex 
+        items-center 
+        justify-center
+        shrink-0
       `}
     >
-      {/* Imagen que se adapta al tamaño del botón */}
-      <img src={src} alt={alt} className="w-6 h-6 sm:w-8 sm:h-8 object-cover rounded-full" />
+      <img 
+        src={src} 
+        alt={alt} 
+        className="w-5 h-5 sm:w-6 sm:h-6 object-cover rounded-full" 
+      />
     </Button>
   );
 }

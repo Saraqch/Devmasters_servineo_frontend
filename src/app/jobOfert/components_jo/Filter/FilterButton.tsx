@@ -5,10 +5,32 @@ import React from "react";
 export function FilterButton(props: React.ButtonHTMLAttributes<HTMLButtonElement>) {
   return (
     <Button
-      className="mt-[-14px] bg-[#f7f7f7] text-white hover:bg-[#ffffff] p-1.5 sm:p-2 rounded-[8px] sm:rounded-[10px] w-8 h-8 sm:w-9 sm:h-9 md:w-10 md:h-10 flex items-center justify-center font-roboto shadow-lg sm:shadow-xl ring-1 sm:ring-2 cursor-pointer border border-black transition-all"
+      className="
+        bg-[#f7f7f7] 
+        text-white 
+        hover:bg-[#ffffff] 
+        active:bg-[#e8e8e8]
+        p-2
+        rounded-lg
+        w-10 sm:w-11
+        h-10 sm:h-11
+        flex 
+        items-center 
+        justify-center 
+        font-roboto 
+        shadow-sm
+        hover:shadow-md
+        ring-1
+        cursor-pointer 
+        border 
+        border-black 
+        transition-all
+        duration-200
+        shrink-0
+      "
       {...props}
     >
-      <SlidersHorizontal size={20} className="sm:w-6 sm:h-6" color="black" />
+      <SlidersHorizontal size={20} className="sm:w-5 sm:h-5" color="black" />
     </Button>
   );
 }

@@ -1,14 +1,17 @@
 // src/validators/pagination.validator.ts
 import { z } from 'zod';
 
-const allowedLimits = [10, 20, 30, 50, 100];
+// Límites permitidos específicamente para JobOfert
+const JOBOFERT_ALLOWED_LIMITS = [10, 20, 50, 100] as const;
 
 const PaginationSchema = z.object({
   page: z.number().int().min(1, { message: 'La página mínima es 1.' }).default(1),
   limit: z
     .number()
     .int()
-    .refine((n) => allowedLimits.includes(n), { message: 'Límite no permitido.' })
+    .refine((n) => JOBOFERT_ALLOWED_LIMITS.includes(n as any), { 
+      message: `Límite no permitido. Valores permitidos: ${JOBOFERT_ALLOWED_LIMITS.join(', ')}.` 
+    })
     .default(10),
 });
 
@@ -23,4 +26,4 @@ export function validatePagination(page: number, limit: number) {
   return { isValid: true, data: result.data };
 }
 
-export { PaginationSchema };
+export { PaginationSchema,JOBOFERT_ALLOWED_LIMITS  };

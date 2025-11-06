@@ -1,3 +1,4 @@
+// src/app/jobOfert/page.tsx
 'use client';
 
 import React, { useEffect, useRef, useState } from 'react';
@@ -22,13 +23,11 @@ import {
   setFilters,
   setSortBy,
   setRegistrosPorPagina,
+  resetPagination,  // importar reset
   FilterState,
 } from './lib/slice';
 import { getSortValue, sortMapInverse } from './lib/constants/sortOptions';
 import { useSyncUrlParams } from './hooks/useSyncUrlParams';
-import useApplyQueryToStore from './hooks/useApplyQueryToStore';
-import AppliedFilters from './components_jo/Search/AppliedFilters';
-import useAppliedFilters from './hooks/useAppliedFilters';
 
 export default function JobOffersPage() {
   const dispatch = useAppDispatch();
@@ -50,15 +49,9 @@ export default function JobOffersPage() {
 
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
   const stickyRef = useRef<HTMLDivElement | null>(null);
-  const { showAppliedFilters, appliedParams, handleClearApplied } = useAppliedFilters();
   const isInitialMount = useRef(true);
 
-  // Apply query params (if any) to the store and trigger fetch
-  // Minimal change: this hook will run on mount and dispatch/fetch if the URL has query params
-  // so we can skip the default initial fetch below when query exists.
-  useApplyQueryToStore();
-
-  // --- Sincroniza URL ---
+  // Sincroniza URL con el estado
   useSyncUrlParams({
     search,
     filters,
@@ -73,25 +66,18 @@ export default function JobOffersPage() {
 
   // --- Carga inicial ---
   useEffect(() => {
-    if (!isInitialMount.current) return;
-
-    // If the URL already has query params, assume the hook `useApplyQueryToStore`
-    // handled initialization and skip the default fetch to avoid duplicate calls.
-    if (typeof window !== 'undefined' && window.location.search && window.location.search !== '') {
+    if (isInitialMount.current) {
+      dispatch(
+        fetchOffers({
+          searchText: '',
+          filters: { range: [], city: '', category: [] },
+          sortBy: 'recent',
+          page: 1,
+          limit: 10,
+        }),
+      );
       isInitialMount.current = false;
-      return;
     }
-
-    dispatch(
-      fetchOffers({
-        searchText: '',
-        filters: { range: [], city: '', category: [] },
-        sortBy: 'recent',
-        page: 1,
-        limit: 10,
-      }),
-    );
-    isInitialMount.current = false;
   }, [dispatch]);
 
   // --- Sticky header handler ---
@@ -138,6 +124,7 @@ export default function JobOffersPage() {
 
   const handleFiltersApply = (appliedFilters: FilterState) => {
     dispatch(setFilters(appliedFilters));
+    dispatch(resetPagination()); // Reiniciar página
     dispatch(
       fetchOffers({
         searchText: search,
@@ -154,6 +141,7 @@ export default function JobOffersPage() {
   const handleSortChange = (option: string) => {
     const backendSort = getSortValue(option);
     dispatch(setSortBy(backendSort));
+    dispatch(resetPagination()); // 🔹 Reiniciar página
     dispatch(
       fetchOffers({
         searchText: search,
@@ -169,6 +157,7 @@ export default function JobOffersPage() {
 
   const handleSearchSubmit = (query: string) => {
     dispatch(setSearch(query));
+    dispatch(resetPagination()); // Reiniciar página
     dispatch(
       fetchOffers({
         searchText: query,

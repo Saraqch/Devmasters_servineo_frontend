@@ -23,11 +23,14 @@ import {
   setFilters,
   setSortBy,
   setRegistrosPorPagina,
-  resetPagination,  // importar reset
+  resetPagination,
   FilterState,
 } from './lib/slice';
 import { getSortValue, sortMapInverse } from './lib/constants/sortOptions';
 import { useSyncUrlParams } from './hooks/useSyncUrlParams';
+import useApplyQueryToStore from './hooks/useApplyQueryToStore';
+import AppliedFilters from './components_jo/Search/AppliedFilters';
+import useAppliedFilters from './hooks/useAppliedFilters';
 
 export default function JobOffersPage() {
   const dispatch = useAppDispatch();
@@ -49,9 +52,13 @@ export default function JobOffersPage() {
 
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
   const stickyRef = useRef<HTMLDivElement | null>(null);
+  const { showAppliedFilters, appliedParams, handleClearApplied } = useAppliedFilters();
   const isInitialMount = useRef(true);
 
-  // Sincroniza URL con el estado
+  // Hook para aplicar parámetros de URL al store (si existen)
+  useApplyQueryToStore();
+
+  // Hook para sincronizar estado del store con la URL
   useSyncUrlParams({
     search,
     filters,
@@ -64,20 +71,27 @@ export default function JobOffersPage() {
     exact,
   });
 
-  // --- Carga inicial ---
+  // --- Carga inicial SOLO si no hay parámetros en la URL ---
   useEffect(() => {
-    if (isInitialMount.current) {
-      dispatch(
-        fetchOffers({
-          searchText: '',
-          filters: { range: [], city: '', category: [] },
-          sortBy: 'recent',
-          page: 1,
-          limit: 10,
-        }),
-      );
+    if (!isInitialMount.current) return;
+
+    // Si la URL tiene parámetros, useApplyQueryToStore ya manejó la inicialización
+    if (typeof window !== 'undefined' && window.location.search && window.location.search !== '') {
       isInitialMount.current = false;
+      return;
     }
+
+    // Si no hay parámetros en la URL, hacer fetch por defecto
+    dispatch(
+      fetchOffers({
+        searchText: '',
+        filters: { range: [], city: '', category: [] },
+        sortBy: 'recent',
+        page: 1,
+        limit: 10,
+      }),
+    );
+    isInitialMount.current = false;
   }, [dispatch]);
 
   // --- Sticky header handler ---
@@ -114,6 +128,8 @@ export default function JobOffersPage() {
         searchText: search,
         filters,
         sortBy,
+        date: date || undefined,
+        rating: rating ?? undefined,
         page: 1,
         limit: valor,
         titleOnly,
@@ -124,12 +140,14 @@ export default function JobOffersPage() {
 
   const handleFiltersApply = (appliedFilters: FilterState) => {
     dispatch(setFilters(appliedFilters));
-    dispatch(resetPagination()); // Reiniciar página
+    dispatch(resetPagination());
     dispatch(
       fetchOffers({
         searchText: search,
         filters: appliedFilters,
         sortBy,
+        date: date || undefined,
+        rating: rating ?? undefined,
         page: 1,
         limit: registrosPorPagina,
         titleOnly,
@@ -141,12 +159,14 @@ export default function JobOffersPage() {
   const handleSortChange = (option: string) => {
     const backendSort = getSortValue(option);
     dispatch(setSortBy(backendSort));
-    dispatch(resetPagination()); // 🔹 Reiniciar página
+    dispatch(resetPagination());
     dispatch(
       fetchOffers({
         searchText: search,
         filters,
         sortBy: backendSort,
+        date: date || undefined,
+        rating: rating ?? undefined,
         page: 1,
         limit: registrosPorPagina,
         titleOnly,
@@ -157,12 +177,14 @@ export default function JobOffersPage() {
 
   const handleSearchSubmit = (query: string) => {
     dispatch(setSearch(query));
-    dispatch(resetPagination()); // Reiniciar página
+    dispatch(resetPagination());
     dispatch(
       fetchOffers({
         searchText: query,
         filters,
         sortBy,
+        date: date || undefined,
+        rating: rating ?? undefined,
         page: 1,
         limit: registrosPorPagina,
         titleOnly,
@@ -177,6 +199,8 @@ export default function JobOffersPage() {
         searchText: search,
         filters,
         sortBy,
+        date: date || undefined,
+        rating: rating ?? undefined,
         page: newPage,
         limit: registrosPorPagina,
         titleOnly,
@@ -186,8 +210,6 @@ export default function JobOffersPage() {
   };
 
   const toggleDrawer = () => setIsDrawerOpen(!isDrawerOpen);
-
-  
 
   // --- Render ---
   return (
@@ -204,7 +226,7 @@ export default function JobOffersPage() {
           isDrawerOpen ? 'z-10' : 'z-50'
         }`}
       >
-        <div className="flex 1 gap-2">
+        <div className="flex gap-2">
           <FilterButton onClick={toggleDrawer} />
           <SearchBar onSearch={handleSearchSubmit} />
         </div>
@@ -224,9 +246,11 @@ export default function JobOffersPage() {
         {showAppliedFilters && appliedParams && (
           <AppliedFilters params={appliedParams} onClear={handleClearApplied} />
         )}
+
         {error && (
           <div className="text-red-500 text-center mb-4 p-3 bg-red-100 rounded">{error}</div>
         )}
+
         {loading && (
           <div className="text-blue-500 text-center mb-4 p-3 bg-blue-100 rounded">
             Cargando ofertas...

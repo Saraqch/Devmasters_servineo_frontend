@@ -1,5 +1,5 @@
-"use client";
-import React from "react";
+'use client';
+import React from 'react';
 
 interface State {
   hasError: boolean;
@@ -17,7 +17,7 @@ class ErrorBoundary extends React.Component<React.PropsWithChildren<unknown>, St
   }
 
   componentDidCatch(error: Error, info: React.ErrorInfo) {
-    console.error("ErrorBoundary caught an error:", error, info);
+    console.error('ErrorBoundary caught an error:', error, info);
   }
 
   render() {
@@ -25,10 +25,16 @@ class ErrorBoundary extends React.Component<React.PropsWithChildren<unknown>, St
       return (
         <div className="p-8 max-w-3xl mx-auto">
           <h2 className="text-xl font-bold mb-4">Se produjo un error en la interfaz</h2>
-          <p className="mb-4 text-sm text-gray-700">Revisa la consola del navegador para ver la traza completa del error.</p>
+          <p className="mb-4 text-sm text-gray-700">
+            Revisa la consola del navegador para ver la traza completa del error.
+          </p>
           <details className="whitespace-pre-wrap bg-gray-100 p-4 rounded">
             <summary className="cursor-pointer">Mostrar error</summary>
-            <pre className="text-xs mt-2">{this.state.error ? String(this.state.error.stack || this.state.error) : "Sin detalles"}</pre>
+            <pre className="text-xs mt-2">
+              {this.state.error
+                ? String(this.state.error.stack || this.state.error)
+                : 'Sin detalles'}
+            </pre>
           </details>
         </div>
       );

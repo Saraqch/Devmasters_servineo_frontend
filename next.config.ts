@@ -1,11 +1,11 @@
-import type { NextConfig } from "next";
+import type { NextConfig } from 'next';
 
 const nextConfig: NextConfig = {
   // Configuración para desarrollo
   experimental: {
     // Habilitar características experimentales si las necesitas
   },
-  
+
   // Configuración de imágenes si usas next/image
   images: {
     remotePatterns: [
@@ -17,7 +17,7 @@ const nextConfig: NextConfig = {
       },
     ],
   },
-  
+
   // Configuración de rewrites para proxy de API (opcional)
   async rewrites() {
     return [
@@ -27,7 +27,7 @@ const nextConfig: NextConfig = {
       },
     ];
   },
-  
+
   // Configuración de headers de seguridad
   async headers() {
     return [

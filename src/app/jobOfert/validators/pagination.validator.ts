@@ -9,8 +9,8 @@ const PaginationSchema = z.object({
   limit: z
     .number()
     .int()
-    .refine((n) => JOBOFERT_ALLOWED_LIMITS.includes(n), { 
-      message: `Límite no permitido. Valores permitidos: ${JOBOFERT_ALLOWED_LIMITS.join(', ')}.` 
+    .refine((n) => JOBOFERT_ALLOWED_LIMITS.includes(n), {
+      message: `Límite no permitido. Valores permitidos: ${JOBOFERT_ALLOWED_LIMITS.join(', ')}.`,
     })
     .default(10),
 });
@@ -26,4 +26,4 @@ export function validatePagination(page: number, limit: number) {
   return { isValid: true, data: result.data };
 }
 
-export { PaginationSchema,JOBOFERT_ALLOWED_LIMITS  };
+export { PaginationSchema, JOBOFERT_ALLOWED_LIMITS };

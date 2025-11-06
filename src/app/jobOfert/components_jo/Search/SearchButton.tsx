@@ -1,6 +1,6 @@
 //SearchButton
-import { Button } from "@/components/ui/button";
-import React from "react";
+import { Button } from '@/components/ui/button';
+import React from 'react';
 
 export function SearchButton(props: React.ButtonHTMLAttributes<HTMLButtonElement>) {
   const { disabled, ...rest } = props;

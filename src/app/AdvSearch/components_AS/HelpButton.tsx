@@ -1,9 +1,22 @@
-
 // HelpButton.tsx
-"use client";
+'use client';
 
 import React, { useState } from 'react';
-import { HelpCircle, Search, Hash, Filter, MapPin, Briefcase, DollarSign, Tag, Calendar, Star, CheckCircle, X, RotateCcw } from 'lucide-react';
+import {
+  HelpCircle,
+  Search,
+  Hash,
+  Filter,
+  MapPin,
+  Briefcase,
+  DollarSign,
+  Tag,
+  Calendar,
+  Star,
+  CheckCircle,
+  X,
+  RotateCcw,
+} from 'lucide-react';
 
 export function HelpButton() {
   const [isHelpOpen, setIsHelpOpen] = useState(false);
@@ -35,7 +48,7 @@ export function HelpButton() {
             {/* Header - Ayuda con X */}
             <div className="flex items-center justify-between px-5 py-4 bg-white border-b border-gray-200">
               <h1 className="text-xl font-bold text-gray-900">Ayuda</h1>
-              <button 
+              <button
                 onClick={closeHelp}
                 className="p-1.5 hover:bg-gray-100 rounded-lg transition-colors"
               >
@@ -45,7 +58,6 @@ export function HelpButton() {
 
             {/* Content - Steps tipo filtros */}
             <div className="overflow-y-auto p-4 space-y-3 flex-1">
-              
               {/* Sección: Guía de Búsqueda Avanzada */}
               <div className="bg-blue-600 text-white px-4 py-3 rounded font-semibold text-sm">
                 Guía de Búsqueda Avanzada
@@ -61,7 +73,9 @@ export function HelpButton() {
                   </div>
                   <div className="flex-1">
                     <p className="text-sm text-gray-800 leading-relaxed">
-                      <span className="font-semibold text-blue-600">1.</span> Dirigirse a la barra de búsqueda y llenar en el campo el servicio que necesita buscar de manera personalizada.
+                      <span className="font-semibold text-blue-600">1.</span> Dirigirse a la barra
+                      de búsqueda y llenar en el campo el servicio que necesita buscar de manera
+                      personalizada.
                     </p>
                   </div>
                 </div>
@@ -77,7 +91,9 @@ export function HelpButton() {
                   </div>
                   <div className="flex-1">
                     <p className="text-sm text-gray-800 leading-relaxed">
-                      <span className="font-semibold text-blue-600">2.</span> Según el texto ingresado, puede buscar solo en el título de la oferta de trabajo o por palabra exacta en el título y la descripción.
+                      <span className="font-semibold text-blue-600">2.</span> Según el texto
+                      ingresado, puede buscar solo en el título de la oferta de trabajo o por
+                      palabra exacta en el título y la descripción.
                     </p>
                   </div>
                 </div>
@@ -93,7 +109,8 @@ export function HelpButton() {
                   </div>
                   <div className="flex-1">
                     <p className="text-sm text-gray-800 leading-relaxed">
-                      <span className="font-semibold text-blue-600">3.</span> Seleccionar el filtrado de nombre de fixer de acuerdo a lo que se requiera.
+                      <span className="font-semibold text-blue-600">3.</span> Seleccionar el
+                      filtrado de nombre de fixer de acuerdo a lo que se requiera.
                     </p>
                   </div>
                 </div>
@@ -109,7 +126,8 @@ export function HelpButton() {
                   </div>
                   <div className="flex-1">
                     <p className="text-sm text-gray-800 leading-relaxed">
-                      <span className="font-semibold text-blue-600">4.</span> Seleccionar la ciudad de interés para filtrar los resultados.
+                      <span className="font-semibold text-blue-600">4.</span> Seleccionar la ciudad
+                      de interés para filtrar los resultados.
                     </p>
                   </div>
                 </div>
@@ -125,7 +143,9 @@ export function HelpButton() {
                   </div>
                   <div className="flex-1">
                     <p className="text-sm text-gray-800 leading-relaxed">
-                      <span className="font-semibold text-blue-600">5.</span> Seleccionar el tipo de trabajo. Ejemplo: si selecciona &quot;Pintor&quot;, se mostrarán resultados de pintores.
+                      <span className="font-semibold text-blue-600">5.</span> Seleccionar el tipo de
+                      trabajo. Ejemplo: si selecciona &quot;Pintor&quot;, se mostrarán resultados de
+                      pintores.
                     </p>
                   </div>
                 </div>
@@ -141,7 +161,8 @@ export function HelpButton() {
                   </div>
                   <div className="flex-1">
                     <p className="text-sm text-gray-800 leading-relaxed">
-                      <span className="font-semibold text-blue-600">6.</span> Hacer click en el componente de precio y seleccionar el rango deseado.
+                      <span className="font-semibold text-blue-600">6.</span> Hacer click en el
+                      componente de precio y seleccionar el rango deseado.
                     </p>
                   </div>
                 </div>
@@ -157,7 +178,9 @@ export function HelpButton() {
                   </div>
                   <div className="flex-1">
                     <p className="text-sm text-gray-800 leading-relaxed">
-                      <span className="font-semibold text-blue-600">7.</span> En la sección de tipo de trabajo, seleccionar y deacuerdo a su eleccion se mostrarán las respectivas etiquetas.
+                      <span className="font-semibold text-blue-600">7.</span> En la sección de tipo
+                      de trabajo, seleccionar y deacuerdo a su eleccion se mostrarán las respectivas
+                      etiquetas.
                     </p>
                   </div>
                 </div>
@@ -173,7 +196,9 @@ export function HelpButton() {
                   </div>
                   <div className="flex-1">
                     <p className="text-sm text-gray-800 leading-relaxed">
-                      <span className="font-semibold text-blue-600">8.</span> Seleccionar fecha de publicación: más recientes, más antiguos o fecha específica mediante el calendario.
+                      <span className="font-semibold text-blue-600">8.</span> Seleccionar fecha de
+                      publicación: más recientes, más antiguos o fecha específica mediante el
+                      calendario.
                     </p>
                   </div>
                 </div>
@@ -189,7 +214,9 @@ export function HelpButton() {
                   </div>
                   <div className="flex-1">
                     <p className="text-sm text-gray-800 leading-relaxed">
-                      <span className="font-semibold text-blue-600">9.</span> Seleccionar rango de calificación (1-5 estrellas). Al hacer click en una estrella muestra subrangos (1-9).
+                      <span className="font-semibold text-blue-600">9.</span> Seleccionar rango de
+                      calificación (1-5 estrellas). Al hacer click en una estrella muestra subrangos
+                      (1-9).
                     </p>
                   </div>
                 </div>
@@ -205,7 +232,9 @@ export function HelpButton() {
                   </div>
                   <div className="flex-1">
                     <p className="text-sm text-gray-800 leading-relaxed">
-                      <span className="font-semibold text-blue-600">10.</span> Hacer click en &quot;Aplicar búsqueda&quot; para mostrar resultados con todos los filtros seleccionados.
+                      <span className="font-semibold text-blue-600">10.</span> Hacer click en
+                      &quot;Aplicar búsqueda&quot; para mostrar resultados con todos los filtros
+                      seleccionados.
                     </p>
                   </div>
                 </div>
@@ -221,12 +250,13 @@ export function HelpButton() {
                   </div>
                   <div className="flex-1">
                     <p className="text-sm text-gray-800 leading-relaxed">
-                      <span className="font-semibold text-blue-600">11.</span> Usar el botón &quot;Limpiar datos&quot; para borrar todos los filtros y volver al estado inicial.
+                      <span className="font-semibold text-blue-600">11.</span> Usar el botón
+                      &quot;Limpiar datos&quot; para borrar todos los filtros y volver al estado
+                      inicial.
                     </p>
                   </div>
                 </div>
               </div>
-
             </div>
           </div>
         </>

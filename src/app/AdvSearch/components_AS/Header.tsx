@@ -16,15 +16,27 @@ const Header = () => {
       {/* Desktop Header (solo desde lg en adelante) */}
       <div className="hidden lg:flex items-center justify-between px-6 py-3 max-w-7xl mx-auto">
         <div className="flex items-center">
-          <button onClick={scrollToTop} className="flex items-center gap-2 group transition-transform duration-300 hover:scale-105">
+          <button
+            onClick={scrollToTop}
+            className="flex items-center gap-2 group transition-transform duration-300 hover:scale-105"
+          >
             <div className="relative overflow-hidden rounded-full shadow-md">
-              <Image src="/icon.png" alt="Servineo Logo" width={45} height={45} className="transition-transform duration-300 group-hover:scale-110" />
+              <Image
+                src="/icon.png"
+                alt="Servineo Logo"
+                width={45}
+                height={45}
+                className="transition-transform duration-300 group-hover:scale-110"
+              />
             </div>
             <span className="text-2xl font-bold text-[#2B6AE0]">Servineo</span>
           </button>
         </div>
         <nav className="hidden lg:flex gap-6">
-          <Link href="/servicios" className="text-gray-700 hover:text-[#2B6AE0]/90 font-medium relative after:absolute after:bottom-0 after:left-0 after:h-0.5 after:w-0 after:bg-[#2B6AE0] after:transition-all hover:after:w-full">
+          <Link
+            href="/servicios"
+            className="text-gray-700 hover:text-[#2B6AE0]/90 font-medium relative after:absolute after:bottom-0 after:left-0 after:h-0.5 after:w-0 after:bg-[#2B6AE0] after:transition-all hover:after:w-full"
+          >
             Servicios
           </Link>
           <Link
@@ -33,7 +45,10 @@ const Header = () => {
           >
             Ofertas de trabajo
           </Link>
-          <Link href="/ayuda" className="text-gray-700 hover:text-[#2B6AE0]/90 font-medium relative after:absolute after:bottom-0 after:left-0 after:h-0.5 after:w-0 after:bg-[#2B6AE0] after:transition-all hover:after:w-full">
+          <Link
+            href="/ayuda"
+            className="text-gray-700 hover:text-[#2B6AE0]/90 font-medium relative after:absolute after:bottom-0 after:left-0 after:h-0.5 after:w-0 after:bg-[#2B6AE0] after:transition-all hover:after:w-full"
+          >
             Ayuda
           </Link>
         </nav>
@@ -50,8 +65,14 @@ const Header = () => {
       {/* Mobile/Tablet Header (hasta lg) */}
       <div className="lg:hidden flex items-center justify-between p-4">
         <button onClick={scrollToTop} className="flex items-center gap-2 group">
-            <div className="relative overflow-hidden rounded-full shadow-md">
-            <Image src="/icon.png" alt="Servineo Logo" width={36} height={36} className="transition-transform duration-300 group-hover:scale-110" />
+          <div className="relative overflow-hidden rounded-full shadow-md">
+            <Image
+              src="/icon.png"
+              alt="Servineo Logo"
+              width={36}
+              height={36}
+              className="transition-transform duration-300 group-hover:scale-110"
+            />
           </div>
           <span className="text-xl font-bold text-[#2B6AE0]">Servineo</span>
         </button>

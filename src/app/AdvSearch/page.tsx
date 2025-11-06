@@ -23,18 +23,37 @@ const FIXER_RANGES = [
 ];
 
 const CITIES = [
-  'Beni', 'Chuquisaca', 'Cochabamba', 'La Paz', 'Oruro',
-  'Pando', 'Potosí', 'Santa Cruz', 'Tarija',
+  'Beni',
+  'Chuquisaca',
+  'Cochabamba',
+  'La Paz',
+  'Oruro',
+  'Pando',
+  'Potosí',
+  'Santa Cruz',
+  'Tarija',
 ];
 
 const JOBS = [
-  'Albañil', 'Carpintero', 'Cerrajero', 'Decorador', 'Electricista',
-  'Fontanero', 'Fumigador', 'Instalador', 'Jardinero', 'Limpiador',
-  'Mecánico', 'Montador', 'Pintor', 'Pulidor', 'Soldador',
-  'Techador', 'Vidriero', 'Yesero',
+  'Albañil',
+  'Carpintero',
+  'Cerrajero',
+  'Decorador',
+  'Electricista',
+  'Fontanero',
+  'Fumigador',
+  'Instalador',
+  'Jardinero',
+  'Limpiador',
+  'Mecánico',
+  'Montador',
+  'Pintor',
+  'Pulidor',
+  'Soldador',
+  'Techador',
+  'Vidriero',
+  'Yesero',
 ];
-
-
 
 // removed unused FilterState and parsePriceRange to eliminate lint warnings
 
@@ -79,9 +98,9 @@ function AdvancedSearchPage() {
     setSelectedDateFilter,
     selectedSpecificDate,
     setSelectedSpecificDate,
-  // rating
-  selectedRating,
-  setSelectedRating,
+    // rating
+    selectedRating,
+    setSelectedRating,
     fetchGlobalTotal,
   } = useAdvSearchLogic();
 
@@ -99,7 +118,8 @@ function AdvancedSearchPage() {
     const d = String(selectedSpecificDate.getDate()).padStart(2, '0');
     advDate = `${y}-${m}-${d}`;
   }
-  const advSort = selectedDateFilter === 'recent' ? 'recent' : selectedDateFilter === 'oldest' ? 'oldest' : null;
+  const advSort =
+    selectedDateFilter === 'recent' ? 'recent' : selectedDateFilter === 'oldest' ? 'oldest' : null;
 
   useSyncUrlParamsAdv({
     search: searchQuery,
@@ -118,7 +138,6 @@ function AdvancedSearchPage() {
     exact: exactWords,
     skipSyncRef,
   });
-
 
   return (
     <>
@@ -145,9 +164,15 @@ function AdvancedSearchPage() {
             <div className="mb-6">
               <SearchCheckboxes
                 titleOnly={titleOnly}
-                setTitleOnly={(val) => { setTitleOnly(val); setTimeout(() => updateSearchOnStateChange({ newTitleOnly: val }), 0); }}
+                setTitleOnly={(val) => {
+                  setTitleOnly(val);
+                  setTimeout(() => updateSearchOnStateChange({ newTitleOnly: val }), 0);
+                }}
                 exactWords={exactWords}
-                setExactWords={(val) => { setExactWords(val); setTimeout(() => updateSearchOnStateChange({ newExactWords: val }), 0); }}
+                setExactWords={(val) => {
+                  setExactWords(val);
+                  setTimeout(() => updateSearchOnStateChange({ newExactWords: val }), 0);
+                }}
               />
             </div>
 
@@ -159,9 +184,10 @@ function AdvancedSearchPage() {
               <h3 className="text-base mb-2">Nombre del fixer :</h3>
               <div
                 className={`bg-gray-100 text-gray-500 px-4 py-2 text-sm cursor-pointer hover:bg-gray-200 transition-colors flex justify-between items-center 
-                  ${openSections.fixer
-                    ? 'rounded-t-lg border border-b-0 border-gray-300'
-                    : 'rounded-lg border border-gray-300'
+                  ${
+                    openSections.fixer
+                      ? 'rounded-t-lg border border-b-0 border-gray-300'
+                      : 'rounded-lg border border-gray-300'
                   }`}
                 onClick={() => toggleSection('fixer')}
               >
@@ -204,9 +230,10 @@ function AdvancedSearchPage() {
               <h3 className="text-base mb-2">Ciudad :</h3>
               <div
                 className={`bg-gray-100 text-gray-500 px-4 py-2 text-sm cursor-pointer hover:bg-gray-200 transition-colors flex justify-between items-center 
-                  ${openSections.ciudad
-                    ? 'rounded-t-lg border border-b-0 border-gray-300'
-                    : 'rounded-lg border border-gray-300'
+                  ${
+                    openSections.ciudad
+                      ? 'rounded-t-lg border border-b-0 border-gray-300'
+                      : 'rounded-lg border border-gray-300'
                   }`}
                 onClick={() => toggleSection('ciudad')}
               >
@@ -249,9 +276,10 @@ function AdvancedSearchPage() {
               <h3 className="text-base mb-2">Tipo de Trabajo :</h3>
               <div
                 className={`bg-gray-100 text-gray-500 px-4 py-2 text-sm cursor-pointer hover:bg-gray-200 transition-colors flex justify-between items-center 
-                  ${openSections.trabajo
-                    ? 'rounded-t-lg border border-b-0 border-gray-300'
-                    : 'rounded-lg border border-gray-300'
+                  ${
+                    openSections.trabajo
+                      ? 'rounded-t-lg border border-b-0 border-gray-300'
+                      : 'rounded-lg border border-gray-300'
                   }`}
                 onClick={() => toggleSection('trabajo')}
               >
@@ -295,9 +323,10 @@ function AdvancedSearchPage() {
 
               <div
                 className={`bg-gray-100 text-gray-500 px-4 py-2 text-sm cursor-pointer hover:bg-gray-200 transition-colors flex justify-between items-center 
-                  ${openSections.categorias
-                    ? 'rounded-t-lg border border-b-0 border-gray-300'
-                    : 'rounded-lg border border-gray-300'
+                  ${
+                    openSections.categorias
+                      ? 'rounded-t-lg border border-b-0 border-gray-300'
+                      : 'rounded-lg border border-gray-300'
                   }`}
                 onClick={() => toggleSection('categorias')}
               >
@@ -320,14 +349,15 @@ function AdvancedSearchPage() {
                 </div>
               )}
             </div>
-<div className="mb-6">
+            <div className="mb-6">
               <h3 className="text-base mb-2">Precio :</h3>
 
               <div
                 className={`bg-gray-100 text-gray-500 px-4 py-2 text-sm cursor-pointer hover:bg-gray-200 transition-colors flex justify-between items-center 
-                  ${openSections.precio
-                    ? 'rounded-t-lg border border-b-0 border-gray-300'
-                    : 'rounded-lg border border-gray-300'
+                  ${
+                    openSections.precio
+                      ? 'rounded-t-lg border border-b-0 border-gray-300'
+                      : 'rounded-lg border border-gray-300'
                   }`}
                 onClick={() => toggleSection('precio')}
               >
@@ -346,7 +376,10 @@ function AdvancedSearchPage() {
 
               {openSections.precio && (
                 <div className="bg-white border border-t-0 border-gray-300 rounded-b-lg shadow-sm">
-                  <PriceRangeList onFilterChange={handlePriceRangeChange} clearSignal={clearSignal} /> 
+                  <PriceRangeList
+                    onFilterChange={handlePriceRangeChange}
+                    clearSignal={clearSignal}
+                  />
                 </div>
               )}
             </div>
@@ -369,30 +402,34 @@ function AdvancedSearchPage() {
 
             {/* Botones: Aplicar Búsqueda y Limpiar Datos (misma altura y alineación) */}
             <div className="flex justify-center items-center gap-4 mt-8">
-              <ButtonAplicarBus onClick={() => handleSearch(searchQuery)} loading={storeLoading ?? loading} />
-              <ClearButton onClick={() => {
-                // Limpia todos los filtros y la búsqueda a nivel de página
-                setSearchQuery('');
-                setSelectedRanges([]);
-                setSelectedCity('');
-                setSelectedJobs([]);
-                setSelectedCategories([]);
-                setSelectedPriceRanges([]);
-                setTitleOnly(false);
-                setExactWords(false);
-                setResultsCount(null);
-                // reset date filter
-                setSelectedDateFilter('specific');
-                setSelectedSpecificDate(null);
-                // reset rating
-                setSelectedRating(null);
-                // notify children (DropdownList, PriceRangeList) to clear
-                setClearSignal((s) => s + 1);
-                // fetch global total again (hook exposes helper)
-                fetchGlobalTotal();
-              }} />
+              <ButtonAplicarBus
+                onClick={() => handleSearch(searchQuery)}
+                loading={storeLoading ?? loading}
+              />
+              <ClearButton
+                onClick={() => {
+                  // Limpia todos los filtros y la búsqueda a nivel de página
+                  setSearchQuery('');
+                  setSelectedRanges([]);
+                  setSelectedCity('');
+                  setSelectedJobs([]);
+                  setSelectedCategories([]);
+                  setSelectedPriceRanges([]);
+                  setTitleOnly(false);
+                  setExactWords(false);
+                  setResultsCount(null);
+                  // reset date filter
+                  setSelectedDateFilter('specific');
+                  setSelectedSpecificDate(null);
+                  // reset rating
+                  setSelectedRating(null);
+                  // notify children (DropdownList, PriceRangeList) to clear
+                  setClearSignal((s) => s + 1);
+                  // fetch global total again (hook exposes helper)
+                  fetchGlobalTotal();
+                }}
+              />
             </div>
-
           </div>
         </div>
       </main>
@@ -402,4 +439,3 @@ function AdvancedSearchPage() {
 }
 
 export default AdvancedSearchPage;
-

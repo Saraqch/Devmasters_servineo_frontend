@@ -1,5 +1,6 @@
 // lib/api.ts
-export const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'https://devmasters-servineo-backend-tdck.vercel.app';
+export const API_BASE_URL =
+  process.env.NEXT_PUBLIC_API_URL || 'https://devmasters-servineo-backend-tdck.vercel.app';
 
 export interface ApiResponse<T> {
   success: boolean;
@@ -26,7 +27,7 @@ class ApiClient {
 
     try {
       let sessionId = '';
-      
+
       // ✅ CAMBIO: Siempre leer del localStorage
       if (typeof window !== 'undefined') {
         sessionId = localStorage.getItem('sessionId') || '';

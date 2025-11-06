@@ -35,7 +35,8 @@ export const useSyncUrlParams = ({
     if (search) params.set('search', search);
     if (titleOnly) params.set('titleOnly', 'true');
     if (exact) params.set('exact', 'true');
-    if (filters.range && filters.range.length) filters.range.forEach((r) => params.append('range', r));
+    if (filters.range && filters.range.length)
+      filters.range.forEach((r) => params.append('range', r));
     if (filters.city) params.set('city', filters.city);
     if (filters.category?.length) params.set('category', filters.category.join(','));
     if (filters.tags && filters.tags.length) params.set('tags', filters.tags.join(','));
@@ -45,8 +46,8 @@ export const useSyncUrlParams = ({
     if (sortBy) params.set('sort', sortBy);
     // include date from redux/store when present so it is not lost
     if (date) params.set('date', date);
-  // include rating when present
-  if (rating != null) params.set('rating', String(rating));
+    // include rating when present
+    if (rating != null) params.set('rating', String(rating));
     if (paginaActual) params.set('page', String(paginaActual));
     if (registrosPorPagina) params.set('limit', String(registrosPorPagina));
 

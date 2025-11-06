@@ -34,8 +34,21 @@ export default function useAppliedFilters() {
           // ignore
         }
 
-  const params: ParamsMap = {};
-  const keys = ['search', 'titleOnly', 'exact', 'tags', 'category', 'city', 'minPrice', 'maxPrice', 'range', 'date', 'sortBy', 'rating'];
+        const params: ParamsMap = {};
+        const keys = [
+          'search',
+          'titleOnly',
+          'exact',
+          'tags',
+          'category',
+          'city',
+          'minPrice',
+          'maxPrice',
+          'range',
+          'date',
+          'sortBy',
+          'rating',
+        ];
         keys.forEach((k) => {
           const val = sp.get(k);
           if (val == null) return;

@@ -1,6 +1,6 @@
-"use client";
+'use client';
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect } from 'react';
 
 interface DropdownListProps {
   onFilterChange?: (filters: { categories: string[] }) => void;
@@ -23,10 +23,27 @@ const DropdownList: React.FC<DropdownListProps> = ({ onFilterChange, clearSignal
         const isDevelopment = process.env.NODE_ENV === 'development';
 
         const MOCK_TAGS = [
-          'madera', 'herramientas', 'instalación', 'reparación', 'montaje',
-          'acabados', 'medición', 'transporte', 'electricidad', 'soldadura',
-          'pintura', 'barniz', 'vigas', 'puertas', 'ventanas', 'cerrajería',
-          'fontanería', 'limpieza', 'jardinería', 'aislamiento', 'cerramiento',
+          'madera',
+          'herramientas',
+          'instalación',
+          'reparación',
+          'montaje',
+          'acabados',
+          'medición',
+          'transporte',
+          'electricidad',
+          'soldadura',
+          'pintura',
+          'barniz',
+          'vigas',
+          'puertas',
+          'ventanas',
+          'cerrajería',
+          'fontanería',
+          'limpieza',
+          'jardinería',
+          'aislamiento',
+          'cerramiento',
         ];
 
         // helper: try to read current search input value (InputOnlySearch) from the DOM as a fast fallback
@@ -38,7 +55,9 @@ const DropdownList: React.FC<DropdownListProps> = ({ onFilterChange, clearSignal
             const s = sp.get('search');
             if (s) return String(s).trim();
             // fallback: find input by placeholder (falls back if user typed but didn't apply)
-            const el = document.querySelector('input[placeholder="¿Qué servicio necesitas?"]') as HTMLInputElement | null;
+            const el = document.querySelector(
+              'input[placeholder="¿Qué servicio necesitas?"]',
+            ) as HTMLInputElement | null;
             if (el && el.value) return el.value.trim();
           } catch {
             // ignore
@@ -59,7 +78,9 @@ const DropdownList: React.FC<DropdownListProps> = ({ onFilterChange, clearSignal
 
           if (currentSearch) {
             // pick synonyms if available
-            const tokens = currentSearch.split(/\s+/).map(t => t.replace(/[^a-zA-ZñÑáéíóúÁÉÍÓÚüÜ]/g, ''));
+            const tokens = currentSearch
+              .split(/\s+/)
+              .map((t) => t.replace(/[^a-zA-ZñÑáéíóúÁÉÍÓÚüÜ]/g, ''));
             for (const t of tokens) {
               if (SYNONYMS[t]) {
                 suggestions = suggestions.concat(SYNONYMS[t]);
@@ -67,7 +88,9 @@ const DropdownList: React.FC<DropdownListProps> = ({ onFilterChange, clearSignal
             }
 
             // also include mock tags that contain the token
-            suggestions = suggestions.concat(MOCK_TAGS.filter(tag => tokens.some(tok => tag.includes(tok))));
+            suggestions = suggestions.concat(
+              MOCK_TAGS.filter((tag) => tokens.some((tok) => tag.includes(tok))),
+            );
           }
 
           // If no search-based suggestions, show most common mock tags
@@ -81,9 +104,13 @@ const DropdownList: React.FC<DropdownListProps> = ({ onFilterChange, clearSignal
         }
 
         // Production: fallback to original network request
-        const API_URL = process.env.NEXT_PUBLIC_API_URL || 'https://devmastersservineobackend-ashy.vercel.app';
+        const API_URL =
+          process.env.NEXT_PUBLIC_API_URL || 'https://devmastersservineobackend-ashy.vercel.app';
         const endpoint = `${API_URL}/api/devmaster/tags`;
-        const response = await fetch(endpoint, { method: 'GET', headers: { 'Content-Type': 'application/json' } });
+        const response = await fetch(endpoint, {
+          method: 'GET',
+          headers: { 'Content-Type': 'application/json' },
+        });
         if (!response.ok) throw new Error(`Error ${response.status}: ${response.statusText}`);
         const data = await response.json();
         if (Array.isArray(data)) setCategories(data);
@@ -93,7 +120,8 @@ const DropdownList: React.FC<DropdownListProps> = ({ onFilterChange, clearSignal
       } catch (err) {
         let errorMessage = 'Error desconocido';
         if (err instanceof TypeError && err.message === 'Failed to fetch') {
-          errorMessage = 'No se puede conectar con el servidor. Verifica que el backend esté corriendo.';
+          errorMessage =
+            'No se puede conectar con el servidor. Verifica que el backend esté corriendo.';
         } else if (err instanceof Error) {
           errorMessage = err.message;
         }
@@ -142,20 +170,24 @@ const DropdownList: React.FC<DropdownListProps> = ({ onFilterChange, clearSignal
     return (
       <div className="w-full border border-red-300 rounded-lg p-4 bg-red-50">
         <div className="text-center">
-          <p className="text-red-600 text-sm font-semibold mb-2">
-            ⚠️ Error al cargar categorías
-          </p>
-          <p className="text-red-500 text-xs mb-3">
-            {error}
-          </p>
+          <p className="text-red-600 text-sm font-semibold mb-2">⚠️ Error al cargar categorías</p>
+          <p className="text-red-500 text-xs mb-3">{error}</p>
           <div className="bg-white border border-red-200 rounded p-3 text-left">
-            <p className="text-gray-700 text-xs font-semibold mb-1">
-              Verifica:
-            </p>
+            <p className="text-gray-700 text-xs font-semibold mb-1">Verifica:</p>
             <ul className="text-gray-600 text-xs space-y-1 list-disc list-inside">
-              <li>Backend en desarrollo: <code className="bg-gray-100 px-1 rounded">http://localhost:8000</code></li>
-              <li>Backend en producción: <code className="bg-gray-100 px-1 rounded text-[10px]">https://devmastersservineobackend-ashy.vercel.app</code></li>
-              <li>Endpoint: <code className="bg-gray-100 px-1 rounded">/api/devmaster/tags</code></li>
+              <li>
+                Backend en desarrollo:{' '}
+                <code className="bg-gray-100 px-1 rounded">http://localhost:8000</code>
+              </li>
+              <li>
+                Backend en producción:{' '}
+                <code className="bg-gray-100 px-1 rounded text-[10px]">
+                  https://devmastersservineobackend-ashy.vercel.app
+                </code>
+              </li>
+              <li>
+                Endpoint: <code className="bg-gray-100 px-1 rounded">/api/devmaster/tags</code>
+              </li>
             </ul>
           </div>
         </div>
@@ -166,9 +198,7 @@ const DropdownList: React.FC<DropdownListProps> = ({ onFilterChange, clearSignal
   if (categories.length === 0) {
     return (
       <div className="w-full border border-gray-300 rounded-lg p-4">
-        <p className="text-gray-500 text-sm text-center">
-          No hay categorías disponibles
-        </p>
+        <p className="text-gray-500 text-sm text-center">No hay categorías disponibles</p>
       </div>
     );
   }
@@ -180,7 +210,7 @@ const DropdownList: React.FC<DropdownListProps> = ({ onFilterChange, clearSignal
           <label
             key={`${category}-${index}`}
             className={`flex items-center px-4 py-3 cursor-pointer hover:bg-gray-50 transition-colors ${
-              index !== categories.length - 1 ? "border-b border-gray-200" : ""
+              index !== categories.length - 1 ? 'border-b border-gray-200' : ''
             }`}
           >
             <input
@@ -189,9 +219,7 @@ const DropdownList: React.FC<DropdownListProps> = ({ onFilterChange, clearSignal
               onChange={() => handleCheckboxChange(category)}
               className="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-2 focus:ring-blue-500 cursor-pointer"
             />
-            <span className="ml-3 text-sm text-gray-700 capitalize">
-              {category}
-            </span>
+            <span className="ml-3 text-sm text-gray-700 capitalize">{category}</span>
           </label>
         ))}
       </div>

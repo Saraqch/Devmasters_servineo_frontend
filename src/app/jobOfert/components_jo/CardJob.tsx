@@ -1,29 +1,29 @@
-"use client";
+'use client';
 
 import React, { useMemo, useCallback } from 'react';
 import Image from 'next/image';
 
 // Mapeo de imágenes por categoría (3 imágenes por cada una)
 const categoryImages: { [key: string]: string[] } = {
-  "Albañil": ["/img/albañil1.jpg", "/img/albañil2.jpg", "/img/albañil3.jpg"],
-  "Carpintero": ["/img/carpintero1.jpg", "/img/carpintero2.jpg", "/img/carpintero3.jpg"],
-  "Fontanero": ["/img/fontanero1.jpg", "/img/fontanero2.jpg", "/img/fontanero3.jpg"],
-  "Electricista": ["/img/electricista1.jpg", "/img/electricista2.jpg", "/img/electricista3.jpg"],
-  "Pintor": ["/img/pintor1.jpg", "/img/pintor2.jpg", "/img/pintor3.jpg"],
-  "Soldador": ["/img/soldador1.jpg", "/img/soldador2.jpg", "/img/soldador3.jpg"],
-  "Jardinero": ["/img/jardinero1.jpg", "/img/jardinero2.jpg", "/img/jardinero3.jpg"],
-  "Cerrajero": ["/img/cerrajero1.jpg", "/img/cerrajero2.jpg", "/img/cerrajero3.jpg"],
-  "Mecánico": ["/img/mecanico1.jpg", "/img/mecanico2.jpg", "/img/mecanico3.jpg"],
-  "Vidriero": ["/img/vidriero1.jpg", "/img/vidriero2.jpg", "/img/vidriero3.jpg"],
-  "Yesero": ["/img/yesero1.jpg", "/img/yesero2.jpg", "/img/yesero3.jpg"],
-  "Fumigador": ["/img/fumigador1.jpg", "/img/fumigador2.jpg", "/img/fumigador3.jpg"],
-  "Limpiador": ["/img/limpiador1.jpg", "/img/limpiador2.jpg", "/img/limpiador3.jpg"],
-  "Instalador": ["/img/instalador1.jpg", "/img/instalador2.jpg", "/img/instalador3.jpg"],
-  "Montador": ["/img/montador1.jpg", "/img/montador2.jpg", "/img/montador3.jpg"],
-  "Decorador": ["/img/decorador1.jpg", "/img/decorador2.jpg", "/img/decorador3.jpg"],
-  "Pulidor": ["/img/pulidor1.jpg", "/img/pulidor2.jpg", "/img/pulidor3.jpg"],
-  "Techador": ["/img/techador1.jpg", "/img/techador2.jpg", "/img/techador3.jpg"],
-  "Default": ["/img/default1.jpg", "/img/default2.jpg", "/img/default3.jpg"]
+  Albañil: ['/img/albañil1.jpg', '/img/albañil2.jpg', '/img/albañil3.jpg'],
+  Carpintero: ['/img/carpintero1.jpg', '/img/carpintero2.jpg', '/img/carpintero3.jpg'],
+  Fontanero: ['/img/fontanero1.jpg', '/img/fontanero2.jpg', '/img/fontanero3.jpg'],
+  Electricista: ['/img/electricista1.jpg', '/img/electricista2.jpg', '/img/electricista3.jpg'],
+  Pintor: ['/img/pintor1.jpg', '/img/pintor2.jpg', '/img/pintor3.jpg'],
+  Soldador: ['/img/soldador1.jpg', '/img/soldador2.jpg', '/img/soldador3.jpg'],
+  Jardinero: ['/img/jardinero1.jpg', '/img/jardinero2.jpg', '/img/jardinero3.jpg'],
+  Cerrajero: ['/img/cerrajero1.jpg', '/img/cerrajero2.jpg', '/img/cerrajero3.jpg'],
+  Mecánico: ['/img/mecanico1.jpg', '/img/mecanico2.jpg', '/img/mecanico3.jpg'],
+  Vidriero: ['/img/vidriero1.jpg', '/img/vidriero2.jpg', '/img/vidriero3.jpg'],
+  Yesero: ['/img/yesero1.jpg', '/img/yesero2.jpg', '/img/yesero3.jpg'],
+  Fumigador: ['/img/fumigador1.jpg', '/img/fumigador2.jpg', '/img/fumigador3.jpg'],
+  Limpiador: ['/img/limpiador1.jpg', '/img/limpiador2.jpg', '/img/limpiador3.jpg'],
+  Instalador: ['/img/instalador1.jpg', '/img/instalador2.jpg', '/img/instalador3.jpg'],
+  Montador: ['/img/montador1.jpg', '/img/montador2.jpg', '/img/montador3.jpg'],
+  Decorador: ['/img/decorador1.jpg', '/img/decorador2.jpg', '/img/decorador3.jpg'],
+  Pulidor: ['/img/pulidor1.jpg', '/img/pulidor2.jpg', '/img/pulidor3.jpg'],
+  Techador: ['/img/techador1.jpg', '/img/techador2.jpg', '/img/techador3.jpg'],
+  Default: ['/img/default1.jpg', '/img/default2.jpg', '/img/default3.jpg'],
 };
 
 interface OfferData {
@@ -52,7 +52,7 @@ const CardJob = ({ trabajos }: CardJobProps) => {
 
   // Función para obtener una imagen basada en el ID (determinística)
   const getImageForJob = useCallback((jobId: string, category: string): string => {
-    const images = categoryImages[category] || categoryImages["Default"];
+    const images = categoryImages[category] || categoryImages['Default'];
     let hash = 0;
     for (let i = 0; i < jobId.length; i++) {
       hash = jobId.charCodeAt(i) + ((hash << 5) - hash);
@@ -63,9 +63,9 @@ const CardJob = ({ trabajos }: CardJobProps) => {
 
   // Memorizar las imágenes asignadas para cada trabajo
   const trabajosConImagenes = useMemo(() => {
-    return trabajos.map(trabajo => ({
+    return trabajos.map((trabajo) => ({
       ...trabajo,
-      imagenAsignada: trabajo.imagenUrl || getImageForJob(trabajo._id, trabajo.category)
+      imagenAsignada: trabajo.imagenUrl || getImageForJob(trabajo._id, trabajo.category),
     }));
   }, [trabajos, getImageForJob]);
 
@@ -112,13 +112,15 @@ const CardJob = ({ trabajos }: CardJobProps) => {
                 <div className="flex flex-col sm:flex-row items-start sm:items-end justify-between mt-3 gap-3">
                   <div className="text-left flex-1 w-full">
                     <div className="text-sm font-medium text-gray-700">{t.fixerName}</div>
-                    <div className="text-xs text-gray-500 mt-1"><strong>Contacto:</strong> {t.contactPhone}</div>
+                    <div className="text-xs text-gray-500 mt-1">
+                      <strong>Contacto:</strong> {t.contactPhone}
+                    </div>
                     <div className="text-xs text-gray-400 mt-1">
                       <strong>Publicado:</strong> {new Date(t.createdAt).toLocaleDateString()}
                     </div>
                     {t.tags && t.tags.length > 0 && (
                       <div className="text-xs text-gray-500 mt-1">
-                        <strong>Etiquetas:</strong> {t.tags.join(", ")}
+                        <strong>Etiquetas:</strong> {t.tags.join(', ')}
                       </div>
                     )}
                   </div>
@@ -127,8 +129,12 @@ const CardJob = ({ trabajos }: CardJobProps) => {
                       {t.category}
                     </div>
                     <div className="flex items-center gap-1 text-xs bg-yellow-50 px-2 py-1 rounded-full text-gray-700 border border-yellow-200 whitespace-nowrap">
-                      <svg className="w-3 h-3 text-yellow-400" fill="currentColor" viewBox="0 0 20 20">
-                        <path d="M10 15l-5.878 3.09 1.123-6.545L.489 6.91l6.572-.955L10 0l2.939 5.955 6.572.955-4.756 4.635 1.123 6.545z"/>
+                      <svg
+                        className="w-3 h-3 text-yellow-400"
+                        fill="currentColor"
+                        viewBox="0 0 20 20"
+                      >
+                        <path d="M10 15l-5.878 3.09 1.123-6.545L.489 6.91l6.572-.955L10 0l2.939 5.955 6.572.955-4.756 4.635 1.123 6.545z" />
                       </svg>
                       <span>{t.rating}</span>
                     </div>

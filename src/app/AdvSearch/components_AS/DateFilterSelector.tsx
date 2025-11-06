@@ -102,13 +102,15 @@ const DateFilterSelector: React.FC<Props> = ({ selectedFilter, selectedDate, onC
     <div>
       {/* Título con el mismo estilo que los otros filtros */}
       <h3 className="text-base mb-2">Fecha de publicación:</h3>
-      
+
       {/* Contenedor principal con estilos consistentes - width ajustado */}
       <div className="bg-white rounded-lg border border-gray-300 p-4 space-y-3 w-fit">
-
         {/* Opciones de radio: Los más recientes y Los más antiguos */}
         {['recent', 'oldest'].map((filter) => (
-          <label key={filter} className="flex items-center gap-2 text-sm cursor-pointer hover:text-[#2B31E0] transition-colors">
+          <label
+            key={filter}
+            className="flex items-center gap-2 text-sm cursor-pointer hover:text-[#2B31E0] transition-colors"
+          >
             <input
               type="radio"
               name="dateFilter"
@@ -175,7 +177,6 @@ const DateFilterSelector: React.FC<Props> = ({ selectedFilter, selectedDate, onC
             </div>
           )}
         </div>
-
       </div>
     </div>
   );

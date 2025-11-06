@@ -12,9 +12,18 @@ const CalendarComponent: React.FC<CalendarProps> = ({ selectedDate, onDateSelect
   const [currentYear, setCurrentYear] = useState(selectedDate.getFullYear());
 
   const monthsFull = [
-    'enero', 'febrero', 'marzo', 'abril',
-    'mayo', 'junio', 'julio', 'agosto',
-    'septiembre', 'octubre', 'noviembre', 'diciembre'
+    'enero',
+    'febrero',
+    'marzo',
+    'abril',
+    'mayo',
+    'junio',
+    'julio',
+    'agosto',
+    'septiembre',
+    'octubre',
+    'noviembre',
+    'diciembre',
   ];
 
   const daysOfWeek = ['L', 'M', 'X', 'J', 'V', 'S', 'D'];
@@ -49,7 +58,7 @@ const CalendarComponent: React.FC<CalendarProps> = ({ selectedDate, onDateSelect
       days.push(
         <div key={`prev-${i}`} className="text-center py-2 text-gray-400 text-sm">
           {prevMonthDays - i}
-        </div>
+        </div>,
       );
     }
 
@@ -64,13 +73,11 @@ const CalendarComponent: React.FC<CalendarProps> = ({ selectedDate, onDateSelect
           key={day}
           onClick={() => handleDateClick(day)}
           className={`text-center py-2 text-sm cursor-pointer rounded-lg transition-colors ${
-            isSelected
-              ? 'bg-cyan-500 text-white font-semibold'
-              : 'hover:bg-gray-100 text-gray-800'
+            isSelected ? 'bg-cyan-500 text-white font-semibold' : 'hover:bg-gray-100 text-gray-800'
           }`}
         >
           {day}
-        </div>
+        </div>,
       );
     }
 
@@ -79,7 +86,7 @@ const CalendarComponent: React.FC<CalendarProps> = ({ selectedDate, onDateSelect
       days.push(
         <div key={`next-${day}`} className="text-center py-2 text-gray-400 text-sm">
           {day}
-        </div>
+        </div>,
       );
     }
 
@@ -140,14 +147,14 @@ const CalendarComponent: React.FC<CalendarProps> = ({ selectedDate, onDateSelect
         {/* Días de la semana */}
         <div className="grid grid-cols-7 gap-1 text-xs font-semibold text-gray-600 mb-1">
           {daysOfWeek.map((day) => (
-            <div key={day} className="text-center py-1">{day}</div>
+            <div key={day} className="text-center py-1">
+              {day}
+            </div>
           ))}
         </div>
 
         {/* Días del mes */}
-        <div className="grid grid-cols-7 gap-1">
-          {renderCalendarDays()}
-        </div>
+        <div className="grid grid-cols-7 gap-1">{renderCalendarDays()}</div>
 
         {/* Botones */}
         <div className="mt-4 pt-3 border-t flex justify-end gap-2">

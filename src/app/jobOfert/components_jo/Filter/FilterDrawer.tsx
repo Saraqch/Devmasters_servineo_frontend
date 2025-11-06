@@ -29,16 +29,16 @@ export function FilterDrawer({ isOpen, onClose, onFiltersApply, onReset }: Filte
   const [selectedJobs, setSelectedJobs] = useState<string[]>([]);
 
   useEffect(() => {
-  if (isOpen) {
-    // En lugar de 'hidden', usa 'scroll' para mantener el espacio de la scrollbar
-    document.body.style.overflowY = 'scroll';
-  } else {
-    document.body.style.overflowY = 'unset';
-  }
-  return () => {
-    document.body.style.overflowY = 'unset';
-  };
-}, [isOpen]);
+    if (isOpen) {
+      // En lugar de 'hidden', usa 'scroll' para mantener el espacio de la scrollbar
+      document.body.style.overflowY = 'scroll';
+    } else {
+      document.body.style.overflowY = 'unset';
+    }
+    return () => {
+      document.body.style.overflowY = 'unset';
+    };
+  }, [isOpen]);
 
   const toggleSection = (section: string) => {
     setOpenSections((prev) => ({
@@ -52,7 +52,7 @@ export function FilterDrawer({ isOpen, onClose, onFiltersApply, onReset }: Filte
     const newRanges = selectedRanges.includes(range)
       ? selectedRanges.filter((r) => r !== range)
       : [...selectedRanges, range];
-    
+
     setSelectedRanges(newRanges);
     applyFilters(newRanges, selectedCity, selectedJobs);
   };
@@ -69,7 +69,7 @@ export function FilterDrawer({ isOpen, onClose, onFiltersApply, onReset }: Filte
     const newJobs = selectedJobs.includes(job)
       ? selectedJobs.filter((j) => j !== job)
       : [...selectedJobs, job];
-    
+
     setSelectedJobs(newJobs);
     applyFilters(selectedRanges, selectedCity, newJobs);
   };
@@ -87,7 +87,6 @@ export function FilterDrawer({ isOpen, onClose, onFiltersApply, onReset }: Filte
         city: data.city || '',
       });
     }
-
   };
 
   // Resetear y aplicar los resultados iniciales
@@ -95,7 +94,7 @@ export function FilterDrawer({ isOpen, onClose, onFiltersApply, onReset }: Filte
     setSelectedRanges([]);
     setSelectedCity('');
     setSelectedJobs([]);
-    
+
     if (onReset) {
       onReset(); // Restaura los resultados iniciales
     } else if (onFiltersApply) {
@@ -141,12 +140,11 @@ export function FilterDrawer({ isOpen, onClose, onFiltersApply, onReset }: Filte
         <div className="p-4 sm:p-6 h-full flex flex-col">
           <div className="flex justify-between items-center mb-6">
             <h2 className="text-base sm:text-lg font-bold">Filtros</h2>
-          
+
             <div className="flex items-center gap-2">
               <button
                 onClick={handleReset}
                 className="bg-[#2B6AE0] text-white px-3 sm:px-4 py-2 rounded-lg text-sm font-semibold hover:bg-[#2B31E0] transition-colors"
-
               >
                 Resetear
               </button>
@@ -168,7 +166,6 @@ export function FilterDrawer({ isOpen, onClose, onFiltersApply, onReset }: Filte
             <div className="mb-6">
               <div
                 className="bg-[#2B6AE0] text-white px-4 py-2 text-sm font-semibold mb-3 cursor-pointer hover:bg-[#2B31E0] rounded-none transition-colors"
-                                          
                 onClick={() => toggleSection('fixer')}
               >
                 <span className="truncate">Nombre de Fixer</span>
@@ -206,7 +203,6 @@ export function FilterDrawer({ isOpen, onClose, onFiltersApply, onReset }: Filte
             <div className="mb-6">
               <div
                 className="bg-[#2B6AE0] text-white px-4 py-2 text-sm font-semibold mb-3 cursor-pointer hover:bg-[#2B31E0] rounded-none transition-colors"
-                                         
                 onClick={() => toggleSection('ciudad')}
               >
                 <span className="truncate">Ciudad</span>
@@ -247,7 +243,6 @@ export function FilterDrawer({ isOpen, onClose, onFiltersApply, onReset }: Filte
             <div className="mb-6">
               <div
                 className="bg-[#2B6AE0] text-white px-4 py-2 text-sm font-semibold mb-3 cursor-pointer hover:bg-[#2B31E0] rounded-none transition-colors"
-                                          
                 onClick={() => toggleSection('trabajo')}
               >
                 <span className="truncate">Tipo de Trabajo</span>

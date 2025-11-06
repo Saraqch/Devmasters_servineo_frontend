@@ -51,7 +51,11 @@ const PriceRangeList: React.FC<PriceRangeListProps> = ({ onFilterChange, clearSi
         if (res.success && res.data) {
           const payload = res.data;
           const items: RangeItem[] = Array.isArray(payload.ranges)
-            ? payload.ranges.map((r) => ({ label: r.label, min: r.min ?? null, max: r.max ?? null }))
+            ? payload.ranges.map((r) => ({
+                label: r.label,
+                min: r.min ?? null,
+                max: r.max ?? null,
+              }))
             : [];
           setRanges(items);
           // cache for faster subsequent mounts
@@ -133,7 +137,9 @@ const PriceRangeList: React.FC<PriceRangeListProps> = ({ onFilterChange, clearSi
               onChange={() => handleCheckboxChange(r.label)}
               className="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-2 focus:ring-blue-500 cursor-pointer"
             />
-            <span className="ml-3 text-sm text-gray-700 capitalize">{formatRangeLabel(r.label)}</span>
+            <span className="ml-3 text-sm text-gray-700 capitalize">
+              {formatRangeLabel(r.label)}
+            </span>
           </label>
         ))}
       </div>

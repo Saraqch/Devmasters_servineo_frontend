@@ -25,15 +25,14 @@ const Paginacion: React.FC<PaginacionProps> = ({
   return (
     <div className="flex gap-1 flex-wrap justify-center mt-4">
       {/* Botón Anterior (solo se muestra si no estamos en la primera página) */}
-{paginaActual > 1 && (
-  <button
-    onClick={() => onChange(paginaActual - 1)}
-    className="px-3 py-1 rounded bg-gray-200 hover:bg-blue-500 hover:text-white"
-  >
-    Anterior
-  </button>
-)}
-
+      {paginaActual > 1 && (
+        <button
+          onClick={() => onChange(paginaActual - 1)}
+          className="px-3 py-1 rounded bg-gray-200 hover:bg-blue-500 hover:text-white"
+        >
+          Anterior
+        </button>
+      )}
 
       {paginas.map((num) => (
         <button
@@ -49,7 +48,7 @@ const Paginacion: React.FC<PaginacionProps> = ({
         </button>
       ))}
 
-       {!yaLlegoAlFinal && (
+      {!yaLlegoAlFinal && (
         <button
           onClick={() => onChange(Math.min(paginaActual + 1, totalPaginas))}
           disabled={paginaActual === totalPaginas}
@@ -67,5 +66,3 @@ const Paginacion: React.FC<PaginacionProps> = ({
 };
 
 export default Paginacion;
-
-

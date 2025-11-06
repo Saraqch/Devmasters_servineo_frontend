@@ -135,7 +135,6 @@ export default function useAdvSearchLogic() {
     return currentFilters;
   };
 
-
   const handleRangeChange = (range: string) => {
     setSelectedRanges((prev) => {
       const newRanges = prev.includes(range) ? prev.filter((r) => r !== range) : [...prev, range];
@@ -258,7 +257,7 @@ export default function useAdvSearchLogic() {
       categorias: shouldOpenCategorias || prev.categorias,
       precio: shouldOpenPrecio || prev.precio,
     }));
-  // run only once on mount
+    // run only once on mount
   }, []);
 
   const handleSearch = (query: string) => {
@@ -287,8 +286,8 @@ export default function useAdvSearchLogic() {
     }
     if (minPrice != null) params.set('minPrice', String(minPrice));
     if (maxPrice != null) params.set('maxPrice', String(maxPrice));
-  // rating: integer 1..5 -> backend will interpret as range 1.0-1.9 etc
-  if (selectedRating != null) params.set('rating', String(selectedRating));
+    // rating: integer 1..5 -> backend will interpret as range 1.0-1.9 etc
+    if (selectedRating != null) params.set('rating', String(selectedRating));
     params.set('page', '1');
     params.set('limit', '10');
     if (typeof window !== 'undefined') {
@@ -362,8 +361,20 @@ export default function useAdvSearchLogic() {
 
     return () => clearTimeout(t);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [searchQuery, selectedRanges, selectedCity, selectedJobs, selectedTags, selectedPriceRanges, selectedPriceKey, titleOnly, exactWords, selectedDateFilter, selectedSpecificDate, selectedRating]);
-
+  }, [
+    searchQuery,
+    selectedRanges,
+    selectedCity,
+    selectedJobs,
+    selectedTags,
+    selectedPriceRanges,
+    selectedPriceKey,
+    titleOnly,
+    exactWords,
+    selectedDateFilter,
+    selectedSpecificDate,
+    selectedRating,
+  ]);
 
   return {
     // state
@@ -408,11 +419,11 @@ export default function useAdvSearchLogic() {
     // date filter API
     selectedDateFilter,
     setSelectedDateFilter,
-  selectedSpecificDate,
-  setSelectedSpecificDate,
-  // rating
-  selectedRating,
-  setSelectedRating,
-  fetchGlobalTotal,
+    selectedSpecificDate,
+    setSelectedSpecificDate,
+    // rating
+    selectedRating,
+    setSelectedRating,
+    fetchGlobalTotal,
   };
 }

@@ -1,6 +1,6 @@
-import { Button } from "@/components/ui/button";
-import { SlidersHorizontal } from "lucide-react";
-import React from "react";
+import { Button } from '@/components/ui/button';
+import { SlidersHorizontal } from 'lucide-react';
+import React from 'react';
 
 export function FilterButton(props: React.ButtonHTMLAttributes<HTMLButtonElement>) {
   return (

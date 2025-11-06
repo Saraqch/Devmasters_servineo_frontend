@@ -16,9 +16,9 @@ export function setSessionId(id: string): void {
   try {
     const current = localStorage.getItem('sessionId');
     if (current && current !== id) {
-      console.warn('⚠️ SessionId está cambiando!', { 
-        anterior: current, 
-        nuevo: id 
+      console.warn('⚠️ SessionId está cambiando!', {
+        anterior: current,
+        nuevo: id,
       });
     }
     localStorage.setItem('sessionId', id);
@@ -30,22 +30,23 @@ export function setSessionId(id: string): void {
 
 export function ensureSessionId(): string {
   if (typeof window === 'undefined') return '';
-  
+
   let sid = null;
   try {
     sid = localStorage.getItem('sessionId');
   } catch (e) {
     console.error('Error leyendo sessionId:', e);
   }
-  
+
   if (!sid) {
     // Generar nuevo sessionId
-    sid = (typeof crypto !== 'undefined' && crypto.randomUUID)
-      ? crypto.randomUUID()
-      : `sid-${Date.now()}-${Math.floor(Math.random() * 10000)}`;
-    
+    sid =
+      typeof crypto !== 'undefined' && crypto.randomUUID
+        ? crypto.randomUUID()
+        : `sid-${Date.now()}-${Math.floor(Math.random() * 10000)}`;
+
     console.log('🆕 Generando nuevo sessionId:', sid);
-    
+
     try {
       localStorage.setItem('sessionId', sid);
     } catch (e) {
@@ -54,6 +55,6 @@ export function ensureSessionId(): string {
   } else {
     console.log('✅ SessionId existente encontrado:', sid);
   }
-  
+
   return sid;
 }

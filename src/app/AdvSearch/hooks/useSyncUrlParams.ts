@@ -6,7 +6,14 @@ import { MutableRefObject } from 'react';
 
 interface Params {
   search?: string;
-  filters?: { range?: string[]; city?: string; category?: string[]; tags?: string[]; minPrice?: number | null; maxPrice?: number | null };
+  filters?: {
+    range?: string[];
+    city?: string;
+    category?: string[];
+    tags?: string[];
+    minPrice?: number | null;
+    maxPrice?: number | null;
+  };
   titleOnly?: boolean;
   exact?: boolean;
   date?: string | null;
@@ -40,9 +47,9 @@ export const useSyncUrlParamsAdv = (p: Params) => {
       exact ||
       (date && date.trim() !== '') ||
       (sortBy && sortBy.trim() !== '') ||
-      (rating != null) ||
+      rating != null ||
       (filters?.range && filters.range.length) ||
-      (filters?.city) ||
+      filters?.city ||
       (filters?.category && filters.category.length) ||
       (filters?.tags && filters.tags.length) ||
       filters?.minPrice != null ||
@@ -53,15 +60,16 @@ export const useSyncUrlParamsAdv = (p: Params) => {
     if (search && search.trim()) params.set('search', search.trim());
     if (titleOnly) params.set('titleOnly', 'true');
     if (exact) params.set('exact', 'true');
-    filters?.range?.forEach(r => params.append('range', r));
+    filters?.range?.forEach((r) => params.append('range', r));
     if (filters?.city) params.set('city', filters.city);
-    if (filters?.category && filters.category.length) params.set('category', filters.category.join(','));
+    if (filters?.category && filters.category.length)
+      params.set('category', filters.category.join(','));
     if (filters?.tags && filters.tags.length) params.set('tags', filters.tags.join(','));
     if (filters?.minPrice != null) params.set('minPrice', String(filters.minPrice));
     if (filters?.maxPrice != null) params.set('maxPrice', String(filters.maxPrice));
-  if (date) params.set('date', date);
-  if (rating != null) params.set('rating', String(rating));
-  if (sortBy) params.set('sort', sortBy);
+    if (date) params.set('date', date);
+    if (rating != null) params.set('rating', String(rating));
+    if (sortBy) params.set('sort', sortBy);
     if (page != null) params.set('page', String(page));
     if (limit != null) params.set('limit', String(limit));
 
@@ -74,7 +82,11 @@ export const useSyncUrlParamsAdv = (p: Params) => {
       if (typeof window !== 'undefined' && window.location.search === '') return;
       router.replace(targetSearch, { scroll: false });
       if (typeof window !== 'undefined' && window.location.search !== targetSearch) {
-        try { window.history.replaceState(null, '', window.location.pathname + targetSearch); } catch { /* noop */ }
+        try {
+          window.history.replaceState(null, '', window.location.pathname + targetSearch);
+        } catch {
+          /* noop */
+        }
       }
       return;
     }
@@ -85,10 +97,24 @@ export const useSyncUrlParamsAdv = (p: Params) => {
     // update Next router and ensure browser address bar shows the search
     router.replace(targetSearch, { scroll: false });
     if (typeof window !== 'undefined' && window.location.search !== targetSearch) {
-      try { window.history.replaceState(null, '', window.location.pathname + targetSearch); } catch { /* noop */ }
+      try {
+        window.history.replaceState(null, '', window.location.pathname + targetSearch);
+      } catch {
+        /* noop */
+      }
     }
-  // Use stable primitive deps to avoid re-running on new object identity
-  }, [search, titleOnly, exact, date, sortBy, page, limit, filtersJson, router, skipSyncRef,
+    // Use stable primitive deps to avoid re-running on new object identity
+  }, [
+    search,
+    titleOnly,
+    exact,
+    date,
+    sortBy,
+    page,
+    limit,
+    filtersJson,
+    router,
+    skipSyncRef,
     // include specific filter fields to satisfy linting (stable primitives)
     (filters && filters.range) || null,
     (filters && filters.category) || null,

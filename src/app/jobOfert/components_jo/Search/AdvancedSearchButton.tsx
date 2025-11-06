@@ -1,4 +1,4 @@
-"use client";
+'use client';
 
 import React from 'react';
 import { useRouter } from 'next/navigation';
@@ -10,7 +10,10 @@ interface AdvancedSearchButtonProps {
   alt?: string;
 }
 
-export function AdvancedSearchButton({ src = '/img/advSearch.jpg', alt = 'Búsqueda avanzada' }: AdvancedSearchButtonProps) {
+export function AdvancedSearchButton({
+  src = '/img/advSearch.jpg',
+  alt = 'Búsqueda avanzada',
+}: AdvancedSearchButtonProps) {
   const router = useRouter();
 
   const handleClick = () => {
@@ -19,7 +22,7 @@ export function AdvancedSearchButton({ src = '/img/advSearch.jpg', alt = 'Búsqu
   };
 
   return (
-  <Button
+    <Button
       onClick={handleClick}
       aria-label="Ir a búsqueda avanzada"
       className={`

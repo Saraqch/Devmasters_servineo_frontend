@@ -73,7 +73,10 @@ export default function AppliedFilters({ params, onClear, onModify }: Props) {
                 }
 
                 tags.push(
-                  <span key="price" className="inline-block bg-sky-50 text-sky-500 text-sm px-3 py-1 rounded">
+                  <span
+                    key="price"
+                    className="inline-block bg-sky-50 text-sky-500 text-sm px-3 py-1 rounded"
+                  >
                     {text}
                   </span>,
                 );
@@ -85,9 +88,17 @@ export default function AppliedFilters({ params, onClear, onModify }: Props) {
 
                 // Show sort tag when provided
                 if (k === 'sortBy' && typeof v === 'string') {
-                  const txt = v === 'recent' ? 'Los más recientes' : v === 'oldest' ? 'Los más antiguos' : String(v);
+                  const txt =
+                    v === 'recent'
+                      ? 'Los más recientes'
+                      : v === 'oldest'
+                        ? 'Los más antiguos'
+                        : String(v);
                   tags.push(
-                    <span key={k} className="inline-block bg-sky-50 text-sky-500 text-sm px-3 py-1 rounded">
+                    <span
+                      key={k}
+                      className="inline-block bg-sky-50 text-sky-500 text-sm px-3 py-1 rounded"
+                    >
                       {txt}
                     </span>,
                   );
@@ -96,7 +107,10 @@ export default function AppliedFilters({ params, onClear, onModify }: Props) {
 
                 if (k === 'titleOnly' && v === true) {
                   tags.push(
-                    <span key={k} className="inline-block bg-sky-50 text-sky-500 text-sm px-3 py-1 rounded">
+                    <span
+                      key={k}
+                      className="inline-block bg-sky-50 text-sky-500 text-sm px-3 py-1 rounded"
+                    >
                       Buscar solo en el título de la Oferta de Trabajo
                     </span>,
                   );
@@ -105,7 +119,10 @@ export default function AppliedFilters({ params, onClear, onModify }: Props) {
 
                 if (k === 'exact' && v === true) {
                   tags.push(
-                    <span key={k} className="inline-block bg-sky-50 text-sky-500 text-sm px-3 py-1 rounded">
+                    <span
+                      key={k}
+                      className="inline-block bg-sky-50 text-sky-500 text-sm px-3 py-1 rounded"
+                    >
                       Palabras Exactas
                     </span>,
                   );
@@ -118,7 +135,10 @@ export default function AppliedFilters({ params, onClear, onModify }: Props) {
                   const m = v.match(/^(\d{4})-(\d{2})-(\d{2})$/);
                   const dateLabel = m ? `${m[3]}/${m[2]}/${m[1]}` : String(v);
                   tags.push(
-                    <span key={k} className="inline-block bg-sky-50 text-sky-500 text-sm px-3 py-1 rounded">
+                    <span
+                      key={k}
+                      className="inline-block bg-sky-50 text-sky-500 text-sm px-3 py-1 rounded"
+                    >
                       {`Fecha: ${dateLabel}`}
                     </span>,
                   );
@@ -132,7 +152,10 @@ export default function AppliedFilters({ params, onClear, onModify }: Props) {
                   value = formatPriceString(value);
                 }
                 tags.push(
-                  <span key={k} className="inline-block bg-sky-50 text-sky-500 text-sm px-3 py-1 rounded">
+                  <span
+                    key={k}
+                    className="inline-block bg-sky-50 text-sky-500 text-sm px-3 py-1 rounded"
+                  >
                     {value}
                   </span>,
                 );

@@ -1,4 +1,4 @@
-"use client";
+'use client';
 
 import React from 'react';
 import { Input } from '@/components/ui/input';
@@ -28,12 +28,12 @@ export const InputOnlySearch = ({ onSearch, onValueChange }: InputOnlySearchProp
     } catch {
       // ignore
     }
-  // run once
+    // run once
   }, []);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setValue(e.target.value);
-  if (typeof onValueChange === 'function') onValueChange(e.target.value);
+    if (typeof onValueChange === 'function') onValueChange(e.target.value);
     const { isValid, error } = validateSearch(e.target.value);
     setError(isValid ? undefined : error);
   };
@@ -42,7 +42,7 @@ export const InputOnlySearch = ({ onSearch, onValueChange }: InputOnlySearchProp
     setValue('');
     setError(undefined);
     onSearch('');
-  if (typeof onValueChange === 'function') onValueChange('');
+    if (typeof onValueChange === 'function') onValueChange('');
   };
 
   const handleSearch = () => {

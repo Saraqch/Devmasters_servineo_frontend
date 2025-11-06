@@ -68,20 +68,20 @@ interface JobOffersState {
   paginaciones: Record<string, PaginationState>;
 }
 
-// Helper para leer localStorage de forma segura
-const getStoredValue = (key: string, defaultValue: any): any => {
+// Helper para leer localStorage de forma segura (genérico)
+const getStoredValue = <T>(key: string, defaultValue: T): T => {
   if (typeof window === 'undefined') return defaultValue;
   try {
     const item = window.localStorage.getItem(key);
-    return item ? JSON.parse(item) : defaultValue;
+    return item ? (JSON.parse(item) as T) : defaultValue;
   } catch (error) {
     console.error(`Error reading localStorage key "${key}":`, error);
     return defaultValue;
   }
 };
 
-// Helper para guardar en localStorage
-const saveToStorage = (key: string, value: any): void => {
+// Helper para guardar en localStorage (genérico)
+const saveToStorage = <T>(key: string, value: T): void => {
   if (typeof window !== 'undefined') {
     try {
       localStorage.setItem(key, JSON.stringify(value));
@@ -148,7 +148,7 @@ export const fetchOffers = createAsyncThunk<FetchOffersResult, FetchOffersParams
   async (params, { rejectWithValue }) => {
     try {
       // Validar que el límite sea uno de los permitidos
-      if (!JOBOFERT_ALLOWED_LIMITS.includes(params.limit as any)) {
+      if (!JOBOFERT_ALLOWED_LIMITS.includes(params.limit)) {
         return rejectWithValue(`Límite no permitido. Valores permitidos: ${JOBOFERT_ALLOWED_LIMITS.join(', ')}`);
       }
 
@@ -266,7 +266,7 @@ const jobOffersSlice = createSlice({
     
     setRegistrosPorPagina: (state, action: PayloadAction<number>) => {
       // Validar que el límite sea permitido
-      if (!JOBOFERT_ALLOWED_LIMITS.includes(action.payload as any)) {
+      if (!JOBOFERT_ALLOWED_LIMITS.includes(action.payload)) {
         return;
       }
 

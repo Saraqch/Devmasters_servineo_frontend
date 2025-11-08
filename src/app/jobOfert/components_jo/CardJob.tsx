@@ -43,12 +43,16 @@ interface OfferData {
 
 interface CardJobProps {
   trabajos: OfferData[];
+  onJobClick?: (job: OfferData) => void;
 }
 
-const CardJob = ({ trabajos }: CardJobProps) => {
-  const handleCardClick = (id: string) => {
-    console.log('Card clicked:', id);
-  };
+const CardJob = ({ trabajos, onJobClick }: CardJobProps) => {
+  const handleCardClick = (job: OfferData) => {
+  console.log('Card clicked:', job._id);
+  if (onJobClick) {
+    onJobClick(job);
+  }
+};
 
   // Función para obtener una imagen basada en el ID (determinística)
   const getImageForJob = useCallback((jobId: string, category: string): string => {
@@ -82,7 +86,7 @@ const CardJob = ({ trabajos }: CardJobProps) => {
           {trabajosConImagenes.map((t) => (
             <button
               key={t._id}
-              onClick={() => handleCardClick(t._id)}
+              onClick={() => handleCardClick(t)}
               className="group relative w-full overflow-hidden rounded-xl border border-[#2B6AE0] bg-white transition-all duration-300 hover:shadow-lg flex flex-col sm:flex-row"
             >
               <div className="relative w-full sm:w-48 h-48 sm:h-50 flex-shrink-0 overflow-hidden bg-gray-200">

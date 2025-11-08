@@ -33,6 +33,34 @@ import AppliedFilters from './components_jo/Search/AppliedFilters';
 import useAppliedFilters from './hooks/useAppliedFilters';
 
 export default function JobOffersPage() {
+  const persona = { id: "507f1f77bcf86cd799439011", nombre: "Usuario POC" };
+  const registrarClick = async (job: any) => {
+  const activityData = {
+    userId: persona.id,
+    date: new Date().toISOString(),
+    role: "requester",
+    type: "click",
+    metadata: {
+      button: "job_offer",
+      jobTitle: job.titulo || job.title || job.name || "Sin título",
+      jobId: job.id || job._id,
+    },
+    timestamp: new Date().toISOString(),
+  };
+
+  try {
+    const response = await fetch("http://localhost:3000/api/ActivityReviews", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(activityData),
+    });
+
+    if (!response.ok) throw new Error("Error al registrar clic en telemetría");
+    console.log("📈 Click registrado correctamente:", job.titulo || job.title);
+  } catch (error) {
+    console.error("Error al registrar clic:", error);
+  }
+};
   const dispatch = useAppDispatch();
   const {
     trabajos,
@@ -277,7 +305,7 @@ export default function JobOffersPage() {
 
         <div className="w-full max-w-5xl mx-auto">
           {!loading && trabajos.length > 0 ? (
-            <CardJob trabajos={trabajos} />
+            <CardJob trabajos={trabajos} onJobClick={registrarClick} />
           ) : !loading ? (
             <NoResultsMessage search={search} />
           ) : null}

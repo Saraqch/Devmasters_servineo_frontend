@@ -6,134 +6,76 @@ interface DropdownListProps {
   onFilterChange?: (filters: { categories: string[] }) => void;
   // A numeric signal that when changed forces the component to clear its selection.
   clearSignal?: number;
+  // current search query from the page (to request tags relevant to the search)
+  searchQuery?: string;
+  // current selected job/type filters from the page (array of strings)
+  categoryFilters?: string[];
 }
 
-const DropdownList: React.FC<DropdownListProps> = ({ onFilterChange, clearSignal }) => {
+const DropdownList: React.FC<DropdownListProps> = ({
+  onFilterChange,
+  clearSignal,
+  searchQuery = '',
+  categoryFilters = [],
+}) => {
   const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
   const [categories, setCategories] = useState<string[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
+    let mounted = true;
     const fetchCategories = async () => {
       try {
         setLoading(true);
+        setError(null);
 
-        // Quick mock mode for development: generate suggestions locally so you don't need backend now.
-        const isDevelopment = process.env.NODE_ENV === 'development';
+        const API_URL = process.env.NEXT_PUBLIC_API_URL || 'https://devmastersservineobackend-ashy.vercel.app';
 
-        const MOCK_TAGS = [
-          'madera',
-          'herramientas',
-          'instalación',
-          'reparación',
-          'montaje',
-          'acabados',
-          'medición',
-          'transporte',
-          'electricidad',
-          'soldadura',
-          'pintura',
-          'barniz',
-          'vigas',
-          'puertas',
-          'ventanas',
-          'cerrajería',
-          'fontanería',
-          'limpieza',
-          'jardinería',
-          'aislamiento',
-          'cerramiento',
-        ];
+        // Build query params: if searchQuery or categoryFilters provided, request tags derived from matching offers.
+        // Otherwise (no search, no category) ask for recent tags (from latest offers).
+        const params: string[] = [];
+        if (searchQuery && searchQuery.trim()) params.push(`search=${encodeURIComponent(searchQuery.trim())}`);
+        if (categoryFilters && categoryFilters.length) params.push(`category=${encodeURIComponent(categoryFilters.join(','))}`);
+        if (!searchQuery && (!categoryFilters || categoryFilters.length === 0)) params.push('recent=true');
+        // limit how many offers to inspect / tags to return
+        params.push('limit=10');
 
-        // helper: try to read current search input value (InputOnlySearch) from the DOM as a fast fallback
-        const getInputSearchValue = (): string => {
-          try {
-            if (typeof window === 'undefined') return '';
-            // try query param first
-            const sp = new URLSearchParams(window.location.search);
-            const s = sp.get('search');
-            if (s) return String(s).trim();
-            // fallback: find input by placeholder (falls back if user typed but didn't apply)
-            const el = document.querySelector(
-              'input[placeholder="¿Qué servicio necesitas?"]',
-            ) as HTMLInputElement | null;
-            if (el && el.value) return el.value.trim();
-          } catch {
-            // ignore
-          }
-          return '';
-        };
+        const endpoint = `${API_URL}/api/devmaster/tags${params.length ? `?${params.join('&')}` : ''}`;
 
-        // simple synonym map for a couple of likely searches
-        const SYNONYMS: Record<string, string[]> = {
-          carpintero: ['madera', 'vigas', 'puertas'],
-          pintor: ['pintura', 'barniz', 'acabados'],
-          electricista: ['electricidad', 'instalación', 'reparación'],
-        };
-
-        if (isDevelopment) {
-          const currentSearch = getInputSearchValue().toLowerCase();
-          let suggestions: string[] = [];
-
-          if (currentSearch) {
-            // pick synonyms if available
-            const tokens = currentSearch
-              .split(/\s+/)
-              .map((t) => t.replace(/[^a-zA-ZñÑáéíóúÁÉÍÓÚüÜ]/g, ''));
-            for (const t of tokens) {
-              if (SYNONYMS[t]) {
-                suggestions = suggestions.concat(SYNONYMS[t]);
-              }
-            }
-
-            // also include mock tags that contain the token
-            suggestions = suggestions.concat(
-              MOCK_TAGS.filter((tag) => tokens.some((tok) => tag.includes(tok))),
-            );
-          }
-
-          // If no search-based suggestions, show most common mock tags
-          if (suggestions.length === 0) suggestions = MOCK_TAGS.slice(0, 6);
-
-          // dedupe and limit to 6 (UI can display more), but user wanted up to 3 in real suggest flow
-          const deduped = Array.from(new Set(suggestions)).slice(0, 6);
-          setCategories(deduped);
-          setError(null);
-          return;
-        }
-
-        // Production: fallback to original network request
-        const API_URL =
-          process.env.NEXT_PUBLIC_API_URL || 'https://devmastersservineobackend-ashy.vercel.app';
-        const endpoint = `${API_URL}/api/devmaster/tags`;
-        const response = await fetch(endpoint, {
-          method: 'GET',
-          headers: { 'Content-Type': 'application/json' },
-        });
+        const response = await fetch(endpoint, { method: 'GET', headers: { 'Content-Type': 'application/json' } });
         if (!response.ok) throw new Error(`Error ${response.status}: ${response.statusText}`);
         const data = await response.json();
-        if (Array.isArray(data)) setCategories(data);
-        else if (data.tags && Array.isArray(data.tags)) setCategories(data.tags);
-        else throw new Error('Formato de respuesta inesperado');
+
+        // Expect either an array of strings or { tags: string[] }
+        const incoming = Array.isArray(data) ? data : data?.tags;
+        if (!Array.isArray(incoming)) throw new Error('Formato de respuesta inesperado');
+
+        if (!mounted) return;
+        setCategories(incoming);
         setError(null);
       } catch (err) {
         let errorMessage = 'Error desconocido';
         if (err instanceof TypeError && err.message === 'Failed to fetch') {
-          errorMessage =
-            'No se puede conectar con el servidor. Verifica que el backend esté corriendo.';
+          errorMessage = 'No se puede conectar con el servidor. Verifica que el backend esté corriendo.';
         } else if (err instanceof Error) {
           errorMessage = err.message;
         }
+        if (!mounted) return;
         setError(errorMessage);
         console.error('❌ Error completo:', err);
       } finally {
-        setLoading(false);
+        if (mounted) setLoading(false);
       }
     };
 
     fetchCategories();
-  }, []);
+
+    return () => {
+      mounted = false;
+    };
+    // Re-run when search or category filters change or when clearSignal toggles
+  }, [searchQuery, JSON.stringify(categoryFilters), clearSignal]);
 
   // When parent requests a clear (clearSignal changes), reset internal selection
   useEffect(() => {

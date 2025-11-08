@@ -345,7 +345,12 @@ function AdvancedSearchPage() {
 
               {openSections.categorias && (
                 <div className="bg-white border border-t-0 border-gray-300 rounded-b-lg shadow-sm">
-                  <DropdownList onFilterChange={handleDropdownChange} clearSignal={clearSignal} />
+                  <DropdownList
+                    onFilterChange={handleDropdownChange}
+                    clearSignal={clearSignal}
+                    searchQuery={searchQuery}
+                    categoryFilters={selectedJobs}
+                  />
                 </div>
               )}
             </div>

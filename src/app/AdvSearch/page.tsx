@@ -150,13 +150,11 @@ function AdvancedSearchPage() {
         </h1>
 
         <div className="max-w-7xl mx-auto">
-          <div className="flex justify-end mb-0">
-            <div className="w-full sm:w-80">
+          <div className="w-full sm:w-[700px] mx-auto">
+            <div className="mb-3">
               <ResultsCounter total={totalRegistros ?? 0} loading={storeLoading ?? loading} />
             </div>
-          </div>
-
-          <div className="w-full sm:w-[700px] mx-auto -mt-60">
+          
             <div className="mb-4">
               <InputOnlySearch onSearch={handleSearch} onValueChange={(v) => setSearchQuery(v)} />
             </div>

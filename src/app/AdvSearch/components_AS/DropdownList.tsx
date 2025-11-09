@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 
 interface DropdownListProps {
   onFilterChange?: (filters: { categories: string[] }) => void;
@@ -22,6 +22,8 @@ const DropdownList: React.FC<DropdownListProps> = ({
   const [categories, setCategories] = useState<string[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+
+  const categoryFiltersKey = useMemo(() => JSON.stringify(categoryFilters), [categoryFilters]);
 
   useEffect(() => {
     let mounted = true;
@@ -45,15 +47,40 @@ const DropdownList: React.FC<DropdownListProps> = ({
 
         const response = await fetch(endpoint, { method: 'GET', headers: { 'Content-Type': 'application/json' } });
         if (!response.ok) throw new Error(`Error ${response.status}: ${response.statusText}`);
-        const data = await response.json();
+        const data: unknown = await response.json();
 
-        // Expect either an array of strings or { tags: string[] }
-        const incoming = Array.isArray(data) ? data : data?.tags;
-        if (!Array.isArray(incoming)) throw new Error('Formato de respuesta inesperado');
+        // Normalize different possible backend shapes into an array of strings.
+        let incoming: string[] = [];
+        const isStringArray = (arr: unknown): arr is string[] =>
+          Array.isArray(arr) && arr.every((it) => typeof it === 'string');
+
+        const getFieldStringArray = (obj: unknown, key: string): string[] | undefined => {
+          if (!obj || typeof obj !== 'object') return undefined;
+          const v = (obj as Record<string, unknown>)[key];
+          return isStringArray(v) ? (v as string[]) : undefined;
+        };
+
+        if (isStringArray(data)) incoming = data;
+        else if (getFieldStringArray(data, 'tags')) incoming = getFieldStringArray(data, 'tags')!;
+        else if (getFieldStringArray((data as Record<string, unknown>)?.data, 'tags')) incoming = getFieldStringArray((data as Record<string, unknown>)?.data, 'tags')!;
+        else if (getFieldStringArray(data, 'result')) incoming = getFieldStringArray(data, 'result')!;
+        else if (getFieldStringArray(data, 'items')) incoming = getFieldStringArray(data, 'items')!;
+        else {
+          // Fallback: try to find the first array-of-strings value in the object
+          const vals = data && typeof data === 'object' ? Object.values(data as Record<string, unknown>) : [];
+          const found = vals.find((v) => isStringArray(v));
+          if (isStringArray(found)) incoming = found as string[];
+        }
 
         if (!mounted) return;
-        setCategories(incoming);
-        setError(null);
+        if (!Array.isArray(incoming) || incoming.length === 0) {
+          // No tags found — set empty list but don't throw to avoid breaking the UI.
+          setCategories([]);
+          setError('No se encontraron etiquetas con el formato esperado desde el backend');
+        } else {
+          setCategories(incoming);
+          setError(null);
+        }
       } catch (err) {
         let errorMessage = 'Error desconocido';
         if (err instanceof TypeError && err.message === 'Failed to fetch') {
@@ -75,7 +102,7 @@ const DropdownList: React.FC<DropdownListProps> = ({
       mounted = false;
     };
     // Re-run when search or category filters change or when clearSignal toggles
-  }, [searchQuery, JSON.stringify(categoryFilters), clearSignal]);
+  }, [searchQuery, categoryFiltersKey, clearSignal]);
 
   // When parent requests a clear (clearSignal changes), reset internal selection
   useEffect(() => {

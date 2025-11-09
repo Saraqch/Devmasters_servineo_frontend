@@ -1,5 +1,5 @@
 'use client';
-import React, { useState } from 'react';
+import React, { useEffect, useRef } from 'react';
 import Header from './components_RAS/Header';
 import Footer from './components_RAS/Footer';
 import PaginationInfo from './components_RAS/PaginationInfo';
@@ -8,24 +8,103 @@ import Paginacion from './components_RAS/Paginacion';
 import AppliedFilters from './components_RAS/AppliedFilters';
 import useAppliedFilters from '../jobOfert/hooks/useAppliedFilters';
 
-export default function ResultsAdvSearchPage() {
-  // Estados locales para la paginación
-  const [paginaActual, setPaginaActual] = useState(1);
-  const [registrosPorPagina, setRegistrosPorPagina] = useState(10);
-  const [totalRegistros] = useState(85); // ejemplo de total de resultados
+import { CardJob, NoResultsMessage } from '@/app/jobOfert/components_jo';
+import { useAppDispatch, useAppSelector } from '@/app/jobOfert/hooks/hook';
+import { fetchOffers, setRegistrosPorPagina } from '@/app/jobOfert/lib/slice';
+import useApplyQueryToStore from '@/app/jobOfert/hooks/useApplyQueryToStore';
+import { useSyncUrlParams } from '@/app/jobOfert/hooks/useSyncUrlParams';
 
-  // Cambiar página
-  const handlePageChange = (num: number) => {
-    setPaginaActual(num);
-  };
+export default function ResultsAdvSearchPage() {
+  const dispatch = useAppDispatch();
+  const {
+    trabajos,
+    loading,
+    error,
+    filters,
+    sortBy,
+    search,
+    titleOnly,
+    exact,
+    paginaActual,
+    registrosPorPagina,
+    totalRegistros,
+    date,
+    rating,
+  } = useAppSelector((state) => state.jobOffers);
+
+  const { showAppliedFilters, appliedParams } = useAppliedFilters();
+  const isInitialMount = useRef(true);
+
+  // Apply URL query to store on mount and trigger fetch
+  useApplyQueryToStore();
+
+  // Sync store -> URL for pagination/sort changes
+  useSyncUrlParams({
+    search,
+    filters,
+    sortBy,
+    date,
+    rating,
+    paginaActual,
+    registrosPorPagina,
+    titleOnly,
+    exact,
+  });
+
+  // initial fetch when no query in URL
+  useEffect(() => {
+    if (!isInitialMount.current) return;
+    if (typeof window !== 'undefined' && window.location.search && window.location.search !== '') {
+      isInitialMount.current = false;
+      return;
+    }
+
+    dispatch(
+      fetchOffers({
+        searchText: '',
+        filters: { range: [], city: '', category: [] },
+        sortBy: 'recent',
+        page: 1,
+        limit: 10,
+      }),
+    );
+    isInitialMount.current = false;
+  }, [dispatch]);
 
   // Cambiar cantidad de registros por página
   const handleRegistrosChange = (valor: number) => {
-    setRegistrosPorPagina(valor);
-    setPaginaActual(1); // resetear a la primera página
+    dispatch(setRegistrosPorPagina(valor));
+    dispatch(
+      fetchOffers({
+        searchText: search,
+        filters,
+        sortBy,
+        date: date || undefined,
+        rating: rating ?? undefined,
+        page: 1,
+        limit: valor,
+        titleOnly,
+        exact,
+      }),
+    );
   };
 
-  const { showAppliedFilters, appliedParams, handleClearApplied } = useAppliedFilters();
+  // Cambiar página
+  const handlePageChange = (num: number) => {
+    dispatch(
+      fetchOffers({
+        searchText: search,
+        filters,
+        sortBy,
+        date: date || undefined,
+        rating: rating ?? undefined,
+        page: num,
+        limit: registrosPorPagina,
+        titleOnly,
+        exact,
+      }),
+    );
+  };
 
   return (
     <>
@@ -37,31 +116,34 @@ export default function ResultsAdvSearchPage() {
 
         {/* Filtros aplicados (si vienen desde la búsqueda avanzada) */}
         {showAppliedFilters && appliedParams && (
-          <AppliedFilters params={appliedParams} onClear={handleClearApplied} />
+          <AppliedFilters params={appliedParams} />
         )}
 
-        {/* Componente selector de registros por página */}
-        <PaginationSelector
-          registrosPorPagina={registrosPorPagina}
-          onChange={handleRegistrosChange}
-        />
+        {/* Componente selector de registros por página - alineado con el card de filtros */}
+        <div className="w-full max-w-5xl mx-auto mt-4 px-4">
+          <PaginationSelector registrosPorPagina={registrosPorPagina} onChange={handleRegistrosChange} />
+        </div>
 
         {/* Componente de información de paginación - Ahora en el medio */}
         <div className="flex justify-center my-4">
-          <PaginationInfo
-            paginaActual={paginaActual}
-            registrosPorPagina={registrosPorPagina}
-            totalRegistros={totalRegistros}
-          />
+          <PaginationInfo paginaActual={paginaActual} registrosPorPagina={registrosPorPagina} totalRegistros={totalRegistros} />
+        </div>
+
+        {/* Cards */}
+        <div className="w-full max-w-5xl mx-auto">
+          {!loading && trabajos && trabajos.length > 0 ? (
+            <CardJob trabajos={trabajos} />
+          ) : !loading ? (
+            <NoResultsMessage search={search} />
+          ) : null}
         </div>
 
         {/* Componente de botones de paginación */}
-        <Paginacion
-          paginaActual={paginaActual}
-          registrosPorPagina={registrosPorPagina}
-          totalRegistros={totalRegistros}
-          onChange={handlePageChange}
-        />
+        {(!loading && trabajos && trabajos.length > 0) && (
+          <div className="mt-8 mb-24 flex justify-center">
+            <Paginacion paginaActual={paginaActual} registrosPorPagina={registrosPorPagina} totalRegistros={totalRegistros} onChange={handlePageChange} />
+          </div>
+        )}
       </main>
       <Footer />
     </>

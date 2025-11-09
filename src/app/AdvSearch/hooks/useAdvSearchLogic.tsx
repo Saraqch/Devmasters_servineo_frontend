@@ -296,14 +296,13 @@ export default function useAdvSearchLogic() {
       } catch {
         // ignore
       }
-      // ensure the query also contains the flag (backup)
-      params.set('fromAdv', 'true');
-      // Navigate to the new results page
-      window.location.href = `/resultsAdvSearch?${params.toString()}`;
+        // We want to redirect to the public jobOfert page and remove any applied filters
+        // so always navigate to the canonical jobOfert URL with the desired defaults.
+        // Note: keep this minimal — don't append filter params from the advanced search.
+        window.location.href = `/jobOfert?sort=recent&page=1&limit=10`;
     } else {
-      params.set('fromAdv', 'true');
-      // server-side/navigation fallback
-      router.push(`/resultsAdvSearch?${params.toString()}`);
+        // server-side/navigation fallback: navigate to jobOfert without filters
+        router.push(`/jobOfert?sort=recent&page=1&limit=10`);
     }
   };
 

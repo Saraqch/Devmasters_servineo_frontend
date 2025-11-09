@@ -83,7 +83,15 @@ export default function useAppliedFilters() {
     setShowAppliedFilters(false);
     setAppliedParams(null);
     if (typeof window !== 'undefined') {
-      router.replace('/jobOfert');
+      // Don't force navigation to /jobOfert. Instead replace the current URL
+      // with the same pathname (clearing query params) so we stay on the
+      // current page (e.g. resultsAdvSearch) while removing filters from URL.
+      try {
+        const path = window.location.pathname || '/';
+        router.replace(path);
+      } catch {
+        // ignore router errors
+      }
     }
     // trigger a default fetch
     dispatch(

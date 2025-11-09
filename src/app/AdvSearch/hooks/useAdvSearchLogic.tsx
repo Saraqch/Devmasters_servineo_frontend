@@ -298,10 +298,12 @@ export default function useAdvSearchLogic() {
       }
       // ensure the query also contains the flag (backup)
       params.set('fromAdv', 'true');
-      window.location.href = `/jobOfert?${params.toString()}`;
+      // Navigate to the new results page
+      window.location.href = `/resultsAdvSearch?${params.toString()}`;
     } else {
       params.set('fromAdv', 'true');
-      router.push(`/jobOfert?${params.toString()}`);
+      // server-side/navigation fallback
+      router.push(`/resultsAdvSearch?${params.toString()}`);
     }
   };
 

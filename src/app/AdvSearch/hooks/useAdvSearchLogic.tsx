@@ -13,6 +13,7 @@ interface FilterStateLocal {
   maxPrice: number | null;
 }
 
+
 // Small helper to parse a price-range key into numeric min/max values.
 // Small helper to parse a price-range key into numeric min/max values.
 // Handles labels like "Menos de $90" (max=90), "Más de $400" (min=400),

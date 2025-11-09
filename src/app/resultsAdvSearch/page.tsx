@@ -5,6 +5,8 @@ import Footer from './components_RAS/Footer';
 import PaginationInfo from './components_RAS/PaginationInfo';
 import PaginationSelector from './components_RAS/PaginationSelector';
 import Paginacion from './components_RAS/Paginacion';
+import AppliedFilters from './components_RAS/AppliedFilters';
+import useAppliedFilters from '../jobOfert/hooks/useAppliedFilters';
 
 export default function ResultsAdvSearchPage() {
   // Estados locales para la paginación
@@ -23,6 +25,8 @@ export default function ResultsAdvSearchPage() {
     setPaginaActual(1); // resetear a la primera página
   };
 
+  const { showAppliedFilters, appliedParams, handleClearApplied } = useAppliedFilters();
+
   return (
     <>
       <Header />
@@ -30,6 +34,11 @@ export default function ResultsAdvSearchPage() {
         <h1 className="text-center text-xl sm:text-2xl md:text-3xl font-bold mb-8 mt-4">
           Resultados de Búsqueda Avanzada
         </h1>
+
+        {/* Filtros aplicados (si vienen desde la búsqueda avanzada) */}
+        {showAppliedFilters && appliedParams && (
+          <AppliedFilters params={appliedParams} onClear={handleClearApplied} />
+        )}
 
         {/* Componente selector de registros por página */}
         <PaginationSelector

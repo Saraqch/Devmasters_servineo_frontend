@@ -14,11 +14,11 @@ export function JobOfferModal({ offer, isOpen, onClose }: Props) {
   if (!isOpen || !offer) return null
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+    <div className="fixed inset-0 z-50 flex items-center justify-center">
       <div className="absolute inset-0 bg-black/60" onClick={onClose} />
-      <div className="relative bg-white w-full max-w-3xl rounded-2xl border border-gray-200 shadow-xl overflow-hidden">
+      <div className="relative bg-white w-full max-w-3xl rounded-2xl border-primary border-2 shadow-xl overflow-hidden">
         {/* Header */}
-        <div className="sticky top-0 bg-gradient-to-r from-white via-white to-primary/5 backdrop-blur-lg border-b border-border/50 p-6 flex items-center justify-between z-10">
+        <div className="sticky top-0 bg-gradient-to-r from-white via-white to-primary/5 backdrop-blur-lg border-b border-primary  p-6 flex items-center justify-between z-10 ">
           <div className="flex-1">
             <h2 className="text-2xl font-bold bg-gradient-to-r from-primary to-blue-600 bg-clip-text text-transparent">
               {offer.fixerName}
@@ -44,14 +44,19 @@ export function JobOfferModal({ offer, isOpen, onClose }: Props) {
               <Sparkles className="w-5 h-5 text-primary" />
               <h3 className="font-bold text-lg">Descripción</h3>
             </div>
-            <p className="text-foreground/80 leading-relaxed bg-muted/30 p-4 rounded-xl">{offer.description}</p>
+            <p className="text-foreground/80 leading-relaxed bg-muted/30 p-4 rounded-xl">
+              {offer.description}
+            </p>
           </div>
 
           <div>
             <h3 className="font-bold text-lg mb-3">Servicios Ofrecidos</h3>
             <div className="flex flex-wrap gap-2">
               {offer.tags.map((tag) => (
-                <span key={tag} className="px-4 py-2 bg-gradient-to-r from-primary/10 to-primary/5 text-primary text-sm rounded-full font-medium border border-primary/20 hover:border-primary/40 hover:scale-105 transition-all">
+                <span
+                  key={tag}
+                  className="px-4 py-2 bg-gradient-to-r from-primary/10 to-primary/5 text-primary text-sm rounded-full font-medium border border-primary/20 hover:border-primary/40 hover:scale-105 transition-all"
+                >
                   {tag}
                 </span>
               ))}
@@ -63,10 +68,13 @@ export function JobOfferModal({ offer, isOpen, onClose }: Props) {
               <h3 className="font-bold text-lg mb-4">Galería de Trabajos</h3>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 {offer.photos.map((photo, index) => (
-                  <div key={index} className="relative aspect-video rounded-xl overflow-hidden bg-muted group cursor-pointer hover:scale-105 transition-transform duration-300 shadow-lg hover:shadow-xl">
+                  <div
+                    key={index}
+                    className="relative aspect-video rounded-xl overflow-hidden bg-muted group cursor-pointer hover:scale-105 transition-transform duration-300 shadow-lg hover:shadow-xl"
+                  >
                     {/* Using next/image for better optimization; fallback to img if needed */}
                     <Image
-                      src={photo || "/placeholder.svg"}
+                      src={photo || '/placeholder.svg'}
                       alt={`Foto ${index + 1}`}
                       fill
                       className="object-cover group-hover:scale-110 transition-transform duration-300"
@@ -104,7 +112,7 @@ export function JobOfferModal({ offer, isOpen, onClose }: Props) {
           </div>
 
           <a
-            href={`https://wa.me/${offer.whatsapp.replace(/\s/g, "")}`}
+            href={`https://wa.me/${offer.whatsapp.replace(/\s/g, '')}`}
             target="_blank"
             rel="noopener noreferrer"
             className="flex items-center justify-center gap-3 w-full bg-gradient-to-r from-primary to-blue-600 text-primary-foreground py-4 rounded-xl text-center font-bold hover:shadow-2xl hover:shadow-primary/30 hover:scale-105 transition-all duration-300"
@@ -115,5 +123,5 @@ export function JobOfferModal({ offer, isOpen, onClose }: Props) {
         </div>
       </div>
     </div>
-  )
+  );
 }

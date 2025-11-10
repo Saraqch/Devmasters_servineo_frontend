@@ -32,6 +32,8 @@ import useApplyQueryToStore from './hooks/useApplyQueryToStore';
 import AppliedFilters from './components_jo/Search/AppliedFilters';
 import useAppliedFilters from './hooks/useAppliedFilters';
 
+const SCROLL_POSITION_KEY = 'jobOffers_scrollPosition';
+
 export default function JobOffersPage() {
   const dispatch = useAppDispatch();
   const {
@@ -54,6 +56,7 @@ export default function JobOffersPage() {
   const stickyRef = useRef<HTMLDivElement | null>(null);
   const { showAppliedFilters, appliedParams, handleClearApplied } = useAppliedFilters();
   const isInitialMount = useRef(true);
+  const scrollRestoredRef = useRef(false);
 
   // Hook para aplicar parámetros de URL al store (si existen)
   useApplyQueryToStore();
@@ -70,6 +73,45 @@ export default function JobOffersPage() {
     titleOnly,
     exact,
   });
+
+  // --- Guardar posición del scroll antes de recargar ---
+  useEffect(() => {
+    const saveScrollPosition = () => {
+      try {
+        sessionStorage.setItem(SCROLL_POSITION_KEY, window.scrollY.toString());
+      } catch (e) {
+        // ignorar errores de sessionStorage
+      }
+    };
+
+    window.addEventListener('beforeunload', saveScrollPosition);
+    return () => {
+      window.removeEventListener('beforeunload', saveScrollPosition);
+    };
+  }, []);
+
+  // --- Restaurar posición del scroll después de cargar los datos ---
+  useEffect(() => {
+    if (!loading && trabajos.length > 0 && !scrollRestoredRef.current) {
+      try {
+        const savedPosition = sessionStorage.getItem(SCROLL_POSITION_KEY);
+        if (savedPosition) {
+          const position = parseInt(savedPosition, 10);
+          if (!isNaN(position)) {
+            // Usar setTimeout para asegurar que el DOM esté completamente renderizado
+            setTimeout(() => {
+              window.scrollTo(0, position);
+              scrollRestoredRef.current = true;
+              // Limpiar la posición guardada después de restaurarla
+              sessionStorage.removeItem(SCROLL_POSITION_KEY);
+            }, 100);
+          }
+        }
+      } catch (e) {
+        // ignorar errores de sessionStorage
+      }
+    }
+  }, [loading, trabajos]);
 
   // --- Carga inicial SOLO si no hay parámetros en la URL ---
   useEffect(() => {
@@ -122,6 +164,7 @@ export default function JobOffersPage() {
 
   // --- Handlers ---
   const handleRegistrosPorPaginaChange = (valor: number) => {
+    scrollRestoredRef.current = true; // Evitar restaurar scroll en cambios de usuario
     dispatch(setRegistrosPorPagina(valor));
     dispatch(
       fetchOffers({
@@ -139,6 +182,7 @@ export default function JobOffersPage() {
   };
 
   const handleFiltersApply = (appliedFilters: FilterState) => {
+    scrollRestoredRef.current = true; // Evitar restaurar scroll en cambios de usuario
     dispatch(setFilters(appliedFilters));
     dispatch(resetPagination());
     dispatch(
@@ -157,6 +201,7 @@ export default function JobOffersPage() {
   };
 
   const handleSortChange = (option: string) => {
+    scrollRestoredRef.current = true; // Evitar restaurar scroll en cambios de usuario
     const backendSort = getSortValue(option);
     dispatch(setSortBy(backendSort));
     dispatch(resetPagination());
@@ -176,6 +221,7 @@ export default function JobOffersPage() {
   };
 
   const handleSearchSubmit = (query: string) => {
+    scrollRestoredRef.current = true; // Evitar restaurar scroll en cambios de usuario
     dispatch(setSearch(query));
     dispatch(resetPagination());
     dispatch(
@@ -194,6 +240,7 @@ export default function JobOffersPage() {
   };
 
   const handlePageChange = (newPage: number) => {
+    scrollRestoredRef.current = true; // Evitar restaurar scroll en cambios de usuario
     dispatch(
       fetchOffers({
         searchText: search,

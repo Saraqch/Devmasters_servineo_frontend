@@ -21,7 +21,7 @@ import { useSyncUrlParams } from '../jobOfert/hooks/useSyncUrlParams';
 
 export default function ResultsAdvSearchPage() {
   const dispatch = useAppDispatch();
-  const { showAppliedFilters, appliedParams, handleClearApplied } = useAppliedFilters();
+  const { showAppliedFilters, appliedParams } = useAppliedFilters();
 
   // Inicializar la página a partir de los query params (viene de AdvSearch)
   useInitialUrlParams();
@@ -30,7 +30,6 @@ export default function ResultsAdvSearchPage() {
   const {
     trabajos,
     loading,
-    error,
     filters,
     sortBy,
     search,
@@ -105,7 +104,7 @@ export default function ResultsAdvSearchPage() {
 
         {/* Filtros aplicados (si vienen desde la búsqueda avanzada) */}
         {showAppliedFilters && appliedParams && (
-          <AppliedFilters params={appliedParams} onClear={handleClearApplied} />
+          <AppliedFilters params={appliedParams} />
         )}
 
         {/* Selector y resumen de paginación (components de jobOfert) */}

@@ -428,6 +428,13 @@ function AdvancedSearchPage() {
                   setSelectedRating(null);
                   // notify children (DropdownList, PriceRangeList) to clear
                   setClearSignal((s) => s + 1);
+                  try {
+                    window.sessionStorage.removeItem('advSearch_state');
+                    window.sessionStorage.removeItem('fromAdv');
+                    window.sessionStorage.removeItem('appliedFilters');
+                  } catch {
+                    /* noop */
+                  }
                   // fetch global total again (hook exposes helper)
                   fetchGlobalTotal();
                 }}

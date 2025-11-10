@@ -217,9 +217,15 @@ export default function useAdvSearchLogic() {
     // `category` and `tags` may be encoded either as repeated params (category=A&category=B)
     // or as a single comma-joined value (category=A,B). Support both formats for backward compatibility.
     const categoriesFromAll = sp.getAll('category') || [];
+    // categoriesFromAll may already contain comma-joined values or multiple entries.
+    // Normalize by splitting on commas and flattening.
     let urlCategory: string[] = [];
-    if (categoriesFromAll.length) urlCategory = categoriesFromAll.filter(Boolean);
-    else {
+    if (categoriesFromAll.length) {
+      urlCategory = categoriesFromAll
+        .flatMap((s) => (typeof s === 'string' ? s.split(',') : []))
+        .map((s) => s.trim())
+        .filter(Boolean);
+    } else {
       const cat = sp.get('category');
       if (cat != null) urlCategory = cat.split(',').map((s) => s.trim()).filter(Boolean);
     }
@@ -227,8 +233,12 @@ export default function useAdvSearchLogic() {
 
     const tagsFromAll = sp.getAll('tags') || [];
     let urlTags: string[] = [];
-    if (tagsFromAll.length) urlTags = tagsFromAll.filter(Boolean);
-    else {
+    if (tagsFromAll.length) {
+      urlTags = tagsFromAll
+        .flatMap((s) => (typeof s === 'string' ? s.split(',') : []))
+        .map((s) => s.trim())
+        .filter(Boolean);
+    } else {
       const t = sp.get('tags');
       if (t != null) urlTags = t.split(',').map((s) => s.trim()).filter(Boolean);
     }
@@ -312,6 +322,25 @@ export default function useAdvSearchLogic() {
       }
       // ensure the query also contains the flag (backup)
       params.set('fromAdv', 'true');
+      // persist the current AdvSearch UI state so returning to this page restores selections
+      try {
+        const state = {
+          search: searchQuery,
+          titleOnly,
+          exact: exactWords,
+          selectedRanges,
+          selectedCity,
+          selectedJobs,
+          selectedTags,
+          selectedPriceKey,
+          selectedDateFilter,
+          selectedSpecificDate: selectedSpecificDate ? selectedSpecificDate.toISOString() : null,
+          selectedRating,
+        };
+        window.sessionStorage.setItem('advSearch_state', JSON.stringify(state));
+      } catch {
+        // ignore
+      }
       // Navigate to the new results page
       window.location.href = `/resultsAdvSearch?${params.toString()}`;
     } else {

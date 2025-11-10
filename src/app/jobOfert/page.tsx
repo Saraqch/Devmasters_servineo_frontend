@@ -124,7 +124,7 @@ export default function JobOffersPage() {
         searchText: search,
         filters: appliedFilters,
         sortBy,
-        page: 1,
+        page:  paginaActual,// cambiaddo a paginaactual
         limit: registrosPorPagina,
       }),
     );
@@ -139,7 +139,7 @@ export default function JobOffersPage() {
         searchText: search,
         filters,
         sortBy: backendSort,
-        page: 1,
+        page: paginaActual,
         limit: registrosPorPagina,
       }),
     );

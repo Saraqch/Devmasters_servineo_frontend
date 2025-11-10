@@ -44,6 +44,10 @@ export interface FilterState {
   range: string[];
   city: string;
   category: string[];
+  // Optional extended filters
+  tags?: string[];
+  minPrice?: number | null;
+  maxPrice?: number | null;
 }
 
 interface JobOffersState {
@@ -53,6 +57,10 @@ interface JobOffersState {
   filters: FilterState;
   sortBy: string;
   search: string;
+  date?: string | null;
+  rating?: number | null;
+  titleOnly?: boolean;
+  exact?: boolean;
   paginaActual: number;
   registrosPorPagina: number;
   totalRegistros: number;
@@ -60,20 +68,20 @@ interface JobOffersState {
   paginaciones: Record<string, PaginationState>;
 }
 
-// Helper para leer localStorage de forma segura
-const getStoredValue = (key: string, defaultValue: any): any => {
+// Helper para leer localStorage de forma segura (genérico)
+const getStoredValue = <T>(key: string, defaultValue: T): T => {
   if (typeof window === 'undefined') return defaultValue;
   try {
     const item = window.localStorage.getItem(key);
-    return item ? JSON.parse(item) : defaultValue;
+    return item ? (JSON.parse(item) as T) : defaultValue;
   } catch (error) {
     console.error(`Error reading localStorage key "${key}":`, error);
     return defaultValue;
   }
 };
 
-// Helper para guardar en localStorage
-const saveToStorage = (key: string, value: any): void => {
+// Helper para guardar en localStorage (genérico)
+const saveToStorage = <T>(key: string, value: T): void => {
   if (typeof window !== 'undefined') {
     try {
       localStorage.setItem(key, JSON.stringify(value));
@@ -88,8 +96,10 @@ const getInitialJobOffersState = (): JobOffersState => {
   const savedPage = getStoredValue('jobOffers_paginaActual', 1);
   const savedPageSize = getStoredValue('jobOffers_registrosPorPagina', 10);
   const savedSearch = getStoredValue('jobOffers_search', '');
-  const savedFilters = getStoredValue('jobOffers_filters', { 
-    range: [], city: '', category: [] 
+  const savedFilters = getStoredValue('jobOffers_filters', {
+    range: [],
+    city: '',
+    category: [],
   });
   const savedSortBy = getStoredValue('jobOffers_sortBy', 'recent');
 
@@ -100,6 +110,10 @@ const getInitialJobOffersState = (): JobOffersState => {
     filters: savedFilters,
     sortBy: savedSortBy,
     search: savedSearch,
+    date: null,
+    rating: null,
+    titleOnly: false,
+    exact: false,
     paginaActual: savedPage,
     registrosPorPagina: savedPageSize,
     totalRegistros: 0,
@@ -123,6 +137,11 @@ interface FetchOffersParams {
   sortBy: string;
   page: number;
   limit: number;
+  titleOnly?: boolean;
+  exact?: boolean;
+  date?: string;
+  // optional integer rating (1..5) meaning filter for that integer range (1 -> 1.0-1.9)
+  rating?: number;
   listKey?: string;
 }
 
@@ -131,8 +150,10 @@ export const fetchOffers = createAsyncThunk<FetchOffersResult, FetchOffersParams
   async (params, { rejectWithValue }) => {
     try {
       // Validar que el límite sea uno de los permitidos
-      if (!JOBOFERT_ALLOWED_LIMITS.includes(params.limit as any)) {
-        return rejectWithValue(`Límite no permitido. Valores permitidos: ${JOBOFERT_ALLOWED_LIMITS.join(', ')}`);
+      if (!JOBOFERT_ALLOWED_LIMITS.includes(params.limit)) {
+        return rejectWithValue(
+          `Límite no permitido. Valores permitidos: ${JOBOFERT_ALLOWED_LIMITS.join(', ')}`,
+        );
       }
 
       const urlParams = new URLSearchParams();
@@ -157,6 +178,34 @@ export const fetchOffers = createAsyncThunk<FetchOffersResult, FetchOffersParams
 
       if (params.sortBy) {
         urlParams.append('sortBy', params.sortBy);
+      }
+
+      // optional exact date filter (YYYY-MM-DD)
+      if (params.date) {
+        urlParams.append('date', params.date);
+      }
+
+      // optional rating integer 1..5 -> backend should interpret as range [n, n+0.9]
+      if (params.rating != null) {
+        urlParams.append('rating', String(params.rating));
+      }
+
+      if (params.titleOnly) {
+        urlParams.append('titleOnly', 'true');
+      }
+      if (params.exact) {
+        urlParams.append('exact', 'true');
+      }
+
+      // Extended filters: tags, minPrice, maxPrice
+      if (params.filters.tags && params.filters.tags.length) {
+        urlParams.append('tags', params.filters.tags.join(','));
+      }
+      if (params.filters.minPrice != null) {
+        urlParams.append('minPrice', String(params.filters.minPrice));
+      }
+      if (params.filters.maxPrice != null) {
+        urlParams.append('maxPrice', String(params.filters.maxPrice));
       }
 
       urlParams.append('page', params.page.toString());
@@ -196,20 +245,32 @@ const jobOffersSlice = createSlice({
       state.search = action.payload;
       saveToStorage('jobOffers_search', action.payload);
     },
-    
+
     setFilters: (state, action: PayloadAction<FilterState>) => {
       state.filters = action.payload;
       saveToStorage('jobOffers_filters', action.payload);
     },
-    
+    setTitleOnly: (state, action: PayloadAction<boolean>) => {
+      state.titleOnly = action.payload;
+    },
+    setExact: (state, action: PayloadAction<boolean>) => {
+      state.exact = action.payload;
+    },
+
     setSortBy: (state, action: PayloadAction<string>) => {
       state.sortBy = action.payload;
       saveToStorage('jobOffers_sortBy', action.payload);
     },
-    
+    setDate: (state, action: PayloadAction<string | null>) => {
+      state.date = action.payload;
+    },
+    setRating: (state, action: PayloadAction<number | null>) => {
+      state.rating = action.payload;
+    },
+
     setRegistrosPorPagina: (state, action: PayloadAction<number>) => {
       // Validar que el límite sea permitido
-      if (!JOBOFERT_ALLOWED_LIMITS.includes(action.payload as any)) {
+      if (!JOBOFERT_ALLOWED_LIMITS.includes(action.payload)) {
         return;
       }
 
@@ -231,7 +292,7 @@ const jobOffersSlice = createSlice({
         state.paginaciones['offers'].paginaActual = 1;
       }
     },
-    
+
     setPaginaActual: (state, action: PayloadAction<number>) => {
       state.paginaActual = action.payload;
       saveToStorage('jobOffers_paginaActual', action.payload);
@@ -247,7 +308,7 @@ const jobOffersSlice = createSlice({
         state.paginaciones['offers'].paginaActual = action.payload;
       }
     },
-    
+
     resetFilters: (state) => {
       state.filters = { range: [], city: '', category: [] };
       state.sortBy = 'recent';
@@ -271,7 +332,7 @@ const jobOffersSlice = createSlice({
         state.paginaciones['offers'].paginaActual = 1;
       }
     },
-    
+
     resetPagination: (state) => {
       state.paginaActual = 1;
       saveToStorage('jobOffers_paginaActual', 1);
@@ -307,7 +368,7 @@ const jobOffersSlice = createSlice({
       }
     },
   },
-  
+
   extraReducers: (builder) => {
     builder
       .addCase(fetchOffers.pending, (state) => {
@@ -331,13 +392,13 @@ const jobOffersSlice = createSlice({
 
         // Actualizar datos
         state.trabajos = payload.data;
-        
+
         // Actualizar paginación en la clave específica
         state.paginaciones[key].paginaActual = payload.page;
         state.paginaciones[key].registrosPorPagina = payload.limit;
         state.paginaciones[key].totalRegistros = payload.total;
         state.paginaciones[key].totalPages = payload.totalPages;
-        
+
         // Sincronizar campos top-level para compatibilidad
         state.paginaActual = state.paginaciones[key].paginaActual;
         state.registrosPorPagina = state.paginaciones[key].registrosPorPagina;
@@ -348,7 +409,10 @@ const jobOffersSlice = createSlice({
         saveToStorage('jobOffers_paginaActual', state.paginaActual);
 
         // Manejo de páginas que no existen
-        if (action.payload.requestedPage > action.payload.totalPages && action.payload.totalPages > 0) {
+        if (
+          action.payload.requestedPage > action.payload.totalPages &&
+          action.payload.totalPages > 0
+        ) {
           state.error = `Página ${action.payload.requestedPage} no existe. Total de páginas: ${action.payload.totalPages}. Ajustando a página 1.`;
           state.paginaActual = 1;
           saveToStorage('jobOffers_paginaActual', 1);
@@ -367,7 +431,11 @@ const jobOffersSlice = createSlice({
 export const {
   setSearch,
   setFilters,
+  setTitleOnly,
+  setExact,
   setSortBy,
+  setDate,
+  setRating,
   setRegistrosPorPagina,
   setPaginaActual,
   resetFilters,
@@ -376,13 +444,18 @@ export const {
 } = jobOffersSlice.actions;
 
 // Selector para obtener la paginación por clave (por defecto 'offers')
-export const selectPaginationByKey = (state: { jobOffers: JobOffersState }, key: string = 'offers'): PaginationState => {
-  return state.jobOffers.paginaciones[key] ?? {
-    paginaActual: 1,
-    registrosPorPagina: 10,
-    totalRegistros: 0,
-    totalPages: 0,
-  };
+export const selectPaginationByKey = (
+  state: { jobOffers: JobOffersState },
+  key: string = 'offers',
+): PaginationState => {
+  return (
+    state.jobOffers.paginaciones[key] ?? {
+      paginaActual: 1,
+      registrosPorPagina: 10,
+      totalRegistros: 0,
+      totalPages: 0,
+    }
+  );
 };
 
 export default jobOffersSlice.reducer;

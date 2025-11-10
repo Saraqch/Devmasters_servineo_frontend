@@ -9,7 +9,7 @@ export const SORT_OPTIONS = {
 } as const;
 
 export const sortMap: Record<string, string> = {
-  'Destacados': SORT_OPTIONS.DESTACADOS,
+  Destacados: SORT_OPTIONS.DESTACADOS,
   'Los más recientes': SORT_OPTIONS.RECIENTES,
   'Los más antiguos': SORT_OPTIONS.ANTIGUOS,
   'Nombre A-Z': SORT_OPTIONS.NOMBRE_ASC,

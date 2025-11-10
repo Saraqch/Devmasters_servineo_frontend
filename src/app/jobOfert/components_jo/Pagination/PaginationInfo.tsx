@@ -27,5 +27,3 @@ const PaginationInfo: React.FC<PaginationInfoProps> = ({
 };
 
 export default PaginationInfo;
-
-

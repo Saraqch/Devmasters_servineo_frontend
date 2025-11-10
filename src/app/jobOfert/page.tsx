@@ -165,6 +165,7 @@ export default function JobOffersPage() {
   // --- Handlers ---
   const handleRegistrosPorPaginaChange = (valor: number) => {
     scrollRestoredRef.current = true; // Evitar restaurar scroll en cambios de usuario
+    window.scrollTo({ top: 0, behavior: 'smooth' }); // Volver arriba al cambiar registros por página
     dispatch(setRegistrosPorPagina(valor));
     dispatch(
       fetchOffers({
@@ -183,6 +184,7 @@ export default function JobOffersPage() {
 
   const handleFiltersApply = (appliedFilters: FilterState) => {
     scrollRestoredRef.current = true; // Evitar restaurar scroll en cambios de usuario
+    window.scrollTo({ top: 0, behavior: 'smooth' }); // Volver arriba al aplicar filtros
     dispatch(setFilters(appliedFilters));
     dispatch(resetPagination());
     dispatch(
@@ -202,6 +204,7 @@ export default function JobOffersPage() {
 
   const handleSortChange = (option: string) => {
     scrollRestoredRef.current = true; // Evitar restaurar scroll en cambios de usuario
+    window.scrollTo({ top: 0, behavior: 'smooth' }); // Volver arriba al cambiar orden
     const backendSort = getSortValue(option);
     dispatch(setSortBy(backendSort));
     dispatch(resetPagination());
@@ -222,6 +225,7 @@ export default function JobOffersPage() {
 
   const handleSearchSubmit = (query: string) => {
     scrollRestoredRef.current = true; // Evitar restaurar scroll en cambios de usuario
+    window.scrollTo({ top: 0, behavior: 'smooth' }); // Volver arriba al buscar
     dispatch(setSearch(query));
     dispatch(resetPagination());
     dispatch(
@@ -241,6 +245,7 @@ export default function JobOffersPage() {
 
   const handlePageChange = (newPage: number) => {
     scrollRestoredRef.current = true; // Evitar restaurar scroll en cambios de usuario
+    // NO volver arriba al cambiar de página - mantener posición para facilitar navegación
     dispatch(
       fetchOffers({
         searchText: search,

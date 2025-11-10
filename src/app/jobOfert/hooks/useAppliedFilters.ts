@@ -1,8 +1,7 @@
 'use client';
 import { useEffect, useState } from 'react';
-import { useRouter } from 'next/navigation';
-import { useAppDispatch, useAppSelector } from './hook';
-import { fetchOffers } from '../lib/slice';
+import { useAppDispatch } from './hook';
+import { resetFilters } from '../lib/slice';
 
 type FilterParamValue = string | string[] | number | boolean | null;
 type ParamsMap = Record<string, FilterParamValue>;
@@ -10,9 +9,7 @@ type ParamsMap = Record<string, FilterParamValue>;
 export default function useAppliedFilters() {
   const [showAppliedFilters, setShowAppliedFilters] = useState(false);
   const [appliedParams, setAppliedParams] = useState<ParamsMap | null>(null);
-  const router = useRouter();
   const dispatch = useAppDispatch();
-  const registrosPorPagina = useAppSelector((s) => s.jobOffers.registrosPorPagina);
 
   useEffect(() => {
     if (typeof window === 'undefined') return;
@@ -83,18 +80,12 @@ export default function useAppliedFilters() {
     setShowAppliedFilters(false);
     setAppliedParams(null);
     if (typeof window !== 'undefined') {
-      router.replace('/jobOfert');
+      // Reset filters in the store and persist (so URL sync will not re-add params)
+      dispatch(resetFilters());
+      // Do a full navigation to /jobOfert without any query params
+      window.location.href = '/jobOfert';
     }
-    // trigger a default fetch
-    dispatch(
-      fetchOffers({
-        searchText: '',
-        filters: { range: [], city: '', category: [] },
-        sortBy: 'recent',
-        page: 1,
-        limit: registrosPorPagina,
-      }),
-    );
+    // fetch will be triggered by the jobOfert page on load after navigation
   };
 
   return { showAppliedFilters, appliedParams, handleClearApplied };

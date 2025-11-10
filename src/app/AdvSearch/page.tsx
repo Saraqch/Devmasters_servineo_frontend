@@ -1,6 +1,7 @@
 'use client';
 
-import React from 'react';
+import React, { useEffect } from 'react';
+import { useRouter } from 'next/navigation';
 import Header from '@/app/jobOfert/components_jo/Header';
 import { ResultsCounter } from '@/app/AdvSearch/components_AS/ResultsCounter';
 import { InputOnlySearch } from '@/app/jobOfert/components_jo/Search/InputOnlySearch';
@@ -103,6 +104,20 @@ function AdvancedSearchPage() {
     setSelectedRating,
     fetchGlobalTotal,
   } = useAdvSearchLogic();
+
+  const router = useRouter();
+
+  // Close advanced search and go back to jobOfert when user presses Escape
+  useEffect(() => {
+    const onKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') {
+        router.push('/jobOfert');
+      }
+    };
+
+    window.addEventListener('keydown', onKeyDown);
+    return () => window.removeEventListener('keydown', onKeyDown);
+  }, [router]);
 
   // compute min/max from selectedPriceKey (kept local for URL sync)
   const _priceNormalized = (selectedPriceKey || '').replace(/[$€£,]/g, '');
@@ -428,6 +443,13 @@ function AdvancedSearchPage() {
                   setSelectedRating(null);
                   // notify children (DropdownList, PriceRangeList) to clear
                   setClearSignal((s) => s + 1);
+                  try {
+                    window.sessionStorage.removeItem('advSearch_state');
+                    window.sessionStorage.removeItem('fromAdv');
+                    window.sessionStorage.removeItem('appliedFilters');
+                  } catch {
+                    /* noop */
+                  }
                   // fetch global total again (hook exposes helper)
                   fetchGlobalTotal();
                 }}

@@ -2,11 +2,11 @@
 import React from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
-import { useRouter, usePathname } from 'next/navigation';
+import { useAppDispatch } from '@/app/jobOfert/hooks/hook';
+import { resetFilters } from '@/app/jobOfert/lib/slice';
 
 const Header = () => {
-  const router = useRouter();
-  const pathname = usePathname();
+  const dispatch = useAppDispatch();
 
   const scrollToTop = () => {
     window.scrollTo({
@@ -18,21 +18,20 @@ const Header = () => {
   const handleJobOffersClick = (e: React.MouseEvent<HTMLAnchorElement>) => {
     e.preventDefault();
 
-    // Si ya estamos en la página de jobOfert, forzar recarga
-    if (pathname === '/jobOfert') {
-      // Limpiar localStorage para resetear el estado
+    // Reset store filters so URL sync won't re-add params, and clear storage
+    dispatch(resetFilters());
+    try {
       localStorage.removeItem('jobOffers_paginaActual');
       localStorage.removeItem('jobOffers_registrosPorPagina');
       localStorage.removeItem('jobOffers_search');
       localStorage.removeItem('jobOffers_filters');
       localStorage.removeItem('jobOffers_sortBy');
-
-      // Navegar con recarga completa
-      window.location.href = '/jobOfert?sort=recent&page=1&limit=10';
-    } else {
-      // Si venimos de otra página, navegar normalmente
-      router.push('/jobOfert?sort=recent&page=1&limit=10');
+    } catch {
+      // ignore
     }
+
+    // Force a full navigation to /jobOfert without query params
+    window.location.href = '/jobOfert';
   };
 
   return (
@@ -65,7 +64,7 @@ const Header = () => {
             Servicios
           </Link>
           <Link
-            href="/jobOfert?sort=recent&page=1&limit=10"
+            href="/jobOfert"
             onClick={handleJobOffersClick}
             className="text-[#2B6AE0] hover:text-[#2B6AE0]/90 font-medium relative after:absolute after:bottom-0 after:left-0 after:h-0.5 after:w-full after:bg-[#2B6AE0] after:transition-all"
           >

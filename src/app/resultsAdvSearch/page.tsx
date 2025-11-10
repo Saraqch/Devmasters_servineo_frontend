@@ -1,61 +1,143 @@
-'use client';
-import React, { useState } from 'react';
+ 'use client';
+import React, { Suspense } from 'react';
 import Header from './components_RAS/Header';
 import Footer from './components_RAS/Footer';
-import PaginationInfo from './components_RAS/PaginationInfo';
-import PaginationSelector from './components_RAS/PaginationSelector';
-import Paginacion from './components_RAS/Paginacion';
+import AppliedFilters from './components_RAS/AppliedFilters';
+import useAppliedFilters from '../jobOfert/hooks/useAppliedFilters';
+
+// Reutilizamos las cards y componentes de paginación desde jobOfert
+import {
+  CardJob,
+  Paginacion,
+  PaginationInfo,
+  PaginationSelector,
+} from '../jobOfert/components_jo';
+
+// Store hooks y acciones
+import { useAppDispatch, useAppSelector } from '../jobOfert/hooks/hook';
+import { fetchOffers, setRegistrosPorPagina, setPaginaActual } from '../jobOfert/lib/slice';
+import { useInitialUrlParams } from '../jobOfert/hooks/useInitialUrlParams';
+import { useSyncUrlParams } from '../jobOfert/hooks/useSyncUrlParams';
 
 export default function ResultsAdvSearchPage() {
-  // Estados locales para la paginación
-  const [paginaActual, setPaginaActual] = useState(1);
-  const [registrosPorPagina, setRegistrosPorPagina] = useState(10);
-  const [totalRegistros] = useState(85); // ejemplo de total de resultados
+  const dispatch = useAppDispatch();
+  const { showAppliedFilters, appliedParams } = useAppliedFilters();
 
-  // Cambiar página
-  const handlePageChange = (num: number) => {
-    setPaginaActual(num);
+  // Inicializar la página a partir de los query params (viene de AdvSearch)
+  useInitialUrlParams();
+
+  // Leer estado compartido de jobOffers
+  const {
+    trabajos,
+    loading,
+    filters,
+    sortBy,
+    search,
+    titleOnly,
+    exact,
+    paginaActual,
+    registrosPorPagina,
+    totalRegistros,
+    date,
+    rating,
+  } = useAppSelector((s) => s.jobOffers);
+
+  const handlePageChange = (newPage: number) => {
+    // optimistically update current page in store so UI updates immediately
+    dispatch(setPaginaActual(newPage));
+    dispatch(
+      fetchOffers({
+        searchText: search,
+        filters,
+        sortBy,
+        date: date || undefined,
+        rating: rating ?? undefined,
+        page: newPage,
+        limit: registrosPorPagina,
+        titleOnly,
+        exact,
+        listKey: 'offers',
+      }),
+    );
   };
 
-  // Cambiar cantidad de registros por página
   const handleRegistrosChange = (valor: number) => {
-    setRegistrosPorPagina(valor);
-    setPaginaActual(1); // resetear a la primera página
+    // Actualiza el tamaño de página y realiza fetch en la página 1
+    dispatch(setRegistrosPorPagina(valor));
+    dispatch(
+      fetchOffers({
+        searchText: search,
+        filters,
+        sortBy,
+        date: date || undefined,
+        rating: rating ?? undefined,
+        page: 1,
+        limit: valor,
+        titleOnly,
+        exact,
+        listKey: 'offers',
+      }),
+    );
   };
+
+  // Mantener sincronizada la URL con el estado (página, limit, filtros, etc.)
+  useSyncUrlParams({
+    search,
+    filters,
+    sortBy,
+    date,
+    rating,
+    paginaActual,
+    registrosPorPagina,
+    titleOnly,
+    exact,
+  });
 
   return (
-    <>
-      <Header />
-      <main className="pt-20 lg:pt-24 px-4 sm:px-6 md:px-12 lg:px-24 pb-12">
+    <Suspense fallback={<div />}> 
+      <>
+        <Header />
+        <main className="pt-20 lg:pt-24 px-4 sm:px-6 md:px-12 lg:px-24 pb-12">
         <h1 className="text-center text-xl sm:text-2xl md:text-3xl font-bold mb-8 mt-4">
           Resultados de Búsqueda Avanzada
         </h1>
 
-        {/* Componente selector de registros por página */}
-        <PaginationSelector
-          registrosPorPagina={registrosPorPagina}
-          onChange={handleRegistrosChange}
-        />
+        {/* Filtros aplicados: renderizo siempre el contenedor para evitar
+            desajustes de hidratación entre servidor/cliente. Si no hay
+            appliedParams se pasa un objeto vacío (no se muestran tags). */}
+        <AppliedFilters params={appliedParams ?? {}} />
 
-        {/* Componente de información de paginación - Ahora en el medio */}
-        <div className="flex justify-center my-4">
-          <PaginationInfo
-            paginaActual={paginaActual}
-            registrosPorPagina={registrosPorPagina}
-            totalRegistros={totalRegistros}
-          />
+        {/* Selector y resumen de paginación (components de jobOfert) */}
+        {/* Alinéo el selector con el mismo ancho y padding que AppliedFilters */}
+        <div className="w-full max-w-5xl mx-auto mt-4 px-4 mb-2">
+          <PaginationSelector registrosPorPagina={registrosPorPagina} onChange={handleRegistrosChange} />
         </div>
 
-        {/* Componente de botones de paginación */}
-        <Paginacion
-          paginaActual={paginaActual}
-          registrosPorPagina={registrosPorPagina}
-          totalRegistros={totalRegistros}
-          onChange={handlePageChange}
-        />
-      </main>
-      <Footer />
-    </>
+        <div className="flex justify-center my-4">
+          <PaginationInfo paginaActual={paginaActual} registrosPorPagina={registrosPorPagina} totalRegistros={totalRegistros} />
+        </div>
+
+        {/* Cards de resultados (reutilizadas) */}
+        <div className="w-full max-w-5xl mx-auto">
+          {!loading && trabajos && trabajos.length > 0 ? (
+            <CardJob trabajos={trabajos} />
+          ) : !loading ? (
+            <div className="text-gray-500 text-center">No se encontraron resultados</div>
+          ) : (
+            <div className="text-blue-500 text-center mb-4 p-3 bg-blue-100 rounded">Cargando resultados...</div>
+          )}
+        </div>
+
+        {/* Paginación inferior (reutilizada) */}
+        {!loading && trabajos && trabajos.length > 0 && (
+          <div className="mt-8 mb-24 flex justify-center">
+            <Paginacion paginaActual={paginaActual} registrosPorPagina={registrosPorPagina} totalRegistros={totalRegistros} onChange={handlePageChange} />
+          </div>
+        )}
+        </main>
+        <Footer />
+      </>
+    </Suspense>
   );
 }
 

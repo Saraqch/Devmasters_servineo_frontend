@@ -29,8 +29,6 @@ import {
 import { getSortValue, sortMapInverse } from './lib/constants/sortOptions';
 import { useSyncUrlParams } from './hooks/useSyncUrlParams';
 import useApplyQueryToStore from './hooks/useApplyQueryToStore';
-import AppliedFilters from './components_jo/Search/AppliedFilters';
-import useAppliedFilters from './hooks/useAppliedFilters';
 
 export default function JobOffersPage() {
   const dispatch = useAppDispatch();
@@ -52,7 +50,6 @@ export default function JobOffersPage() {
 
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
   const stickyRef = useRef<HTMLDivElement | null>(null);
-  const { showAppliedFilters, appliedParams, handleClearApplied } = useAppliedFilters();
   const isInitialMount = useRef(true);
 
   // Hook para aplicar parámetros de URL al store (si existen)
@@ -243,9 +240,6 @@ export default function JobOffersPage() {
       </div>
 
       <main className="px-4 sm:px-6 md:px-12 lg:px-24">
-        {showAppliedFilters && appliedParams && (
-          <AppliedFilters params={appliedParams} onClear={handleClearApplied} />
-        )}
 
         {error && (
           <div className="text-red-500 text-center mb-4 p-3 bg-red-100 rounded">{error}</div>

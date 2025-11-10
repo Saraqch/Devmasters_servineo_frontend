@@ -215,11 +215,35 @@ export default function useAdvSearchLogic() {
     const city = sp.get('city');
     if (city != null) setSelectedCity(city);
 
-    const category = sp.get('category');
-    if (category != null) setSelectedJobs(category.split(',').filter(Boolean));
+    // `category` and `tags` may be encoded either as repeated params (category=A&category=B)
+    // or as a single comma-joined value (category=A,B). Support both formats for backward compatibility.
+    const categoriesFromAll = sp.getAll('category') || [];
+    // categoriesFromAll may already contain comma-joined values or multiple entries.
+    // Normalize by splitting on commas and flattening.
+    let urlCategory: string[] = [];
+    if (categoriesFromAll.length) {
+      urlCategory = categoriesFromAll
+        .flatMap((s) => (typeof s === 'string' ? s.split(',') : []))
+        .map((s) => s.trim())
+        .filter(Boolean);
+    } else {
+      const cat = sp.get('category');
+      if (cat != null) urlCategory = cat.split(',').map((s) => s.trim()).filter(Boolean);
+    }
+    if (urlCategory.length) setSelectedJobs(urlCategory);
 
-    const tags = sp.get('tags');
-    if (tags != null) setSelectedTags(tags.split(',').filter(Boolean));
+    const tagsFromAll = sp.getAll('tags') || [];
+    let urlTags: string[] = [];
+    if (tagsFromAll.length) {
+      urlTags = tagsFromAll
+        .flatMap((s) => (typeof s === 'string' ? s.split(',') : []))
+        .map((s) => s.trim())
+        .filter(Boolean);
+    } else {
+      const t = sp.get('tags');
+      if (t != null) urlTags = t.split(',').map((s) => s.trim()).filter(Boolean);
+    }
+    if (urlTags.length) setSelectedTags(urlTags);
 
     const min = sp.get('minPrice');
     const max = sp.get('maxPrice');
@@ -244,11 +268,11 @@ export default function useAdvSearchLogic() {
     }
 
     // Open relevant sections so user sees applied filters when returning
-    const shouldOpenFixer = ranges.length > 0;
-    const shouldOpenCiudad = !!city;
-    const shouldOpenTrabajo = !!(category && category.split(',').filter(Boolean).length);
-    const shouldOpenCategorias = !!(tags && tags.split(',').filter(Boolean).length);
-    const shouldOpenPrecio = !!(min || max);
+  const shouldOpenFixer = ranges.length > 0;
+  const shouldOpenCiudad = !!city;
+  const shouldOpenTrabajo = !!(urlCategory && urlCategory.length);
+  const shouldOpenCategorias = !!(urlTags && urlTags.length);
+  const shouldOpenPrecio = !!(min || max);
 
     setOpenSections((prev) => ({
       ...prev,
@@ -299,10 +323,31 @@ export default function useAdvSearchLogic() {
       }
       // ensure the query also contains the flag (backup)
       params.set('fromAdv', 'true');
-      window.location.href = `/jobOfert?${params.toString()}`;
+      // persist the current AdvSearch UI state so returning to this page restores selections
+      try {
+        const state = {
+          search: searchQuery,
+          titleOnly,
+          exact: exactWords,
+          selectedRanges,
+          selectedCity,
+          selectedJobs,
+          selectedTags,
+          selectedPriceKey,
+          selectedDateFilter,
+          selectedSpecificDate: selectedSpecificDate ? selectedSpecificDate.toISOString() : null,
+          selectedRating,
+        };
+        window.sessionStorage.setItem('advSearch_state', JSON.stringify(state));
+      } catch {
+        // ignore
+      }
+      // Navigate to the new results page
+      window.location.href = `/resultsAdvSearch?${params.toString()}`;
     } else {
       params.set('fromAdv', 'true');
-      router.push(`/jobOfert?${params.toString()}`);
+      // server-side/navigation fallback
+      router.push(`/resultsAdvSearch?${params.toString()}`);
     }
   };
 

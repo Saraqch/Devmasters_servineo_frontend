@@ -214,11 +214,25 @@ export default function useAdvSearchLogic() {
     const city = sp.get('city');
     if (city != null) setSelectedCity(city);
 
-    const category = sp.get('category');
-    if (category != null) setSelectedJobs(category.split(',').filter(Boolean));
+    // `category` and `tags` may be encoded either as repeated params (category=A&category=B)
+    // or as a single comma-joined value (category=A,B). Support both formats for backward compatibility.
+    const categoriesFromAll = sp.getAll('category') || [];
+    let urlCategory: string[] = [];
+    if (categoriesFromAll.length) urlCategory = categoriesFromAll.filter(Boolean);
+    else {
+      const cat = sp.get('category');
+      if (cat != null) urlCategory = cat.split(',').map((s) => s.trim()).filter(Boolean);
+    }
+    if (urlCategory.length) setSelectedJobs(urlCategory);
 
-    const tags = sp.get('tags');
-    if (tags != null) setSelectedTags(tags.split(',').filter(Boolean));
+    const tagsFromAll = sp.getAll('tags') || [];
+    let urlTags: string[] = [];
+    if (tagsFromAll.length) urlTags = tagsFromAll.filter(Boolean);
+    else {
+      const t = sp.get('tags');
+      if (t != null) urlTags = t.split(',').map((s) => s.trim()).filter(Boolean);
+    }
+    if (urlTags.length) setSelectedTags(urlTags);
 
     const min = sp.get('minPrice');
     const max = sp.get('maxPrice');
@@ -243,11 +257,11 @@ export default function useAdvSearchLogic() {
     }
 
     // Open relevant sections so user sees applied filters when returning
-    const shouldOpenFixer = ranges.length > 0;
-    const shouldOpenCiudad = !!city;
-    const shouldOpenTrabajo = !!(category && category.split(',').filter(Boolean).length);
-    const shouldOpenCategorias = !!(tags && tags.split(',').filter(Boolean).length);
-    const shouldOpenPrecio = !!(min || max);
+  const shouldOpenFixer = ranges.length > 0;
+  const shouldOpenCiudad = !!city;
+  const shouldOpenTrabajo = !!(urlCategory && urlCategory.length);
+  const shouldOpenCategorias = !!(urlTags && urlTags.length);
+  const shouldOpenPrecio = !!(min || max);
 
     setOpenSections((prev) => ({
       ...prev,

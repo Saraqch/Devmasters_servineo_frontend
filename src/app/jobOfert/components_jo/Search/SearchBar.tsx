@@ -3,7 +3,7 @@
 import React from 'react';
 import { api } from '@/lib/api';
 import { ensureSessionId } from '@/lib/session';
-import { Input } from '@/components/ui/input';
+import { Input } from '@/Components/ui/input';
 import { SearchIcon } from './SearchIcon';
 import { Clock, X, Trash2, Star, ArrowUpLeft } from 'lucide-react';
 import { ClearButton } from './ClearButton';

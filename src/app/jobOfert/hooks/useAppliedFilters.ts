@@ -22,9 +22,9 @@ export default function useAppliedFilters() {
     return { show: false, params: null };
   };
 
-  const initial = getInitial();
-  const [showAppliedFilters, setShowAppliedFilters] = useState<boolean>(initial.show);
-  const [appliedParams, setAppliedParams] = useState<ParamsMap | null>(initial.params);
+  // Start without applied filters on first render to avoid hydration mismatches.
+  const [showAppliedFilters, setShowAppliedFilters] = useState<boolean>(false);
+  const [appliedParams, setAppliedParams] = useState<ParamsMap | null>(null);
   const dispatch = useAppDispatch();
 
   useEffect(() => {
@@ -92,6 +92,21 @@ export default function useAppliedFilters() {
       // ignore
     }
     // run once on mount
+  }, []);
+
+  // After mount, if there's persisted appliedFilters, load them so refresh keeps tags.
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    try {
+      const raw = window.sessionStorage.getItem('appliedFilters');
+      if (raw) {
+        const parsed = JSON.parse(raw) as ParamsMap;
+        setAppliedParams(parsed);
+        setShowAppliedFilters(true);
+      }
+    } catch {
+      // ignore
+    }
   }, []);
 
   const handleClearApplied = () => {

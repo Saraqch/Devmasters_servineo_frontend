@@ -102,10 +102,10 @@ export default function ResultsAdvSearchPage() {
           Resultados de Búsqueda Avanzada
         </h1>
 
-        {/* Filtros aplicados (si vienen desde la búsqueda avanzada) */}
-        {showAppliedFilters && appliedParams && (
-          <AppliedFilters params={appliedParams} />
-        )}
+        {/* Filtros aplicados: renderizo siempre el contenedor para evitar
+            desajustes de hidratación entre servidor/cliente. Si no hay
+            appliedParams se pasa un objeto vacío (no se muestran tags). */}
+        <AppliedFilters params={appliedParams ?? {}} />
 
         {/* Selector y resumen de paginación (components de jobOfert) */}
         {/* Alinéo el selector con el mismo ancho y padding que AppliedFilters */}

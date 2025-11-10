@@ -15,6 +15,7 @@ const DateFilterSelector: React.FC<Props> = ({ selectedFilter, selectedDate, onC
   const [showCalendar, setShowCalendar] = useState(false);
   const [rawInput, setRawInput] = useState('');
   const inputRef = useRef<HTMLInputElement>(null);
+  const calendarContainerRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     if (selectedDate) {
@@ -26,6 +27,28 @@ const DateFilterSelector: React.FC<Props> = ({ selectedFilter, selectedDate, onC
       setRawInput('');
     }
   }, [selectedDate]);
+
+  // Detectar clics fuera del calendario para cerrarlo
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (
+        showCalendar &&
+        calendarContainerRef.current &&
+        !calendarContainerRef.current.contains(event.target as Node)
+      ) {
+        setShowCalendar(false);
+        onCalendarToggle?.(false);
+      }
+    };
+
+    if (showCalendar) {
+      document.addEventListener('mousedown', handleClickOutside);
+    }
+
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [showCalendar, onCalendarToggle]);
 
   // Keep the URL in sync: when specific date is active and a date exists, set ?date=YYYY-MM-DD
   const pathname = usePathname();
@@ -161,7 +184,7 @@ const DateFilterSelector: React.FC<Props> = ({ selectedFilter, selectedDate, onC
                 style={{ letterSpacing: '1px' }}
               />
 
-              <div className="relative">
+              <div className="relative" ref={calendarContainerRef}>
                 <button
                   onClick={handleCalendarToggle}
                   className="flex items-center gap-1 px-3 py-2 border border-gray-300 rounded-lg bg-white hover:bg-gray-50 transition-colors"

@@ -2,6 +2,7 @@ import type { Metadata } from 'next';
 import './globals.css';
 import { roboto } from './fonts';
 import { Providers } from './provider';
+import React, { Suspense } from 'react';
 
 export const metadata: Metadata = {
   title: 'Create Next App',
@@ -16,7 +17,11 @@ export default function RootLayout({
   return (
     <html lang="en" className={`${roboto.className}`}>
       <body className="antialiased">
-        <Providers>{children}</Providers>
+        <Providers>
+          <Suspense fallback={<div />}>
+            {children}
+          </Suspense>
+        </Providers>
       </body>
     </html>
   );

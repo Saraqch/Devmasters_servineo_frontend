@@ -231,7 +231,7 @@ export default function JobOffersPage() {
           <SearchBar onSearch={handleSearchSubmit} />
         </div>
 
-        {!loading && trabajos.length > 0 && (
+        {!loading && Array.isArray(trabajos) && trabajos.length > 0 && (
           <div className="flex flex-col gap-2 sm:flex-row justify-between items-stretch">
             <PaginationSelector
               registrosPorPagina={registrosPorPagina}
@@ -263,7 +263,7 @@ export default function JobOffersPage() {
           onFiltersApply={handleFiltersApply}
         />
 
-        {!loading && trabajos.length > 0 && (
+        {!loading && Array.isArray(trabajos) && trabajos.length > 0 && (
           <div className="w-full max-w-5xl mx-auto mb-4">
             <div className="flex justify-center">
               <PaginationInfo
@@ -276,14 +276,14 @@ export default function JobOffersPage() {
         )}
 
         <div className="w-full max-w-5xl mx-auto">
-          {!loading && trabajos.length > 0 ? (
+          {!loading && Array.isArray(trabajos) && trabajos.length > 0 ? (
             <CardJob trabajos={trabajos} />
           ) : !loading ? (
             <NoResultsMessage search={search} />
           ) : null}
         </div>
 
-        {!loading && trabajos.length > 0 && (
+        {!loading && Array.isArray(trabajos) && trabajos.length > 0 && (
           <div className="mt-8 mb-24 flex justify-center">
             <Paginacion
               paginaActual={paginaActual}

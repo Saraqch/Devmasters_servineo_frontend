@@ -35,14 +35,13 @@ export const useSyncUrlParams = ({
     if (search) params.set('search', search);
     if (titleOnly) params.set('titleOnly', 'true');
     if (exact) params.set('exact', 'true');
-    if (filters.range && filters.range.length)
-      filters.range.forEach((r) => params.append('range', r));
-    if (filters.city) params.set('city', filters.city);
-    if (filters.category?.length) params.set('category', filters.category.join(','));
-    if (filters.tags && filters.tags.length) params.set('tags', filters.tags.join(','));
-    if (filters.minPrice != null) params.set('minPrice', String(filters.minPrice));
-    if (filters.maxPrice != null) params.set('maxPrice', String(filters.maxPrice));
-    if (filters.range?.length) params.append('range', filters.range.join(','));
+    if (filters?.range?.length) filters.range.forEach((r) => params.append('range', r));
+    if (filters?.city) params.set('city', filters.city);
+    if (filters?.category?.length) params.set('category', filters.category.join(','));
+    if (filters?.tags?.length) params.set('tags', filters.tags.join(','));
+    if (filters?.minPrice != null) params.set('minPrice', String(filters.minPrice));
+    if (filters?.maxPrice != null) params.set('maxPrice', String(filters.maxPrice));
+    if (filters?.range?.length) params.append('range', filters.range.join(','));
     if (sortBy) params.set('sort', sortBy);
     // include date from redux/store when present so it is not lost
     if (date) params.set('date', date);

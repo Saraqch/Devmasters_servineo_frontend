@@ -108,7 +108,8 @@ export default function ResultsAdvSearchPage() {
         )}
 
         {/* Selector y resumen de paginación (components de jobOfert) */}
-        <div className="mb-2">
+        {/* Alinéo el selector con el mismo ancho y padding que AppliedFilters */}
+        <div className="w-full max-w-5xl mx-auto mt-4 px-4 mb-2">
           <PaginationSelector registrosPorPagina={registrosPorPagina} onChange={handleRegistrosChange} />
         </div>
 

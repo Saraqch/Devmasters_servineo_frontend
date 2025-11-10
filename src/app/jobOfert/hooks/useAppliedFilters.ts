@@ -7,8 +7,24 @@ type FilterParamValue = string | string[] | number | boolean | null;
 type ParamsMap = Record<string, FilterParamValue>;
 
 export default function useAppliedFilters() {
-  const [showAppliedFilters, setShowAppliedFilters] = useState(false);
-  const [appliedParams, setAppliedParams] = useState<ParamsMap | null>(null);
+  // Initialize from sessionStorage if available so a refresh keeps the UI state
+  const getInitial = (): { show: boolean; params: ParamsMap | null } => {
+    if (typeof window === 'undefined') return { show: false, params: null };
+    try {
+      const raw = window.sessionStorage.getItem('appliedFilters');
+      if (raw) {
+        const parsed = JSON.parse(raw) as ParamsMap;
+        return { show: true, params: parsed };
+      }
+    } catch {
+      // ignore parse errors
+    }
+    return { show: false, params: null };
+  };
+
+  const initial = getInitial();
+  const [showAppliedFilters, setShowAppliedFilters] = useState<boolean>(initial.show);
+  const [appliedParams, setAppliedParams] = useState<ParamsMap | null>(initial.params);
   const dispatch = useAppDispatch();
 
   useEffect(() => {
@@ -25,12 +41,6 @@ export default function useAppliedFilters() {
       const sp = new URLSearchParams(window.location.search);
       const fromAdv = fromAdvStorage ?? sp.get('fromAdv');
       if (fromAdv === 'true') {
-        try {
-          window.sessionStorage.removeItem('fromAdv');
-        } catch {
-          // ignore
-        }
-
         const params: ParamsMap = {};
         const keys = [
           'search',
@@ -69,6 +79,14 @@ export default function useAppliedFilters() {
 
         setAppliedParams(params);
         setShowAppliedFilters(true);
+        try {
+          // persist so refresh keeps the applied filters
+          window.sessionStorage.setItem('appliedFilters', JSON.stringify(params));
+          // remove the one-time marker
+          window.sessionStorage.removeItem('fromAdv');
+        } catch {
+          // ignore
+        }
       }
     } catch {
       // ignore
@@ -82,6 +100,11 @@ export default function useAppliedFilters() {
     if (typeof window !== 'undefined') {
       // Reset filters in the store and persist (so URL sync will not re-add params)
       dispatch(resetFilters());
+      try {
+        window.sessionStorage.removeItem('appliedFilters');
+      } catch {
+        // ignore
+      }
       // Do a full navigation to /jobOfert without any query params
       window.location.href = '/jobOfert';
     }

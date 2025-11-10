@@ -148,7 +148,7 @@ export default function JobOffersPage() {
         sortBy,
         date: date || undefined,
         rating: rating ?? undefined,
-        page: 1,
+        page: paginaActual,
         limit: registrosPorPagina,
         titleOnly,
         exact,
@@ -159,7 +159,7 @@ export default function JobOffersPage() {
   const handleSortChange = (option: string) => {
     const backendSort = getSortValue(option);
     dispatch(setSortBy(backendSort));
-    dispatch(resetPagination());
+    
     dispatch(
       fetchOffers({
         searchText: search,
@@ -167,7 +167,7 @@ export default function JobOffersPage() {
         sortBy: backendSort,
         date: date || undefined,
         rating: rating ?? undefined,
-        page: 1,
+        page: paginaActual,
         limit: registrosPorPagina,
         titleOnly,
         exact,

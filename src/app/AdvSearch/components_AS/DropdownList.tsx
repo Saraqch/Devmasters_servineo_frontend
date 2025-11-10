@@ -22,8 +22,39 @@ const DropdownList: React.FC<DropdownListProps> = ({
   const [categories, setCategories] = useState<string[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [hasRestoredFromUrl, setHasRestoredFromUrl] = useState(false);
+  const [previousClearSignal, setPreviousClearSignal] = useState<number | undefined>(clearSignal);
 
   const categoryFiltersKey = useMemo(() => JSON.stringify(categoryFilters), [categoryFilters]);
+
+  // Restaurar etiquetas desde la URL al montar (solo una vez)
+  useEffect(() => {
+    if (typeof window === 'undefined' || hasRestoredFromUrl) return;
+
+    const sp = new URLSearchParams(window.location.search);
+    const tagsFromAll = sp.getAll('tags') || [];
+    let urlTags: string[] = [];
+
+    if (tagsFromAll.length) {
+      urlTags = tagsFromAll
+        .flatMap((s) => (typeof s === 'string' ? s.split(',') : []))
+        .map((s) => s.trim())
+        .filter(Boolean);
+    } else {
+      const t = sp.get('tags');
+      if (t != null) {
+        urlTags = t.split(',').map((s) => s.trim()).filter(Boolean);
+      }
+    }
+
+    if (urlTags.length > 0) {
+      setSelectedCategories(urlTags);
+      onFilterChange?.({ categories: urlTags });
+    }
+
+    setHasRestoredFromUrl(true);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   useEffect(() => {
     let mounted = true;
@@ -105,13 +136,16 @@ const DropdownList: React.FC<DropdownListProps> = ({
   }, [searchQuery, categoryFiltersKey, clearSignal]);
 
   // When parent requests a clear (clearSignal changes), reset internal selection
+  // But only if clearSignal actually changed (not on first render)
   useEffect(() => {
-    if (typeof clearSignal === 'undefined') return;
-    // Parent changed clearSignal: reset selection
+    if (!hasRestoredFromUrl) return; // Wait until URL restoration is done
+    if (clearSignal === previousClearSignal) return; // Only act if clearSignal actually changed
+    
     setSelectedCategories([]);
     onFilterChange?.({ categories: [] });
+    setPreviousClearSignal(clearSignal);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [clearSignal]);
+  }, [clearSignal, hasRestoredFromUrl]);
 
   const handleCheckboxChange = (categoryValue: string) => {
     const newSelectedCategories = selectedCategories.includes(categoryValue)

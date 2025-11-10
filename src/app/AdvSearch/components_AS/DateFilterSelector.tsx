@@ -8,9 +8,10 @@ interface Props {
   selectedFilter: string;
   selectedDate: Date | null;
   onChange: (filter: string, date?: Date | null) => void;
+  onCalendarToggle?: (isOpen: boolean) => void;
 }
 
-const DateFilterSelector: React.FC<Props> = ({ selectedFilter, selectedDate, onChange }) => {
+const DateFilterSelector: React.FC<Props> = ({ selectedFilter, selectedDate, onChange, onCalendarToggle }) => {
   const [showCalendar, setShowCalendar] = useState(false);
   const [rawInput, setRawInput] = useState('');
   const inputRef = useRef<HTMLInputElement>(null);
@@ -49,6 +50,7 @@ const DateFilterSelector: React.FC<Props> = ({ selectedFilter, selectedDate, onC
 
   const handleDateSelect = (date: Date) => {
     setShowCalendar(false);
+    onCalendarToggle?.(false);
     onChange('specific', date);
   };
 
@@ -96,6 +98,12 @@ const DateFilterSelector: React.FC<Props> = ({ selectedFilter, selectedDate, onC
       else newPos = rawInput.length + 6;
       input.setSelectionRange(newPos, newPos);
     }, 0);
+  };
+
+  const handleCalendarToggle = () => {
+    const newShowCalendar = !showCalendar;
+    setShowCalendar(newShowCalendar);
+    onCalendarToggle?.(newShowCalendar);
   };
 
   return (
@@ -155,7 +163,7 @@ const DateFilterSelector: React.FC<Props> = ({ selectedFilter, selectedDate, onC
 
               <div className="relative">
                 <button
-                  onClick={() => setShowCalendar(!showCalendar)}
+                  onClick={handleCalendarToggle}
                   className="flex items-center gap-1 px-3 py-2 border border-gray-300 rounded-lg bg-white hover:bg-gray-50 transition-colors"
                   type="button"
                 >
@@ -169,7 +177,10 @@ const DateFilterSelector: React.FC<Props> = ({ selectedFilter, selectedDate, onC
                     <CalendarComponent
                       selectedDate={selectedDate || new Date()}
                       onDateSelect={handleDateSelect}
-                      onClose={() => setShowCalendar(false)}
+                      onClose={() => {
+                        setShowCalendar(false);
+                        onCalendarToggle?.(false);
+                      }}
                     />
                   </div>
                 )}

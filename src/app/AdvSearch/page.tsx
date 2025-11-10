@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Header from '@/app/jobOfert/components_jo/Header';
 import { ResultsCounter } from '@/app/AdvSearch/components_AS/ResultsCounter';
@@ -59,6 +59,8 @@ const JOBS = [
 // removed unused FilterState and parsePriceRange to eliminate lint warnings
 
 function AdvancedSearchPage() {
+  const [isCalendarOpen, setIsCalendarOpen] = useState(false);
+
   const {
     // state
     searchQuery,
@@ -159,7 +161,7 @@ function AdvancedSearchPage() {
       <Header />
       <HelpButton />
 
-      <main className="pt-20 lg:pt-24 px-4 sm:px-6 md:px-12 lg:px-24 pb-12">
+      <main className={`pt-20 lg:pt-24 px-4 sm:px-6 md:px-12 lg:px-24 transition-all duration-300 ${isCalendarOpen ? 'pb-96' : 'pb-12'}`}>
         <h1 className="text-center text-xl sm:text-2xl md:text-3xl font-bold mb-8 mt-4">
           Búsqueda Avanzada
         </h1>
@@ -411,6 +413,7 @@ function AdvancedSearchPage() {
                     setSelectedDateFilter(f);
                     setSelectedSpecificDate(d ?? null);
                   }}
+                  onCalendarToggle={setIsCalendarOpen}
                 />
               </div>
               <div className="flex-shrink-0">

@@ -56,10 +56,21 @@ export default function useAppliedFilters() {
           'sortBy',
           'rating',
         ];
+
         keys.forEach((k) => {
+          // Special-case `range`: it may appear multiple times in the query string
+          if (k === 'range') {
+            const all = sp.getAll('range') || [];
+            if (all.length) {
+              params[k] = all.filter(Boolean);
+            }
+            return;
+          }
+
           const val = sp.get(k);
           if (val == null) return;
-          if (k === 'tags' || k === 'category' || k === 'range') {
+          if (k === 'tags' || k === 'category') {
+            // these are encoded as a single, comma-separated value by AdvSearch
             params[k] = val.split(',').filter(Boolean);
           } else if (k === 'titleOnly' || k === 'exact') {
             params[k] = val === 'true';

@@ -55,6 +55,10 @@ export default function JobOffersPage() {
   const { showAppliedFilters, appliedParams, handleClearApplied } = useAppliedFilters();
   const isInitialMount = useRef(true);
 
+  //  Guardar la página antes de aplicar filtros//
+  const pageBeforeFilter = useRef<number>(1);
+  const hasActiveFilters = useRef<boolean>(false);
+
   // Hook para aplicar parámetros de URL al store (si existen)
   useApplyQueryToStore();
 
@@ -139,6 +143,24 @@ export default function JobOffersPage() {
   };
 
   const handleFiltersApply = (appliedFilters: FilterState) => {
+    //  Verificar si realmente hay filtros activos//
+    const hasFilters = 
+      appliedFilters.range.length > 0 || 
+      appliedFilters.city !== '' || 
+      appliedFilters.category.length > 0;
+    
+    //  Solo guardar página si se están aplicando filtros nuevos//
+    if (hasFilters && !hasActiveFilters.current) {
+      pageBeforeFilter.current = paginaActual;
+      hasActiveFilters.current = true;
+    }
+    
+    //  Si se quitaron todos los filtros, marcar como inactivo//
+    if (!hasFilters) {
+      hasActiveFilters.current = false;
+    }
+
+
     dispatch(setFilters(appliedFilters));
     dispatch(resetPagination());
     dispatch(
@@ -148,7 +170,7 @@ export default function JobOffersPage() {
         sortBy,
         date: date || undefined,
         rating: rating ?? undefined,
-        page: paginaActual,
+        page: 1,
         limit: registrosPorPagina,
         titleOnly,
         exact,
@@ -186,6 +208,28 @@ export default function JobOffersPage() {
         date: date || undefined,
         rating: rating ?? undefined,
         page: 1,
+        limit: registrosPorPagina,
+        titleOnly,
+        exact,
+      }),
+    );
+  };
+
+  //  Nueva función para resetear filtros y restaurar página//
+  const handleResetFilters = () => {
+    const pageToRestore = hasActiveFilters.current ? pageBeforeFilter.current : 1;
+    hasActiveFilters.current = false;
+    
+    dispatch(setFilters({ range: [], city: '', category: [] }));
+    
+    dispatch(
+      fetchOffers({
+        searchText: search,
+        filters: { range: [], city: '', category: [] },
+        sortBy,
+        date: date || undefined,
+        rating: rating ?? undefined,
+        page: pageToRestore,// se restaura la pagina guardada
         limit: registrosPorPagina,
         titleOnly,
         exact,
@@ -261,6 +305,7 @@ export default function JobOffersPage() {
           isOpen={isDrawerOpen}
           onClose={() => setIsDrawerOpen(false)}
           onFiltersApply={handleFiltersApply}
+          onReset={handleResetFilters} // Nueva prop que restaura la página//
         />
 
         {!loading && trabajos.length > 0 && (

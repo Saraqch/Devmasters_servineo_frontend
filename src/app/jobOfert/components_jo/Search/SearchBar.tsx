@@ -563,7 +563,7 @@ export const SearchBar = ({ onSearch, onFilter }: SearchBarProps) => {
         </div>
 
         {/* Contenedor de botones: Buscar + Búsqueda avanzada + Filtro */}
-        <div className="flex gap-2 w-full sm:w-auto">
+        <div className="flex gap-2 items-center shrink-0">
           <SearchButton onClick={handleSearch} />
           <AdvancedSearchButton />
           {onFilter && <FilterButton onClick={onFilter} />}

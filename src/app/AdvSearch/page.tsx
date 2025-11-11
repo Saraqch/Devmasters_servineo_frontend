@@ -1,6 +1,7 @@
 'use client';
 
-import React from 'react';
+import React, { useEffect, useState } from 'react';
+import { useRouter } from 'next/navigation';
 import Header from '@/app/jobOfert/components_jo/Header';
 import { ResultsCounter } from '@/app/AdvSearch/components_AS/ResultsCounter';
 import { InputOnlySearch } from '@/app/jobOfert/components_jo/Search/InputOnlySearch';
@@ -58,6 +59,8 @@ const JOBS = [
 // removed unused FilterState and parsePriceRange to eliminate lint warnings
 
 function AdvancedSearchPage() {
+  const [isCalendarOpen, setIsCalendarOpen] = useState(false);
+
   const {
     // state
     searchQuery,
@@ -104,6 +107,20 @@ function AdvancedSearchPage() {
     fetchGlobalTotal,
   } = useAdvSearchLogic();
 
+  const router = useRouter();
+
+  // Close advanced search and go back to jobOfert when user presses Escape
+  useEffect(() => {
+    const onKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') {
+        router.push('/jobOfert');
+      }
+    };
+
+    window.addEventListener('keydown', onKeyDown);
+    return () => window.removeEventListener('keydown', onKeyDown);
+  }, [router]);
+
   // compute min/max from selectedPriceKey (kept local for URL sync)
   const _priceNormalized = (selectedPriceKey || '').replace(/[$€£,]/g, '');
   const _priceMatches = _priceNormalized.match(/-?\d+(?:\.\d+)?/g) || [];
@@ -144,19 +161,17 @@ function AdvancedSearchPage() {
       <Header />
       <HelpButton />
 
-      <main className="pt-20 lg:pt-24 px-4 sm:px-6 md:px-12 lg:px-24 pb-12">
+      <main className={`pt-20 lg:pt-24 px-4 sm:px-6 md:px-12 lg:px-24 transition-all duration-300 ${isCalendarOpen ? 'pb-96' : 'pb-12'}`}>
         <h1 className="text-center text-xl sm:text-2xl md:text-3xl font-bold mb-8 mt-4">
           Búsqueda Avanzada
         </h1>
 
         <div className="max-w-7xl mx-auto">
-          <div className="flex justify-end mb-0">
-            <div className="w-full sm:w-80">
+          <div className="w-full sm:w-[700px] mx-auto">
+            <div className="mb-3">
               <ResultsCounter total={totalRegistros ?? 0} loading={storeLoading ?? loading} />
             </div>
-          </div>
-
-          <div className="w-full sm:w-[700px] mx-auto -mt-60">
+          
             <div className="mb-4">
               <InputOnlySearch onSearch={handleSearch} onValueChange={(v) => setSearchQuery(v)} />
             </div>
@@ -345,7 +360,12 @@ function AdvancedSearchPage() {
 
               {openSections.categorias && (
                 <div className="bg-white border border-t-0 border-gray-300 rounded-b-lg shadow-sm">
-                  <DropdownList onFilterChange={handleDropdownChange} clearSignal={clearSignal} />
+                  <DropdownList
+                    onFilterChange={handleDropdownChange}
+                    clearSignal={clearSignal}
+                    searchQuery={searchQuery}
+                    categoryFilters={selectedJobs}
+                  />
                 </div>
               )}
             </div>
@@ -384,8 +404,9 @@ function AdvancedSearchPage() {
               )}
             </div>
             {/* NUEVO: Filtro de Fecha y Calificación */}
-            <div className="mb-6 flex gap-6 items-start">
-              <div className="flex-shrink-0">
+            {/* Responsive: en móvil mostrar Calificación encima de Fecha; en md+ mantener fila */}
+            <div className="mb-6 flex flex-col md:flex-row gap-6 items-start">
+              <div className="flex-shrink-0 order-2 md:order-1 w-full md:w-auto">
                 <DateFilterSelector
                   selectedFilter={selectedDateFilter}
                   selectedDate={selectedSpecificDate}
@@ -393,9 +414,10 @@ function AdvancedSearchPage() {
                     setSelectedDateFilter(f);
                     setSelectedSpecificDate(d ?? null);
                   }}
+                  onCalendarToggle={setIsCalendarOpen}
                 />
               </div>
-              <div className="flex-shrink-0">
+              <div className="flex-shrink-0 order-1 md:order-2 w-full md:w-auto">
                 <CalificacionEstrella value={selectedRating} onChange={setSelectedRating} />
               </div>
             </div>
@@ -425,6 +447,13 @@ function AdvancedSearchPage() {
                   setSelectedRating(null);
                   // notify children (DropdownList, PriceRangeList) to clear
                   setClearSignal((s) => s + 1);
+                  try {
+                    window.sessionStorage.removeItem('advSearch_state');
+                    window.sessionStorage.removeItem('fromAdv');
+                    window.sessionStorage.removeItem('appliedFilters');
+                  } catch {
+                    /* noop */
+                  }
                   // fetch global total again (hook exposes helper)
                   fetchGlobalTotal();
                 }}

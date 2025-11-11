@@ -1,148 +1,151 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 
 interface DropdownListProps {
   onFilterChange?: (filters: { categories: string[] }) => void;
   // A numeric signal that when changed forces the component to clear its selection.
   clearSignal?: number;
+  // current search query from the page (to request tags relevant to the search)
+  searchQuery?: string;
+  // current selected job/type filters from the page (array of strings)
+  categoryFilters?: string[];
 }
 
-const DropdownList: React.FC<DropdownListProps> = ({ onFilterChange, clearSignal }) => {
+const DropdownList: React.FC<DropdownListProps> = ({
+  onFilterChange,
+  clearSignal,
+  searchQuery = '',
+  categoryFilters = [],
+}) => {
   const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
   const [categories, setCategories] = useState<string[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [hasRestoredFromUrl, setHasRestoredFromUrl] = useState(false);
+  const [previousClearSignal, setPreviousClearSignal] = useState<number | undefined>(clearSignal);
+
+  const categoryFiltersKey = useMemo(() => JSON.stringify(categoryFilters), [categoryFilters]);
+
+  // Restaurar etiquetas desde la URL al montar (solo una vez)
+  useEffect(() => {
+    if (typeof window === 'undefined' || hasRestoredFromUrl) return;
+
+    const sp = new URLSearchParams(window.location.search);
+    const tagsFromAll = sp.getAll('tags') || [];
+    let urlTags: string[] = [];
+
+    if (tagsFromAll.length) {
+      urlTags = tagsFromAll
+        .flatMap((s) => (typeof s === 'string' ? s.split(',') : []))
+        .map((s) => s.trim())
+        .filter(Boolean);
+    } else {
+      const t = sp.get('tags');
+      if (t != null) {
+        urlTags = t.split(',').map((s) => s.trim()).filter(Boolean);
+      }
+    }
+
+    if (urlTags.length > 0) {
+      setSelectedCategories(urlTags);
+      onFilterChange?.({ categories: urlTags });
+    }
+
+    setHasRestoredFromUrl(true);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   useEffect(() => {
+    let mounted = true;
     const fetchCategories = async () => {
       try {
         setLoading(true);
+        setError(null);
 
-        // Quick mock mode for development: generate suggestions locally so you don't need backend now.
-        const isDevelopment = process.env.NODE_ENV === 'development';
+        const API_URL = process.env.NEXT_PUBLIC_API_URL || 'https://devmastersservineobackend-ashy.vercel.app';
 
-        const MOCK_TAGS = [
-          'madera',
-          'herramientas',
-          'instalación',
-          'reparación',
-          'montaje',
-          'acabados',
-          'medición',
-          'transporte',
-          'electricidad',
-          'soldadura',
-          'pintura',
-          'barniz',
-          'vigas',
-          'puertas',
-          'ventanas',
-          'cerrajería',
-          'fontanería',
-          'limpieza',
-          'jardinería',
-          'aislamiento',
-          'cerramiento',
-        ];
+        // Build query params: if searchQuery or categoryFilters provided, request tags derived from matching offers.
+        // Otherwise (no search, no category) ask for recent tags (from latest offers).
+        const params: string[] = [];
+        if (searchQuery && searchQuery.trim()) params.push(`search=${encodeURIComponent(searchQuery.trim())}`);
+        if (categoryFilters && categoryFilters.length) params.push(`category=${encodeURIComponent(categoryFilters.join(','))}`);
+        if (!searchQuery && (!categoryFilters || categoryFilters.length === 0)) params.push('recent=true');
+        // limit how many offers to inspect / tags to return
+        params.push('limit=10');
 
-        // helper: try to read current search input value (InputOnlySearch) from the DOM as a fast fallback
-        const getInputSearchValue = (): string => {
-          try {
-            if (typeof window === 'undefined') return '';
-            // try query param first
-            const sp = new URLSearchParams(window.location.search);
-            const s = sp.get('search');
-            if (s) return String(s).trim();
-            // fallback: find input by placeholder (falls back if user typed but didn't apply)
-            const el = document.querySelector(
-              'input[placeholder="¿Qué servicio necesitas?"]',
-            ) as HTMLInputElement | null;
-            if (el && el.value) return el.value.trim();
-          } catch {
-            // ignore
-          }
-          return '';
+        const endpoint = `${API_URL}/api/devmaster/tags${params.length ? `?${params.join('&')}` : ''}`;
+
+        const response = await fetch(endpoint, { method: 'GET', headers: { 'Content-Type': 'application/json' } });
+        if (!response.ok) throw new Error(`Error ${response.status}: ${response.statusText}`);
+        const data: unknown = await response.json();
+
+        // Normalize different possible backend shapes into an array of strings.
+        let incoming: string[] = [];
+        const isStringArray = (arr: unknown): arr is string[] =>
+          Array.isArray(arr) && arr.every((it) => typeof it === 'string');
+
+        const getFieldStringArray = (obj: unknown, key: string): string[] | undefined => {
+          if (!obj || typeof obj !== 'object') return undefined;
+          const v = (obj as Record<string, unknown>)[key];
+          return isStringArray(v) ? (v as string[]) : undefined;
         };
 
-        // simple synonym map for a couple of likely searches
-        const SYNONYMS: Record<string, string[]> = {
-          carpintero: ['madera', 'vigas', 'puertas'],
-          pintor: ['pintura', 'barniz', 'acabados'],
-          electricista: ['electricidad', 'instalación', 'reparación'],
-        };
-
-        if (isDevelopment) {
-          const currentSearch = getInputSearchValue().toLowerCase();
-          let suggestions: string[] = [];
-
-          if (currentSearch) {
-            // pick synonyms if available
-            const tokens = currentSearch
-              .split(/\s+/)
-              .map((t) => t.replace(/[^a-zA-ZñÑáéíóúÁÉÍÓÚüÜ]/g, ''));
-            for (const t of tokens) {
-              if (SYNONYMS[t]) {
-                suggestions = suggestions.concat(SYNONYMS[t]);
-              }
-            }
-
-            // also include mock tags that contain the token
-            suggestions = suggestions.concat(
-              MOCK_TAGS.filter((tag) => tokens.some((tok) => tag.includes(tok))),
-            );
-          }
-
-          // If no search-based suggestions, show most common mock tags
-          if (suggestions.length === 0) suggestions = MOCK_TAGS.slice(0, 6);
-
-          // dedupe and limit to 6 (UI can display more), but user wanted up to 3 in real suggest flow
-          const deduped = Array.from(new Set(suggestions)).slice(0, 6);
-          setCategories(deduped);
-          setError(null);
-          return;
+        if (isStringArray(data)) incoming = data;
+        else if (getFieldStringArray(data, 'tags')) incoming = getFieldStringArray(data, 'tags')!;
+        else if (getFieldStringArray((data as Record<string, unknown>)?.data, 'tags')) incoming = getFieldStringArray((data as Record<string, unknown>)?.data, 'tags')!;
+        else if (getFieldStringArray(data, 'result')) incoming = getFieldStringArray(data, 'result')!;
+        else if (getFieldStringArray(data, 'items')) incoming = getFieldStringArray(data, 'items')!;
+        else {
+          // Fallback: try to find the first array-of-strings value in the object
+          const vals = data && typeof data === 'object' ? Object.values(data as Record<string, unknown>) : [];
+          const found = vals.find((v) => isStringArray(v));
+          if (isStringArray(found)) incoming = found as string[];
         }
 
-        // Production: fallback to original network request
-        const API_URL =
-          process.env.NEXT_PUBLIC_API_URL || 'https://devmastersservineobackend-ashy.vercel.app';
-        const endpoint = `${API_URL}/api/devmaster/tags`;
-        const response = await fetch(endpoint, {
-          method: 'GET',
-          headers: { 'Content-Type': 'application/json' },
-        });
-        if (!response.ok) throw new Error(`Error ${response.status}: ${response.statusText}`);
-        const data = await response.json();
-        if (Array.isArray(data)) setCategories(data);
-        else if (data.tags && Array.isArray(data.tags)) setCategories(data.tags);
-        else throw new Error('Formato de respuesta inesperado');
-        setError(null);
+        if (!mounted) return;
+        if (!Array.isArray(incoming) || incoming.length === 0) {
+          // No tags found — set empty list but don't throw to avoid breaking the UI.
+          setCategories([]);
+          setError('No se encontraron etiquetas con el formato esperado desde el backend');
+        } else {
+          setCategories(incoming);
+          setError(null);
+        }
       } catch (err) {
         let errorMessage = 'Error desconocido';
         if (err instanceof TypeError && err.message === 'Failed to fetch') {
-          errorMessage =
-            'No se puede conectar con el servidor. Verifica que el backend esté corriendo.';
+          errorMessage = 'No se puede conectar con el servidor. Verifica que el backend esté corriendo.';
         } else if (err instanceof Error) {
           errorMessage = err.message;
         }
+        if (!mounted) return;
         setError(errorMessage);
         console.error('❌ Error completo:', err);
       } finally {
-        setLoading(false);
+        if (mounted) setLoading(false);
       }
     };
 
     fetchCategories();
-  }, []);
+
+    return () => {
+      mounted = false;
+    };
+    // Re-run when search or category filters change or when clearSignal toggles
+  }, [searchQuery, categoryFiltersKey, clearSignal]);
 
   // When parent requests a clear (clearSignal changes), reset internal selection
+  // But only if clearSignal actually changed (not on first render)
   useEffect(() => {
-    if (typeof clearSignal === 'undefined') return;
-    // Parent changed clearSignal: reset selection
+    if (!hasRestoredFromUrl) return; // Wait until URL restoration is done
+    if (clearSignal === previousClearSignal) return; // Only act if clearSignal actually changed
+    
     setSelectedCategories([]);
     onFilterChange?.({ categories: [] });
+    setPreviousClearSignal(clearSignal);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [clearSignal]);
+  }, [clearSignal, hasRestoredFromUrl]);
 
   const handleCheckboxChange = (categoryValue: string) => {
     const newSelectedCategories = selectedCategories.includes(categoryValue)

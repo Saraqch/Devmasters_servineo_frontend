@@ -41,7 +41,8 @@ export const InputOnlySearch = ({ onSearch, onValueChange }: InputOnlySearchProp
   const handleClear = () => {
     setValue('');
     setError(undefined);
-    onSearch('');
+    // Only clear the input value locally and notify parent of the value change.
+    // Do NOT trigger a search/navigation here.
     if (typeof onValueChange === 'function') onValueChange('');
   };
 

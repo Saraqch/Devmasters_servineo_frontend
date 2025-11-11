@@ -421,29 +421,32 @@ export const SearchBar = ({ onSearch, onFilter }: SearchBarProps) => {
                   {visibleHistory.map((item, idx) => (
                     <li key={`${item}-${idx}`}>
                       {longPressedItem === item ? (
-                        <div className="w-full flex items-center justify-between px-2 py-2 bg-red-50 border-l-4 border-red-500">
-                          <div className="text-sm text-red-700 font-medium leading-tight">
-                            Eliminar
-                            <br />
-                            búsqueda
+                        <div className="w-full flex items-center justify-between px-2 py-2 bg-red-50 border-l-4 border-red-500 min-w-0">
+                          <div className="flex-1 min-w-0 text-xs sm:text-sm text-red-700 font-medium sm:truncate">
+                            <span className="block sm:inline leading-tight">Eliminar</span>
+                            <span className="block sm:inline leading-tight sm:ml-1">búsqueda</span>
                           </div>
-                          <div className="flex items-center gap-2 flex-shrink-0">
+                          <div className="flex items-center gap-2 flex-shrink-0 ml-2">
                             <button
                               type="button"
                               onClick={async () => {
                                 await deleteHistoryItem(item);
                                 setLongPressedItem(null);
                               }}
-                              className="bg-red-500 text-white px-3 py-1 rounded text-sm"
+                              aria-label={`Eliminar búsqueda ${item}`}
+                              className="bg-red-500 text-white px-2 py-0.5 rounded text-xs sm:text-sm flex items-center gap-1 max-[420px]:px-1"
                             >
-                              Eliminar
+                              <Trash2 className="hidden max-[420px]:inline w-3.5 h-3.5 sm:w-4 sm:h-4" />
+                              <span className="ml-1 max-[420px]:hidden">Eliminar</span>
                             </button>
                             <button
                               type="button"
                               onClick={() => setLongPressedItem(null)}
-                              className="bg-slate-100 border border-slate-200 px-3 py-1 rounded text-sm text-slate-700 hover:bg-slate-200"
+                              aria-label="Cancelar"
+                              className="bg-slate-100 border border-slate-200 px-2 py-0.5 rounded text-xs sm:text-sm text-slate-700 hover:bg-slate-200 flex items-center gap-1 max-[420px]:px-1"
                             >
-                              Cancelar
+                              <X className="hidden max-[420px]:inline w-3.5 h-3.5 sm:w-4 sm:h-4" />
+                              <span className="ml-1 max-[420px]:hidden">Cancelar</span>
                             </button>
                           </div>
                         </div>
@@ -563,7 +566,7 @@ export const SearchBar = ({ onSearch, onFilter }: SearchBarProps) => {
         </div>
 
         {/* Contenedor de botones: Buscar + Búsqueda avanzada + Filtro */}
-        <div className="flex gap-2 w-full sm:w-auto">
+        <div className="flex gap-2 items-center shrink-0">
           <SearchButton onClick={handleSearch} />
           <AdvancedSearchButton />
           {onFilter && <FilterButton onClick={onFilter} />}

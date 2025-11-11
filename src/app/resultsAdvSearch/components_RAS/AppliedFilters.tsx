@@ -6,7 +6,6 @@ type FilterParamValue = string | string[] | number | boolean | null;
 
 interface Props {
   params: Record<string, FilterParamValue>;
-  onClear?: () => void;
   onModify?: () => void;
 }
 
@@ -23,7 +22,7 @@ function formatPriceString(s: string) {
   return replaced;
 }
 
-export default function AppliedFilters({ params, onClear, onModify }: Props) {
+export default function AppliedFilters({ params, onModify }: Props) {
   const router = useRouter();
 
   const handleModify = () => {
@@ -166,20 +165,13 @@ export default function AppliedFilters({ params, onClear, onModify }: Props) {
           </div>
         </div>
 
-        <div className="flex items-center gap-3 mt-3">
+        <div className="flex items-center mt-3">
           <button
             type="button"
             onClick={handleModify}
             className="bg-[#2B6AE0] text-white hover:bg-[#2B6AE0]/90 px-4 py-2 text-sm sm:text-base font-roboto font-semibold rounded shadow transition-all duration-200"
           >
             Modificar
-          </button>
-          <button
-            type="button"
-            onClick={() => onClear && onClear()}
-            className="bg-[#2B6AE0] text-white hover:bg-[#2B6AE0]/90 px-4 py-2 text-sm sm:text-base font-roboto font-semibold rounded shadow transition-all duration-200"
-          >
-            Limpiar
           </button>
         </div>
       </div>

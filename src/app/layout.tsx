@@ -6,6 +6,7 @@ import 'leaflet/dist/leaflet.css'
 import { ReduxProvider } from './redux/ReduxProvider';
 import TopMenu from '@/Components/Navigation/TopMenu';
 import { Providers } from './provider';
+import React, { Suspense } from 'react';
 
 const geistSans = Geist({
   variable: '--font-geist-sans',

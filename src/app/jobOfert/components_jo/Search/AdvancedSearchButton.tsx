@@ -30,7 +30,7 @@ export function AdvancedSearchButton({
         bg-[#2B6AE0] text-white
         hover:bg-[#2B6AE0]/90
         shrink-0
-        px-1 sm:px-3
+        px-1 sm:px-2
         py-2 sm:py-5
         text-sm sm:text-base
         font-semibold

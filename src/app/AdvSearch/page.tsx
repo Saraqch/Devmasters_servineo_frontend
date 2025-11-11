@@ -404,8 +404,9 @@ function AdvancedSearchPage() {
               )}
             </div>
             {/* NUEVO: Filtro de Fecha y Calificación */}
-            <div className="mb-6 flex gap-6 items-start">
-              <div className="flex-shrink-0">
+            {/* Responsive: en móvil mostrar Calificación encima de Fecha; en md+ mantener fila */}
+            <div className="mb-6 flex flex-col md:flex-row gap-6 items-start">
+              <div className="flex-shrink-0 order-2 md:order-1 w-full md:w-auto">
                 <DateFilterSelector
                   selectedFilter={selectedDateFilter}
                   selectedDate={selectedSpecificDate}
@@ -416,7 +417,7 @@ function AdvancedSearchPage() {
                   onCalendarToggle={setIsCalendarOpen}
                 />
               </div>
-              <div className="flex-shrink-0">
+              <div className="flex-shrink-0 order-1 md:order-2 w-full md:w-auto">
                 <CalificacionEstrella value={selectedRating} onChange={setSelectedRating} />
               </div>
             </div>

@@ -9,31 +9,49 @@ type Props = {
 
 const CalificacionEstrella: React.FC<Props> = ({ value = null, onChange }) => {
   const [hoverStar, setHoverStar] = useState<number | null>(null);
-  const totalStars = 5;
+  const [showModal, setShowModal] = useState(false);
+  const [selectedMainStar, setSelectedMainStar] = useState<number | null>(null);
+  const [hoverSubStar, setHoverSubStar] = useState<number | null>(null);
 
-  const handleClick = (star: number) => {
-    // toggle: click same star again clears
-    const newVal = value === star ? null : star;
-    if (onChange) onChange(newVal);
+  const totalStars = 5;
+  const subScales = 9; // .1 - .9
+
+  const handleMainStarClick = (star: number) => {
+    setSelectedMainStar(star);
+    setShowModal(true);
   };
 
+  const handleSubScaleClick = (subScale: number) => {
+    if (selectedMainStar && onChange) {
+      const decimalValue =
+        subScale === 0 ? selectedMainStar : selectedMainStar + subScale / 10;
+
+      onChange(decimalValue);
+    }
+    setShowModal(false);
+    setSelectedMainStar(null);
+  };
+
+  const mainStarValue = value ? Math.floor(value) : null;
+
   return (
-    <div>
+    <div className="relative">
       <h3 className="text-base mb-2">Calificación:</h3>
-      <div className="bg-white rounded-lg border border-gray-300 p-4 w-fit overflow-hidden">
-        <div className="flex items-center gap-2 overflow-hidden">
+
+      {/* Estrellas principales */}
+      <div className="bg-white rounded-lg border border-gray-300 p-4 w-fit">
+        <div className="flex items-center gap-2">
           {Array.from({ length: totalStars }, (_, idx) => {
             const starNumber = idx + 1;
-            const filled = (hoverStar ?? value ?? 0) >= starNumber;
+            const filled = (hoverStar ?? mainStarValue ?? 0) >= starNumber;
             return (
               <button
                 key={starNumber}
-                onClick={() => handleClick(starNumber)}
+                type="button"
+                onClick={() => handleMainStarClick(starNumber)}
                 onMouseEnter={() => setHoverStar(starNumber)}
                 onMouseLeave={() => setHoverStar(null)}
-                aria-label={`Seleccionar ${starNumber} estrellas`}
-                className="transition-transform hover:scale-110 focus:outline-none"
-                type="button"
+                className="transition-transform hover:scale-110 active:scale-95 touch-manipulation"
               >
                 <Star
                   size={30}
@@ -45,9 +63,94 @@ const CalificacionEstrella: React.FC<Props> = ({ value = null, onChange }) => {
             );
           })}
         </div>
+
+        {value && (
+          <div className="mt-2 text-sm text-gray-600 text-center">
+            Calificación actual: {value.toFixed(1)}
+          </div>
+        )}
       </div>
+
+      {/* MODAL / DROPDOWN */}
+      {showModal && (
+        <>
+          {/* CLIC FUERA PARA CERRAR */}
+          <div
+            className="fixed inset-0 z-[9998]"
+            onClick={() => {
+              setShowModal(false);
+              setSelectedMainStar(null);
+            }}
+          />
+
+          {/* CUADRO DE OPCIONES */}
+          <div className="absolute mt-2 right-0 translate-x-[160px] bg-white rounded-lg border-2 border-gray-300 shadow-xl p-3 w-64 max-h-[60vh] z-[9999]">
+            <div className="flex items-center justify-between mb-2 pb-2 border-b border-gray-200">
+              <h3 className="text-sm font-semibold">
+                Selecciona calificación 
+              </h3>
+             <button
+  onClick={() => {
+    setShowModal(false);
+    setSelectedMainStar(null);
+  }}
+  className="text-black-600 hover:text-black-800 text-xs font-bold"
+>
+  ✖
+</button>
+
+            </div>
+
+            {/* CONTENEDOR CON SCROLL */}
+            <div className="overflow-y-auto max-h-32">
+              {/* .0 */}
+              <button
+                onClick={() => handleSubScaleClick(0)}
+                onMouseEnter={() => setHoverSubStar(0)}
+                onMouseLeave={() => setHoverSubStar(null)}
+                className={`w-full flex items-center gap-2 p-2 rounded-lg mb-1 transition-colors ${
+                  hoverSubStar === 0 ? 'bg-gray-100' : 'hover:bg-gray-50'
+                }`}
+              >
+                <Star size={18} fill="#fbbf24" stroke="#000000" strokeWidth={2} />
+                <span className="font-medium text-base">
+                  {selectedMainStar}.0
+                </span>
+              </button>
+
+              {/* .1 - .9 */}
+              {Array.from({ length: subScales }, (_, idx) => {
+                const subNumber = idx + 1; // inicia en .1
+                return (
+                  <button
+                    key={subNumber}
+                    onClick={() => handleSubScaleClick(subNumber)}
+                    onMouseEnter={() => setHoverSubStar(subNumber)}
+                    onMouseLeave={() => setHoverSubStar(null)}
+                    className={`w-full flex items-center gap-2 p-2 rounded-lg mb-1 transition-colors ${
+                      hoverSubStar === subNumber ? 'bg-gray-100' : 'hover:bg-gray-50'
+                    }`}
+                  >
+                    <Star
+                      size={18}
+                      fill="#fbbf24"
+                      stroke="#000000"
+                      strokeWidth={2}
+                    />
+                    <span className="font-medium text-base">
+                      {selectedMainStar}.{subNumber}
+                    </span>
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+        </>
+      )}
     </div>
   );
 };
 
 export default CalificacionEstrella;
+
+

@@ -1,17 +1,17 @@
-"use client"
+'use client';
 
-import type { JobOffer } from "@/app/lib/mock-data"
-import { X, MessageCircle, MapPin, Sparkles } from "lucide-react"
-import Image from "next/image"
+import type { JobOffer } from '@/app/lib/mock-data';
+import { X, MessageCircle, MapPin, Sparkles } from 'lucide-react';
+import Image from 'next/image';
 
 interface Props {
-  offer: JobOffer | null
-  isOpen: boolean
-  onClose: () => void
+  offer: JobOffer | null;
+  isOpen: boolean;
+  onClose: () => void;
 }
 
 export function JobOfferModal({ offer, isOpen, onClose }: Props) {
-  if (!isOpen || !offer) return null
+  if (!isOpen || !offer) return null;
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center">

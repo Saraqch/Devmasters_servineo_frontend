@@ -1,15 +1,15 @@
-"use client"
+'use client';
 
-import { Filter, X, Sparkles } from "lucide-react"
-import { useState } from "react"
+import { Filter, X, Sparkles } from 'lucide-react';
+import { useState } from 'react';
 
 interface FilterBarProps {
-  filters: string[]
-  selectedFilters: string[]
-  onFilterChange: (filter: string) => void
-  onClearFilters: () => void
-  className?: string
-  disabled?: boolean
+  filters: string[];
+  selectedFilters: string[];
+  onFilterChange: (filter: string) => void;
+  onClearFilters: () => void;
+  className?: string;
+  disabled?: boolean;
 }
 
 export function FilterBar({
@@ -17,10 +17,10 @@ export function FilterBar({
   selectedFilters,
   onFilterChange,
   onClearFilters,
-  className = "",
+  className = '',
   disabled = false,
 }: FilterBarProps) {
-  const [isOpen, setIsOpen] = useState(false)
+  const [isOpen, setIsOpen] = useState(false);
 
   return (
     <div className={`relative ${className}`}>
@@ -37,15 +37,15 @@ export function FilterBar({
           disabled:opacity-50 disabled:cursor-not-allowed
           ${
             isOpen
-              ? "border-blue-500 shadow-[0_0_30px_rgba(59,130,246,0.3)] scale-105 bg-white"
-              : "border-blue-200 hover:border-blue-400 hover:shadow-[0_0_20px_rgba(59,130,246,0.2)] hover:scale-102"
+              ? 'border-blue-500 shadow-[0_0_30px_rgba(59,130,246,0.3)] scale-105 bg-white'
+              : 'border-blue-200 hover:border-blue-400 hover:shadow-[0_0_20px_rgba(59,130,246,0.2)] hover:scale-102'
           }
-          ${disabled ? "bg-gray-100" : ""}
+          ${disabled ? 'bg-gray-100' : ''}
         `}
       >
         <Filter
           className={`w-5 h-5 transition-all duration-300 ${
-            isOpen ? "text-blue-500 rotate-180 scale-110" : "text-blue-600"
+            isOpen ? 'text-blue-500 rotate-180 scale-110' : 'text-blue-600'
           }`}
         />
         <span className="text-blue-900">Filtros</span>
@@ -81,7 +81,7 @@ export function FilterBar({
 
             <div className="flex flex-wrap gap-2">
               {filters.map((filter, index) => {
-                const isSelected = selectedFilters.includes(filter)
+                const isSelected = selectedFilters.includes(filter);
                 return (
                   <button
                     key={filter}
@@ -93,15 +93,17 @@ export function FilterBar({
                       animate-in fade-in slide-in-from-bottom-2
                       ${
                         isSelected
-                          ? "bg-gradient-to-r from-blue-500 to-blue-600 text-white shadow-lg shadow-blue-500/50 scale-105 border-2 border-blue-400"
-                          : "bg-blue-50 text-blue-700 border-2 border-blue-200 hover:border-blue-400 hover:bg-blue-100 hover:scale-105 hover:shadow-md"
+                          ? 'bg-gradient-to-r from-blue-500 to-blue-600 text-white shadow-lg shadow-blue-500/50 scale-105 border-2 border-blue-400'
+                          : 'bg-blue-50 text-blue-700 border-2 border-blue-200 hover:border-blue-400 hover:bg-blue-100 hover:scale-105 hover:shadow-md'
                       }
                     `}
                   >
                     {filter}
-                    {isSelected && <span className="ml-2 inline-block w-2 h-2 bg-white rounded-full animate-pulse" />}
+                    {isSelected && (
+                      <span className="ml-2 inline-block w-2 h-2 bg-white rounded-full animate-pulse" />
+                    )}
                   </button>
-                )
+                );
               })}
             </div>
 
@@ -110,5 +112,5 @@ export function FilterBar({
         </>
       )}
     </div>
-  )
+  );
 }

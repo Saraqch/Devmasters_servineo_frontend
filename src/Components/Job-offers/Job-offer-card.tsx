@@ -1,45 +1,36 @@
-"use client"
+// src\components\Job-offers\Job-offer-card.tsx
+'use client';
 
-import { useRouter } from 'next/navigation'
-import { MapPin, Star, MessageCircle } from "lucide-react"
-import type { JobOffer } from "@/app/lib/mock-data"
-import { ImageCarousel } from "@/Components/Shared/ImageCarousel"
-import Image from "next/image"
+import { useRouter } from 'next/navigation';
+import { MapPin, Star } from 'lucide-react';
+import type { JobOffer } from '@/app/lib/mock-data';
+import { ImageCarousel } from '@/Components/Shared/ImageCarousel';
+import Image from 'next/image';
 
 interface JobOfferCardProps {
-  offer: JobOffer
-  showFixerInfo?: boolean
-  onClick?: () => void
+  offer: JobOffer;
+  showFixerInfo?: boolean;
+  onClick?: () => void;
 }
 
-export function JobOfferCard({ 
-  offer, 
-  showFixerInfo = true,
-  onClick
-}: JobOfferCardProps) {
-  const router = useRouter()
+export function JobOfferCard({ offer, showFixerInfo = true, onClick }: JobOfferCardProps) {
+  const router = useRouter();
 
   const handleCardClick = () => {
     if (onClick) {
-      onClick()
+      onClick();
     } else {
-      router.push(`/fixer/${offer.fixerId}`)
+      router.push(`/fixer/${offer.fixerId}`);
     }
-  }
+  };
 
   const handleFixerClick = (e: React.MouseEvent) => {
-    e.stopPropagation()
-    router.push(`/fixer/${offer.fixerId}`)
-  }
+    e.stopPropagation();
+    router.push(`/fixer/${offer.fixerId}`);
+  };
 
-  const handleWhatsAppClick = (e: React.MouseEvent) => {
-    e.stopPropagation()
-    window.open(`https://wa.me/${offer.whatsapp}`, '_blank')
-  }
-
-  const images = offer.photos?.length > 0 
-    ? offer.photos 
-    : ["/placeholder.svg?height=180&width=320&text=Oferta"]
+  const images =
+    offer.photos?.length > 0 ? offer.photos : ['/placeholder.svg?height=180&width=320&text=Oferta'];
 
   return (
     <div

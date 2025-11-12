@@ -1,19 +1,19 @@
 // src/Components/Contact/WhatsAppButton.tsx
-"use client"
+'use client';
 
-import { Phone } from "lucide-react"
+import { Phone } from 'lucide-react';
 
 interface WhatsAppButtonProps {
-  phone: string
-  message?: string
-  className?: string
+  phone: string;
+  message?: string;
+  className?: string;
 }
 
 export function WhatsAppButton({ phone, message = '', className = '' }: WhatsAppButtonProps) {
   const handleClick = () => {
-    const text = encodeURIComponent(message)
-    window.open(`https://wa.me/${phone}?text=${text}`, '_blank')
-  }
+    const text = encodeURIComponent(message);
+    window.open(`https://wa.me/${phone}?text=${text}`, '_blank');
+  };
 
   return (
     <button
@@ -23,5 +23,5 @@ export function WhatsAppButton({ phone, message = '', className = '' }: WhatsApp
       <Phone className="w-4 h-4" />
       <span>Contactar por WhatsApp</span>
     </button>
-  )
+  );
 }

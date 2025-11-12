@@ -1,17 +1,30 @@
-"use client";
-import { Search } from "lucide-react";
-
-import { useState } from "react";
-import StatCard from "../Common/StatCard";
+// src\components\Home\Hero-section.tsx
+'use client';
+import { Search } from 'lucide-react';
+import { useState } from 'react';
+import { useRouter } from 'next/navigation';
+import StatCard from '../Common/StatCard';
 
 export default function HeroSection() {
-  const [searchText, setSearchText] = useState("");
+  const [searchText, setSearchText] = useState('');
+  const router = useRouter();
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
-    if (searchText.trim()) {
-      console.log("Searching for:", searchText);
+    const trimmedSearch = searchText.trim();
+
+    if (trimmedSearch) {
+      // Redirigir a la página de ofertas con el término de búsqueda
+      router.push(`/jobOfert?search=${encodeURIComponent(trimmedSearch)}`);
+    } else {
+      // Si está vacío, ir a la página sin parámetros
+      router.push('/jobOfert');
     }
+  };
+
+  const handleTagClick = (tag: string) => {
+    // Redirigir directamente cuando se hace clic en un tag
+    router.push(`/jobOfert?search=${encodeURIComponent(tag)}`);
   };
 
   return (
@@ -53,11 +66,11 @@ export default function HeroSection() {
           <div className="flex flex-col md:flex-row justify-center items-center space-y-4 md:space-y-0 md:space-x-4 mb-6">
             <span className="font-semibold text-gray-700 text-lg">Búsquedas populares:</span>
             <div className="flex flex-wrap justify-center gap-2">
-              {["Plomero", "Electricista", "Pintor", "Carpintero"].map((tag) => (
+              {['Plomero', 'Electricista', 'Pintor', 'Carpintero'].map((tag) => (
                 <button
                   key={tag}
                   type="button"
-                  onClick={() => setSearchText(tag)}
+                  onClick={() => handleTagClick(tag)}
                   className="px-4 py-2 text-sm bg-white border border-gray-200 text-gray-800 rounded-full hover:bg-primary/10 hover:text-primary hover:border-primary/30 transition-all duration-300 shadow-sm hover:shadow"
                 >
                   {tag}

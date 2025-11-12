@@ -1,6 +1,6 @@
-"use client"
+'use client';
 
-import { useAppDispatch, useAppSelector } from "@/app/redux/hooks"
+import { useAppDispatch, useAppSelector } from '@/app/redux/hooks';
 import {
   toggleFixerName,
   toggleCity,
@@ -11,44 +11,53 @@ import {
   selectSelectedJobTypes,
   selectSidebarOpen,
   setSidebarOpen,
-} from "../app/redux/slice/filterSlice"
-import { X } from "lucide-react"
+} from '../app/redux/slice/filterSlice';
+import { X } from 'lucide-react';
 
-const FIXER_NAMES = ["A-C", "D-F", "G-I", "J-L", "M-N"]
-const CITIES = ["Beni", "Chuquisaca", "Cochabamba", "La Paz", "Oruro", "Potosí", "Santa Cruz", "Tarija"]
+const FIXER_NAMES = ['A-C', 'D-F', 'G-I', 'J-L', 'M-N'];
+const CITIES = [
+  'Beni',
+  'Chuquisaca',
+  'Cochabamba',
+  'La Paz',
+  'Oruro',
+  'Potosí',
+  'Santa Cruz',
+  'Tarija',
+];
 const JOB_TYPES = [
-  "Albañil",
-  "Carpintero",
-  "Cerrajero",
-  "Decorador",
-  "Electricista",
-  "Fontanero",
-  "Jardinero",
-  "Mecánico",
-  "Pintor",
-]
+  'Albañil',
+  'Carpintero',
+  'Cerrajero',
+  'Decorador',
+  'Electricista',
+  'Fontanero',
+  'Jardinero',
+  'Mecánico',
+  'Pintor',
+];
 
 export function FiltersPanel() {
-  const dispatch = useAppDispatch()
-  const sidebarOpen = useAppSelector(selectSidebarOpen)
-  const selectedFixerNames = useAppSelector(selectSelectedFixerNames)
-  const selectedCities = useAppSelector(selectSelectedCities)
-  const selectedJobTypes = useAppSelector(selectSelectedJobTypes)
+  const dispatch = useAppDispatch();
+  const sidebarOpen = useAppSelector(selectSidebarOpen);
+  const selectedFixerNames = useAppSelector(selectSelectedFixerNames);
+  const selectedCities = useAppSelector(selectSelectedCities);
+  const selectedJobTypes = useAppSelector(selectSelectedJobTypes);
 
   return (
     <>
       {/* Overlay */}
       {sidebarOpen && (
-        <div 
+        <div
           className="fixed inset-0 bg-black/40 z-30 lg:hidden animate-fade-in"
-          onClick={() => dispatch(setSidebarOpen(false))} 
+          onClick={() => dispatch(setSidebarOpen(false))}
         />
       )}
 
       {/* Sidebar */}
       <aside
         className={`fixed left-0 top-0 h-screen w-72 bg-white border-r border-gray-200 overflow-y-auto z-40 transition-all duration-300 ease-in-out lg:relative lg:translate-x-0 lg:top-auto lg:h-auto lg:w-64 ${
-          sidebarOpen ? "translate-x-0 shadow-lg" : "-translate-x-full"
+          sidebarOpen ? 'translate-x-0 shadow-lg' : '-translate-x-full'
         }`}
       >
         <div className="p-4 space-y-6">
@@ -156,5 +165,5 @@ export function FiltersPanel() {
         </div>
       </aside>
     </>
-  )
+  );
 }

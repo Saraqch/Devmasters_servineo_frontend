@@ -1,15 +1,13 @@
-
-"use client";
-import { Droplets } from "lucide-react";
-import Link from "next/link";
+'use client';
+import { Droplets } from 'lucide-react';
+import Link from 'next/link';
 
 const services = [
   {
-    name: "Plomería",
+    name: 'Plomería',
     icon: <Droplets className="w-8 h-8 text-primary" />,
-    description: "Reparaciones e instalaciones de fontanería",
+    description: 'Reparaciones e instalaciones de fontanería',
   },
-  
 ];
 
 export default function ServicesSection() {
@@ -17,9 +15,7 @@ export default function ServicesSection() {
     <section className="py-16 px-4 bg-white">
       <div className="max-w-7xl mx-auto">
         <div className="text-center mb-12">
-          <h2 className="text-3xl md:text-4xl font-bold text-gray-800 mb-4">
-            Nuestros Servicios
-          </h2>
+          <h2 className="text-3xl md:text-4xl font-bold text-gray-800 mb-4">Nuestros Servicios</h2>
           <p className="text-lg text-gray-600 max-w-2xl mx-auto">
             Encuentra el servicio perfecto para tus necesidades
           </p>

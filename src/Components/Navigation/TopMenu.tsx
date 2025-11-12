@@ -1,29 +1,31 @@
-"use client"
+'use client';
 
-import { useState, useEffect } from 'react'
-import Link from 'next/link'
-import { Menu, X } from 'lucide-react'
+import { useState, useEffect } from 'react';
+import Link from 'next/link';
+import { Menu, X } from 'lucide-react';
 
 export default function TopMenu() {
-  const [isOpen, setIsOpen] = useState(false)
-  const [scrolled, setScrolled] = useState(false)
+  const [isOpen, setIsOpen] = useState(false);
+  const [scrolled, setScrolled] = useState(false);
 
   useEffect(() => {
     const handleScroll = () => {
-      setScrolled(window.scrollY > 10)
-    }
-    window.addEventListener('scroll', handleScroll)
-    return () => window.removeEventListener('scroll', handleScroll)
-  }, [])
+      setScrolled(window.scrollY > 10);
+    };
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
 
   const navItems = [
     { name: 'Inicio', href: '/' },
-    { name: 'Ofertas de trabajo', href: '/job-offer-list' }
-  ]
+    { name: 'Ofertas de trabajo', href: '/jobOfert' },
+  ];
 
   return (
     <>
-      <header className={`fixed w-full z-50 transition-all duration-300 ${scrolled ? 'bg-white shadow-md' : 'bg-white/10 backdrop-blur-sm'} border-t-[1.5px] border-b-[1.5px] border-primary`}>
+      <header
+        className={`fixed w-full z-50 transition-all duration-300 ${scrolled ? 'bg-white shadow-md' : 'bg-white/10 backdrop-blur-sm'} border-t-[1.5px] border-b-[1.5px] border-primary`}
+      >
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between h-16">
             <div className="flex-shrink-0 flex items-center">
@@ -34,9 +36,9 @@ export default function TopMenu() {
 
             <nav className="hidden md:flex items-center space-x-4">
               {navItems.map((item) => (
-                <Link 
+                <Link
                   key={item.name}
-                  href={item.href} 
+                  href={item.href}
                   className="text-gray-700 hover:text-primary px-3 py-2 rounded-md text-sm font-medium transition-colors"
                 >
                   {item.name}
@@ -45,8 +47,8 @@ export default function TopMenu() {
             </nav>
 
             <div className="hidden md:flex items-center space-x-4">
-              <Link 
-                href="/login" 
+              <Link
+                href="/login"
                 className="text-gray-700 hover:text-primary px-4 py-2 rounded-md text-sm font-medium transition-colors"
               >
                 Iniciar Sesión
@@ -70,7 +72,9 @@ export default function TopMenu() {
           </div>
         </div>
 
-        <div className={`md:hidden ${isOpen ? 'block' : 'hidden'} bg-white/95 backdrop-blur-sm border-t border-gray-200`}>
+        <div
+          className={`md:hidden ${isOpen ? 'block' : 'hidden'} bg-white/95 backdrop-blur-sm border-t border-gray-200`}
+        >
           <div className="px-2 pt-2 pb-3 space-y-1">
             {navItems.map((item) => (
               <Link
@@ -103,5 +107,5 @@ export default function TopMenu() {
       </header>
       <div className="h-16" />
     </>
-  )
+  );
 }

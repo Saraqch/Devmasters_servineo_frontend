@@ -1,157 +1,164 @@
-"use client"
+'use client';
 
-import { useCallback, useEffect, useMemo, useRef, useState } from "react"
-import { Card } from "@/Components/Card"
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { Card } from '@/Components/Card';
 
 interface Location {
-  lat: number
-  lng: number
+  lat: number;
+  lng: number;
 }
 
 interface LocationStepProps {
-  location: Location | null
-  onLocationChange: (location: Location) => void
-  error?: string
+  location: Location | null;
+  onLocationChange: (location: Location) => void;
+  error?: string;
 }
 
 export function LocationStep({ location, onLocationChange, error }: LocationStepProps) {
-  const mapRef = useRef<HTMLDivElement>(null)
-  const [mapLoaded, setMapLoaded] = useState(false)
-  const [manualLat, setManualLat] = useState(location?.lat.toString() || "")
-  const [manualLng, setManualLng] = useState(location?.lng.toString() || "")
-  const [outOfBounds, setOutOfBounds] = useState(false)
+  const mapRef = useRef<HTMLDivElement>(null);
+  const [mapLoaded, setMapLoaded] = useState(false);
+  const [manualLat, setManualLat] = useState(location?.lat.toString() || '');
+  const [manualLng, setManualLng] = useState(location?.lng.toString() || '');
+  const [outOfBounds, setOutOfBounds] = useState(false);
 
   // Límites aproximados de Cochabamba
-  const COCHABAMBA_BOUNDS = useMemo(() => ({
-    north: -17.2,
-    south: -17.6,
-    east: -65.8,
-    west: -66.4
-  }), [])
+  const COCHABAMBA_BOUNDS = useMemo(
+    () => ({
+      north: -17.2,
+      south: -17.6,
+      east: -65.8,
+      west: -66.4,
+    }),
+    [],
+  );
 
   useEffect(() => {
     // Load Leaflet CSS
-    if (!document.getElementById("leaflet-css")) {
-      const link = document.createElement("link")
-      link.id = "leaflet-css"
-      link.rel = "stylesheet"
-      link.href = "https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
-      document.head.appendChild(link)
+    if (!document.getElementById('leaflet-css')) {
+      const link = document.createElement('link');
+      link.id = 'leaflet-css';
+      link.rel = 'stylesheet';
+      link.href = 'https://unpkg.com/leaflet@1.9.4/dist/leaflet.css';
+      document.head.appendChild(link);
     }
 
     // Load Leaflet JS
     if (!window.L) {
-      const script = document.createElement("script")
-      script.src = "https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
-      script.onload = () => setMapLoaded(true)
-      document.body.appendChild(script)
+      const script = document.createElement('script');
+      script.src = 'https://unpkg.com/leaflet@1.9.4/dist/leaflet.js';
+      script.onload = () => setMapLoaded(true);
+      document.body.appendChild(script);
     } else {
-      setMapLoaded(true)
+      setMapLoaded(true);
     }
-  }, [])
+  }, []);
 
-  const isInCochabamba = useCallback((lat: number, lng: number): boolean => {
-    return (
-      lat >= COCHABAMBA_BOUNDS.south &&
-      lat <= COCHABAMBA_BOUNDS.north &&
-      lng >= COCHABAMBA_BOUNDS.west &&
-      lng <= COCHABAMBA_BOUNDS.east
-    )
-  }, [COCHABAMBA_BOUNDS])
+  const isInCochabamba = useCallback(
+    (lat: number, lng: number): boolean => {
+      return (
+        lat >= COCHABAMBA_BOUNDS.south &&
+        lat <= COCHABAMBA_BOUNDS.north &&
+        lng >= COCHABAMBA_BOUNDS.west &&
+        lng <= COCHABAMBA_BOUNDS.east
+      );
+    },
+    [COCHABAMBA_BOUNDS],
+  );
 
   useEffect(() => {
-    if (!mapLoaded || !mapRef.current) return
+    if (!mapLoaded || !mapRef.current) return;
 
     // Initialize map centered on Cochabamba, Bolivia
-    const map = L.map(mapRef.current).setView([-17.3935, -66.157], 13)
+    const map = L.map(mapRef.current).setView([-17.3935, -66.157], 13);
 
     // Add OpenStreetMap tiles
-    L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
       attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>',
       maxZoom: 19,
-    }).addTo(map)
+    }).addTo(map);
 
     // Set map bounds to Cochabamba region
     const bounds = L.latLngBounds(
       L.latLng(COCHABAMBA_BOUNDS.south, COCHABAMBA_BOUNDS.west),
-      L.latLng(COCHABAMBA_BOUNDS.north, COCHABAMBA_BOUNDS.east)
-    )
-    map.setMaxBounds(bounds)
+      L.latLng(COCHABAMBA_BOUNDS.north, COCHABAMBA_BOUNDS.east),
+    );
+    map.setMaxBounds(bounds);
     map.on('drag', () => {
-      map.panInsideBounds(bounds, { animate: false })
-    })
+      map.panInsideBounds(bounds, { animate: false });
+    });
 
-    let marker: L.Marker | null = null
+    let marker: L.Marker | null = null;
 
     // Add existing marker if location exists and is within Cochabamba
     if (location && isInCochabamba(location.lat, location.lng)) {
-      marker = L.marker([location.lat, location.lng]).addTo(map)
-      map.setView([location.lat, location.lng], 15)
-      setOutOfBounds(false)
+      marker = L.marker([location.lat, location.lng]).addTo(map);
+      map.setView([location.lat, location.lng], 15);
+      setOutOfBounds(false);
     }
 
     // Handle map clicks
-    map.on("click", (e: L.LeafletEvent) => {
-      const { lat, lng } = e.latlng
+    map.on('click', (e: L.LeafletEvent) => {
+      const { lat, lng } = e.latlng;
 
       // Check if location is within Cochabamba
       if (!isInCochabamba(lat, lng)) {
-        setOutOfBounds(true)
-        
+        setOutOfBounds(true);
+
         // Remove old marker if any
         if (marker) {
-          map.removeLayer(marker)
-          marker = null
+          map.removeLayer(marker);
+          marker = null;
         }
-        
+
         // Update location to null or keep previous valid location
-        onLocationChange({ lat: 0, lng: 0 }) // Reset to invalid location
-        setManualLat("")
-        setManualLng("")
-        return
+        onLocationChange({ lat: 0, lng: 0 }); // Reset to invalid location
+        setManualLat('');
+        setManualLng('');
+        return;
       }
 
-      setOutOfBounds(false)
+      setOutOfBounds(false);
 
       // Remove old marker
       if (marker) {
-        map.removeLayer(marker)
+        map.removeLayer(marker);
       }
 
       // Add new marker
-      marker = L.marker([lat, lng]).addTo(map)
+      marker = L.marker([lat, lng]).addTo(map);
 
       // Update location
-      onLocationChange({ lat, lng })
-      setManualLat(lat.toFixed(6))
-      setManualLng(lng.toFixed(6))
-    })
+      onLocationChange({ lat, lng });
+      setManualLat(lat.toFixed(6));
+      setManualLng(lng.toFixed(6));
+    });
 
     return () => {
-      map.remove()
-    }
-  }, [mapLoaded, location, onLocationChange, isInCochabamba, COCHABAMBA_BOUNDS])
+      map.remove();
+    };
+  }, [mapLoaded, location, onLocationChange, isInCochabamba, COCHABAMBA_BOUNDS]);
 
   const handleManualUpdate = () => {
-    const lat = Number.parseFloat(manualLat)
-    const lng = Number.parseFloat(manualLng)
+    const lat = Number.parseFloat(manualLat);
+    const lng = Number.parseFloat(manualLng);
 
     if (!isNaN(lat) && !isNaN(lng) && lat >= -90 && lat <= 90 && lng >= -180 && lng <= 180) {
       if (isInCochabamba(lat, lng)) {
-        setOutOfBounds(false)
-        onLocationChange({ lat, lng })
+        setOutOfBounds(false);
+        onLocationChange({ lat, lng });
       } else {
-        setOutOfBounds(true)
+        setOutOfBounds(true);
       }
     }
-  }
+  };
 
   return (
     <Card title="Registrar ubicación de trabajo">
       <div className="space-y-4">
         <div className="space-y-2">
           <p className="text-sm text-gray-700">
-            Haz clic en el mapa para seleccionar tu ubicación de trabajo <strong>solo en la región de Cochabamba</strong>
+            Haz clic en el mapa para seleccionar tu ubicación de trabajo{' '}
+            <strong>solo en la región de Cochabamba</strong>
           </p>
           <div className="rounded-lg bg-amber-50 p-3 border border-amber-200">
             <p className="text-sm text-amber-800 font-medium">⚠️ Restricción de ubicación</p>
@@ -166,7 +173,8 @@ export function LocationStep({ location, onLocationChange, error }: LocationStep
           <div className="rounded-lg bg-red-50 p-3 border border-red-200">
             <p className="text-sm text-red-800 font-medium">Ubicación fuera de Cochabamba</p>
             <p className="text-xs text-red-700 mt-1">
-              La ubicación seleccionada está fuera de la región de Cochabamba. Por favor, selecciona una ubicación dentro del departamento.
+              La ubicación seleccionada está fuera de la región de Cochabamba. Por favor, selecciona
+              una ubicación dentro del departamento.
             </p>
           </div>
         )}
@@ -209,5 +217,5 @@ export function LocationStep({ location, onLocationChange, error }: LocationStep
         {error && <p className="text-sm text-red-600">{error}</p>}
       </div>
     </Card>
-  )
+  );
 }

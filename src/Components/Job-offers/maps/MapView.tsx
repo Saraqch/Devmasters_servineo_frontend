@@ -1,54 +1,58 @@
-"use client"
+'use client';
 
-import { useState, useEffect, useRef, useCallback } from "react"
-import type { JobOffer } from "@/app/lib/mock-data"
-import { userLocation } from "@/app/lib/mock-data"
-import { JobQuickInfo } from "./JobQuickInfo"
-import { ZoomIn, ZoomOut, Locate, MapPin } from "lucide-react"
+import { useState, useEffect, useRef, useCallback } from 'react';
+import type { JobOffer } from '@/app/lib/mock-data';
+import { userLocation } from '@/app/lib/mock-data';
+import { JobQuickInfo } from './JobQuickInfo';
+import { ZoomIn, ZoomOut, Locate, MapPin } from 'lucide-react';
 import type { Map, Marker } from 'leaflet';
 
 interface MapViewProps {
-  offers: JobOffer[]
-  onOfferClick: (offer: JobOffer) => void
+  offers: JobOffer[];
+  onOfferClick: (offer: JobOffer) => void;
 }
 
 export function MapView({ offers, onOfferClick }: MapViewProps) {
-  const [isClient, setIsClient] = useState(false)
-  const [hoveredOffer, setHoveredOffer] = useState<JobOffer | null>(null)
-  const mapRef = useRef<HTMLDivElement>(null)
-  const mapInstanceRef = useRef<Map | null>(null)
-  const markersRef = useRef<Marker[]>([])
-  const userMarkerRef = useRef<Marker | null>(null)
-  const hoverTimeoutRef = useRef<NodeJS.Timeout | null>(null)
+  const [isClient, setIsClient] = useState(false);
+  const [hoveredOffer, setHoveredOffer] = useState<JobOffer | null>(null);
+  const mapRef = useRef<HTMLDivElement>(null);
+  const mapInstanceRef = useRef<Map | null>(null);
+  const markersRef = useRef<Marker[]>([]);
+  const userMarkerRef = useRef<Marker | null>(null);
+  const hoverTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
   const calculateDistance = (lat1: number, lng1: number, lat2: number, lng2: number) => {
-    const R = 6371
-    const dLat = ((lat2 - lat1) * Math.PI) / 180
-    const dLng = ((lng2 - lng1) * Math.PI) / 180
+    const R = 6371;
+    const dLat = ((lat2 - lat1) * Math.PI) / 180;
+    const dLng = ((lng2 - lng1) * Math.PI) / 180;
     const a =
       Math.sin(dLat / 2) * Math.sin(dLat / 2) +
-      Math.cos((lat1 * Math.PI) / 180) * Math.cos((lat2 * Math.PI) / 180) * Math.sin(dLng / 2) * Math.sin(dLng / 2)
-    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a))
-    return R * c
-  }
+      Math.cos((lat1 * Math.PI) / 180) *
+        Math.cos((lat2 * Math.PI) / 180) *
+        Math.sin(dLng / 2) *
+        Math.sin(dLng / 2);
+    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+    return R * c;
+  };
 
-  const updateMarkers = useCallback(async (L: typeof import('leaflet'), map: Map, offersToShow: JobOffer[]) => {
-    // Limpiar marcadores existentes
-    markersRef.current.forEach((marker) => map.removeLayer(marker))
-    markersRef.current = []
+  const updateMarkers = useCallback(
+    async (L: typeof import('leaflet'), map: Map, offersToShow: JobOffer[]) => {
+      // Limpiar marcadores existentes
+      markersRef.current.forEach((marker) => map.removeLayer(marker));
+      markersRef.current = [];
 
-    // Agregar nuevos marcadores
-    offersToShow.forEach((offer, index) => {
-      const distance = calculateDistance(
-        userLocation.lat,
-        userLocation.lng,
-        offer.location.lat,
-        offer.location.lng,
-      ).toFixed(1)
+      // Agregar nuevos marcadores
+      offersToShow.forEach((offer, index) => {
+        const distance = calculateDistance(
+          userLocation.lat,
+          userLocation.lng,
+          offer.location.lat,
+          offer.location.lng,
+        ).toFixed(1);
 
-      const markerIcon = L.divIcon({
-        className: "custom-offer-marker",
-        html: `
+        const markerIcon = L.divIcon({
+          className: 'custom-offer-marker',
+          html: `
           <div class="relative animate-in fade-in slide-in-from-bottom-4 duration-500" style="animation-delay: ${index * 100}ms">
             <div class="absolute -bottom-1 left-1/2 -translate-x-1/2 w-6 h-2 bg-black/20 rounded-full blur-sm"></div>
             <div class="relative group cursor-pointer">
@@ -64,72 +68,74 @@ export function MapView({ offers, onOfferClick }: MapViewProps) {
             </div>
           </div>
         `,
-        iconSize: [48, 48],
-        iconAnchor: [24, 48],
-      })
+          iconSize: [48, 48],
+          iconAnchor: [24, 48],
+        });
 
-      const marker = L.marker([offer.location.lat, offer.location.lng], {
-        icon: markerIcon,
-      }).addTo(map)
+        const marker = L.marker([offer.location.lat, offer.location.lng], {
+          icon: markerIcon,
+        }).addTo(map);
 
-      // Eventos hover
-      const markerElement = marker.getElement()
-      if (markerElement) {
-        markerElement.addEventListener("mouseenter", () => {
-          if (hoverTimeoutRef.current) {
-            clearTimeout(hoverTimeoutRef.current)
-          }
-          hoverTimeoutRef.current = setTimeout(() => {
-            setHoveredOffer(offer)
-          }, 200)
-        })
+        // Eventos hover
+        const markerElement = marker.getElement();
+        if (markerElement) {
+          markerElement.addEventListener('mouseenter', () => {
+            if (hoverTimeoutRef.current) {
+              clearTimeout(hoverTimeoutRef.current);
+            }
+            hoverTimeoutRef.current = setTimeout(() => {
+              setHoveredOffer(offer);
+            }, 200);
+          });
 
-        markerElement.addEventListener("mouseleave", () => {
-          if (hoverTimeoutRef.current) {
-            clearTimeout(hoverTimeoutRef.current)
-          }
-          hoverTimeoutRef.current = setTimeout(() => {
-            setHoveredOffer(null)
-          }, 300)
-        })
-      }
+          markerElement.addEventListener('mouseleave', () => {
+            if (hoverTimeoutRef.current) {
+              clearTimeout(hoverTimeoutRef.current);
+            }
+            hoverTimeoutRef.current = setTimeout(() => {
+              setHoveredOffer(null);
+            }, 300);
+          });
+        }
 
-      // Popup al hacer click
-      marker.bindPopup(
-        `<div class="text-center p-3">
+        // Popup al hacer click
+        marker.bindPopup(
+          `<div class="text-center p-3">
           <p class="font-bold text-sm text-gray-800 mb-1">${offer.fixerName}</p>
           <p class="text-xs text-gray-600 mb-2">${offer.description}</p>
           <p class="text-xs text-primary font-semibold">${distance} km de distancia</p>
         </div>`,
-        { className: "custom-popup" },
-      )
+          { className: 'custom-popup' },
+        );
 
-      markersRef.current.push(marker)
-    })
-  }, []) // Dependencias: calculateDistance y userLocation son estables, pero si no, se pueden incluir
-
-  useEffect(() => {
-    setIsClient(true)
-  }, [])
+        markersRef.current.push(marker);
+      });
+    },
+    [],
+  ); // Dependencias: calculateDistance y userLocation son estables, pero si no, se pueden incluir
 
   useEffect(() => {
-    if (!isClient || !mapRef.current) return
+    setIsClient(true);
+  }, []);
+
+  useEffect(() => {
+    if (!isClient || !mapRef.current) return;
 
     const initializeMap = async () => {
-      const L = await import("leaflet")
+      const L = await import('leaflet');
 
       const map = L.map(mapRef.current!, {
         zoomControl: false,
-      }).setView([userLocation.lat, userLocation.lng], 14)
+      }).setView([userLocation.lat, userLocation.lng], 14);
 
-      L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
-        attribution: "© OpenStreetMap contributors",
+      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        attribution: '© OpenStreetMap contributors',
         maxZoom: 19,
-      }).addTo(map)
+      }).addTo(map);
 
       // Crear icono de usuario
       const userIcon = L.divIcon({
-        className: "custom-user-marker",
+        className: 'custom-user-marker',
         html: `
           <div class="relative">
             <div class="absolute inset-0 w-10 h-10 -left-1 -top-1 bg-primary/30 rounded-full animate-ping"></div>
@@ -142,83 +148,83 @@ export function MapView({ offers, onOfferClick }: MapViewProps) {
         `,
         iconSize: [40, 40],
         iconAnchor: [20, 20],
-      })
+      });
 
       // Marcador de usuario
       const userMarker = L.marker([userLocation.lat, userLocation.lng], {
         icon: userIcon,
-      }).addTo(map)
+      }).addTo(map);
 
       userMarker.bindPopup(
         `<div class="text-center p-3">
           <p class="font-bold text-sm text-blue-400 mb-1">Tu ubicación</p>
           <p class="text-xs text-gray-600">${userLocation.address}</p>
         </div>`,
-        { className: "custom-popup" },
-      )
+        { className: 'custom-popup' },
+      );
 
-      userMarkerRef.current = userMarker
+      userMarkerRef.current = userMarker;
 
       // Círculo alrededor del usuario
       L.circle([userLocation.lat, userLocation.lng], {
-        color: "#3b82f6",
-        fillColor: "#3b82f6",
+        color: '#3b82f6',
+        fillColor: '#3b82f6',
         fillOpacity: 0.15,
         radius: 1000,
         weight: 2,
         opacity: 0.6,
-      }).addTo(map)
+      }).addTo(map);
 
-      mapInstanceRef.current = map
+      mapInstanceRef.current = map;
 
       // Agregar marcadores de ofertas
-      updateMarkers(L, map, offers)
-    }
+      updateMarkers(L, map, offers);
+    };
 
-    initializeMap()
+    initializeMap();
 
     return () => {
       if (mapInstanceRef.current) {
-        mapInstanceRef.current.remove()
-        mapInstanceRef.current = null
+        mapInstanceRef.current.remove();
+        mapInstanceRef.current = null;
       }
-    }
-  }, [isClient, offers, updateMarkers])
+    };
+  }, [isClient, offers, updateMarkers]);
 
   // Efecto para actualizar marcadores cuando las ofertas cambian
   useEffect(() => {
-    if (!isClient || !mapInstanceRef.current) return
+    if (!isClient || !mapInstanceRef.current) return;
 
     const updateMarkersOnChange = async () => {
-      const L = await import("leaflet")
-      updateMarkers(L, mapInstanceRef.current!, offers)
-    }
+      const L = await import('leaflet');
+      updateMarkers(L, mapInstanceRef.current!, offers);
+    };
 
-    updateMarkersOnChange()
-  }, [offers, isClient, updateMarkers])
+    updateMarkersOnChange();
+  }, [offers, isClient, updateMarkers]);
 
   const handleShowMore = (offer: JobOffer) => {
-    onOfferClick(offer)
-    setHoveredOffer(null)
-  }
+    onOfferClick(offer);
+    setHoveredOffer(null);
+  };
 
   const handleZoomIn = () => {
     if (mapInstanceRef.current) {
-      mapInstanceRef.current.zoomIn()
+      mapInstanceRef.current.zoomIn();
     }
-  }
+  };
 
   const handleZoomOut = () => {
     if (mapInstanceRef.current) {
-      mapInstanceRef.current.zoomOut()
+      mapInstanceRef.current.zoomOut();
     }
-  }
+  };
 
   const handleRecenter = () => {
     if (mapInstanceRef.current) {
-      mapInstanceRef.current.setView([userLocation.lat, userLocation.lng], 14)
+      mapInstanceRef.current.setView([userLocation.lat, userLocation.lng], 14);
     }
-  }
+  };
 
   // Si no estamos en el cliente, mostrar un placeholder
   if (!isClient) {
@@ -226,7 +232,7 @@ export function MapView({ offers, onOfferClick }: MapViewProps) {
       <div className="w-full h-full rounded-2xl overflow-hidden shadow-lg border border-blue-200 bg-gray-200 flex items-center justify-center">
         <p>Cargando mapa...</p>
       </div>
-    )
+    );
   }
 
   return (
@@ -238,24 +244,26 @@ export function MapView({ offers, onOfferClick }: MapViewProps) {
           className="absolute top-4 right-2 sm:top-20 sm:left-4 z-[1000] animate-in fade-in slide-in-from-right-8 sm:slide-in-from-left-8 duration-300"
           onMouseEnter={() => {
             if (hoverTimeoutRef.current) {
-              clearTimeout(hoverTimeoutRef.current)
+              clearTimeout(hoverTimeoutRef.current);
             }
           }}
           onMouseLeave={() => {
             hoverTimeoutRef.current = setTimeout(() => {
-              setHoveredOffer(null)
-            }, 300)
+              setHoveredOffer(null);
+            }, 300);
           }}
         >
           <JobQuickInfo
             offer={hoveredOffer}
             onShowMore={() => handleShowMore(hoveredOffer)}
-            distance={Number(calculateDistance(
-              userLocation.lat,
-              userLocation.lng,
-              hoveredOffer.location.lat,
-              hoveredOffer.location.lng,
-            ).toFixed(1))}
+            distance={Number(
+              calculateDistance(
+                userLocation.lat,
+                userLocation.lng,
+                hoveredOffer.location.lat,
+                hoveredOffer.location.lng,
+              ).toFixed(1),
+            )}
           />
         </div>
       )}
@@ -307,10 +315,10 @@ export function MapView({ offers, onOfferClick }: MapViewProps) {
 
         <div className="mt-3 pt-3 border-t border-blue-500/30">
           <p className="text-xs font-semibold text-primary">
-            {offers.length} {offers.length === 1 ? "oferta disponible" : "ofertas disponibles"}
+            {offers.length} {offers.length === 1 ? 'oferta disponible' : 'ofertas disponibles'}
           </p>
         </div>
       </div>
     </div>
-  )
+  );
 }

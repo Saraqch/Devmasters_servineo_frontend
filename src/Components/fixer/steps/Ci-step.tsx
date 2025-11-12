@@ -1,19 +1,19 @@
-"use client"
+'use client';
 
-import { Card } from "@/Components/Card"
-import { AlertCircle, CreditCard } from "lucide-react"
+import { Card } from '@/Components/Card';
+import { AlertCircle, CreditCard } from 'lucide-react';
 
 interface CIStepProps {
-  ci: string
-  onCIChange: (ci: string) => void
-  error?: string
+  ci: string;
+  onCIChange: (ci: string) => void;
+  error?: string;
 }
 
 export function CIStep({ ci, onCIChange, error }: CIStepProps) {
   const handleChange = (value: string) => {
-    const sanitized = value.replace(/[^0-9]/g, "").slice(0, 10)
-    onCIChange(sanitized)
-  }
+    const sanitized = value.replace(/[^0-9]/g, '').slice(0, 10);
+    onCIChange(sanitized);
+  };
 
   return (
     <Card title="Registrar CI">
@@ -40,5 +40,5 @@ export function CIStep({ ci, onCIChange, error }: CIStepProps) {
         )}
       </div>
     </Card>
-  )
+  );
 }

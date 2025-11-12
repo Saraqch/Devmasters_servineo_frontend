@@ -1,16 +1,16 @@
-"use client"
+'use client';
 
-import { X, AlertTriangle } from "lucide-react"
+import { X, AlertTriangle } from 'lucide-react';
 
 interface ConfirmationModalProps {
-  isOpen: boolean
-  onClose: () => void
-  onConfirm: () => void
-  title: string
-  message: string
-  confirmText?: string
-  cancelText?: string
-  type?: "danger" | "warning" | "info"
+  isOpen: boolean;
+  onClose: () => void;
+  onConfirm: () => void;
+  title: string;
+  message: string;
+  confirmText?: string;
+  cancelText?: string;
+  type?: 'danger' | 'warning' | 'info';
 }
 
 export default function ConfirmationModal({
@@ -19,53 +19,59 @@ export default function ConfirmationModal({
   onConfirm,
   title,
   message,
-  confirmText = "Confirmar",
-  cancelText = "Cancelar",
-  type = "danger",
+  confirmText = 'Confirmar',
+  cancelText = 'Cancelar',
+  type = 'danger',
 }: ConfirmationModalProps) {
-  if (!isOpen) return null
+  if (!isOpen) return null;
 
   const typeConfig = {
     danger: {
-      bgColor: "bg-red-500/10",
-      borderColor: "border-red-500/30",
-      iconColor: "text-red-500",
-      titleColor: "text-red-700 dark:text-red-400",
-      buttonColor: "bg-red-500 hover:bg-red-600",
+      bgColor: 'bg-red-500/10',
+      borderColor: 'border-red-500/30',
+      iconColor: 'text-red-500',
+      titleColor: 'text-red-700 dark:text-red-400',
+      buttonColor: 'bg-red-500 hover:bg-red-600',
     },
     warning: {
-      bgColor: "bg-orange-500/10",
-      borderColor: "border-orange-500/30",
-      iconColor: "text-orange-500",
-      titleColor: "text-orange-700 dark:text-orange-400",
-      buttonColor: "bg-orange-500 hover:bg-orange-600",
+      bgColor: 'bg-orange-500/10',
+      borderColor: 'border-orange-500/30',
+      iconColor: 'text-orange-500',
+      titleColor: 'text-orange-700 dark:text-orange-400',
+      buttonColor: 'bg-orange-500 hover:bg-orange-600',
     },
     info: {
-      bgColor: "bg-blue-500/10",
-      borderColor: "border-blue-500/30",
-      iconColor: "text-blue-500",
-      titleColor: "text-blue-700 dark:text-blue-400",
-      buttonColor: "bg-blue-500 hover:bg-blue-600",
+      bgColor: 'bg-blue-500/10',
+      borderColor: 'border-blue-500/30',
+      iconColor: 'text-blue-500',
+      titleColor: 'text-blue-700 dark:text-blue-400',
+      buttonColor: 'bg-blue-500 hover:bg-blue-600',
     },
-  }
+  };
 
-  const config = typeConfig[type]
+  const config = typeConfig[type];
 
   const handleConfirm = () => {
-    onConfirm()
-    onClose()
-  }
+    onConfirm();
+    onClose();
+  };
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center px-4 animate-fade-in">
-      <div className="fixed inset-0 bg-black/60 backdrop-blur-sm" onClick={onClose} aria-hidden="true" />
+      <div
+        className="fixed inset-0 bg-black/60 backdrop-blur-sm"
+        onClick={onClose}
+        aria-hidden="true"
+      />
 
       <div
         className={`relative w-full max-w-md bg-card border-2 ${config.borderColor} rounded-2xl shadow-2xl animate-scale-in`}
       >
         <div className="p-6">
           <div className="flex items-start gap-4">
-            <div className={`flex-shrink-0 w-12 h-12 ${config.bgColor} rounded-xl flex items-center justify-center`}>
+            <div
+              className={`flex-shrink-0 w-12 h-12 ${config.bgColor} rounded-xl flex items-center justify-center`}
+            >
               <AlertTriangle className={`w-6 h-6 ${config.iconColor}`} />
             </div>
 
@@ -100,5 +106,5 @@ export default function ConfirmationModal({
         </div>
       </div>
     </div>
-  )
+  );
 }

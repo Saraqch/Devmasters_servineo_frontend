@@ -1,26 +1,26 @@
-"use client"
+'use client';
 
-import type React from "react"
+import type React from 'react';
 
-import { Card } from "@/Components/Card"
-import { Banknote, CreditCard, QrCode, AlertCircle } from "lucide-react"
+import { Card } from '@/Components/Card';
+import { Banknote, CreditCard, QrCode, AlertCircle } from 'lucide-react';
 
-export type PaymentMethod = "cash" | "qr" | "card"
+export type PaymentMethod = 'cash' | 'qr' | 'card';
 
 interface PaymentStepProps {
-  payments: PaymentMethod[]
-  accountInfo: string
-  onTogglePayment: (method: PaymentMethod) => void
-  onAccountInfoChange: (info: string) => void
-  paymentsError?: string
-  accountError?: string
+  payments: PaymentMethod[];
+  accountInfo: string;
+  onTogglePayment: (method: PaymentMethod) => void;
+  onAccountInfoChange: (info: string) => void;
+  paymentsError?: string;
+  accountError?: string;
 }
 
 const PAYMENT_CONFIG: Record<PaymentMethod, { label: string; icon: React.ReactNode }> = {
-  cash: { label: "Efectivo", icon: <Banknote className="h-4 w-4" /> },
-  qr: { label: "QR", icon: <QrCode className="h-4 w-4" /> },
-  card: { label: "Tarjeta", icon: <CreditCard className="h-4 w-4" /> },
-}
+  cash: { label: 'Efectivo', icon: <Banknote className="h-4 w-4" /> },
+  qr: { label: 'QR', icon: <QrCode className="h-4 w-4" /> },
+  card: { label: 'Tarjeta', icon: <CreditCard className="h-4 w-4" /> },
+};
 
 export function PaymentStep({
   payments,
@@ -30,37 +30,37 @@ export function PaymentStep({
   paymentsError,
   accountError,
 }: PaymentStepProps) {
-  const needsAccount = payments.includes("qr") || payments.includes("card")
+  const needsAccount = payments.includes('qr') || payments.includes('card');
 
   const handleAccountChange = (value: string) => {
     // Solo permitir números y limitar a 34 caracteres (máximo para CBU/IBAN)
-    const numericOnly = value.replace(/\D/g, "").slice(0, 34)
-    onAccountInfoChange(numericOnly)
-  }
+    const numericOnly = value.replace(/\D/g, '').slice(0, 34);
+    onAccountInfoChange(numericOnly);
+  };
 
   const getAccountType = () => {
-    const length = accountInfo.length
-    if (length === 22) return "CBU"
-    if (length === 24) return "IBAN"
-    if (length > 0 && length < 22) return "Número incompleto"
-    if (length > 24) return "Número demasiado largo"
-    return ""
-  }
+    const length = accountInfo.length;
+    if (length === 22) return 'CBU';
+    if (length === 24) return 'IBAN';
+    if (length > 0 && length < 22) return 'Número incompleto';
+    if (length > 24) return 'Número demasiado largo';
+    return '';
+  };
 
   return (
     <Card title="Métodos de pago aceptados">
       <div className="space-y-4">
         <div className="flex flex-wrap gap-2">
-          {(["cash", "qr", "card"] as const).map((m) => (
+          {(['cash', 'qr', 'card'] as const).map((m) => (
             <button
               key={m}
               type="button"
               onClick={() => onTogglePayment(m)}
               className={
-                "rounded-full px-4 py-2 text-sm transition-all flex items-center gap-2 " +
+                'rounded-full px-4 py-2 text-sm transition-all flex items-center gap-2 ' +
                 (payments.includes(m)
-                  ? "bg-primary text-white shadow-md scale-105"
-                  : "bg-gray-200 text-gray-900 hover:bg-gray-300")
+                  ? 'bg-primary text-white shadow-md scale-105'
+                  : 'bg-gray-200 text-gray-900 hover:bg-gray-300')
               }
             >
               {PAYMENT_CONFIG[m].icon}
@@ -83,16 +83,16 @@ export function PaymentStep({
               <p className="text-xs text-gray-600">
                 Solo números, máximo 34 caracteres ({accountInfo.length}/34)
               </p>
-              <span className={`text-xs ${
-                accountInfo.length === 22 || accountInfo.length === 24 
-                  ? "text-green-600 font-medium" 
-                  : "text-gray-500"
-              }`}>
+              <span
+                className={`text-xs ${
+                  accountInfo.length === 22 || accountInfo.length === 24
+                    ? 'text-green-600 font-medium'
+                    : 'text-gray-500'
+                }`}
+              >
                 {getAccountType()}
               </span>
             </div>
-            
-            
           </div>
         )}
 
@@ -110,5 +110,5 @@ export function PaymentStep({
         )}
       </div>
     </Card>
-  )
+  );
 }

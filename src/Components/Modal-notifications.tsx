@@ -1,49 +1,49 @@
-"use client"
+'use client';
 
-import { X, CheckCircle, AlertCircle, Info, Trash2, type LucideIcon } from "lucide-react"
-import { useEffect } from "react"
+import { X, CheckCircle, AlertCircle, Info, Trash2, type LucideIcon } from 'lucide-react';
+import { useEffect } from 'react';
 
 interface NotificationModalProps {
-  isOpen: boolean
-  onClose: () => void
-  type: "success" | "error" | "info" | "warning"
-  title: string
-  message: string
-  icon?: LucideIcon
-  autoClose?: boolean
-  autoCloseDelay?: number
+  isOpen: boolean;
+  onClose: () => void;
+  type: 'success' | 'error' | 'info' | 'warning';
+  title: string;
+  message: string;
+  icon?: LucideIcon;
+  autoClose?: boolean;
+  autoCloseDelay?: number;
 }
 
 const typeConfig = {
   success: {
     icon: CheckCircle,
-    bgColor: "bg-green-500/10",
-    borderColor: "border-green-500/30",
-    iconColor: "text-green-500",
-    titleColor: "text-green-700 dark:text-green-400",
+    bgColor: 'bg-green-500/10',
+    borderColor: 'border-green-500/30',
+    iconColor: 'text-green-500',
+    titleColor: 'text-green-700 dark:text-green-400',
   },
   error: {
     icon: AlertCircle,
-    bgColor: "bg-red-500/10",
-    borderColor: "border-red-500/30",
-    iconColor: "text-red-500",
-    titleColor: "text-red-700 dark:text-red-400",
+    bgColor: 'bg-red-500/10',
+    borderColor: 'border-red-500/30',
+    iconColor: 'text-red-500',
+    titleColor: 'text-red-700 dark:text-red-400',
   },
   info: {
     icon: Info,
-    bgColor: "bg-blue-500/10",
-    borderColor: "border-blue-500/30",
-    iconColor: "text-blue-500",
-    titleColor: "text-blue-700 dark:text-blue-400",
+    bgColor: 'bg-blue-500/10',
+    borderColor: 'border-blue-500/30',
+    iconColor: 'text-blue-500',
+    titleColor: 'text-blue-700 dark:text-blue-400',
   },
   warning: {
     icon: Trash2,
-    bgColor: "bg-orange-500/10",
-    borderColor: "border-orange-500/30",
-    iconColor: "text-orange-500",
-    titleColor: "text-orange-700 dark:text-orange-400",
+    bgColor: 'bg-orange-500/10',
+    borderColor: 'border-orange-500/30',
+    iconColor: 'text-orange-500',
+    titleColor: 'text-orange-700 dark:text-orange-400',
   },
-}
+};
 
 export default function NotificationModal({
   isOpen,
@@ -55,31 +55,37 @@ export default function NotificationModal({
   autoClose = true,
   autoCloseDelay = 3000,
 }: NotificationModalProps) {
-  const config = typeConfig[type]
-  const IconComponent = CustomIcon || config.icon
+  const config = typeConfig[type];
+  const IconComponent = CustomIcon || config.icon;
 
   useEffect(() => {
     if (isOpen && autoClose) {
       const timer = setTimeout(() => {
-        onClose()
-      }, autoCloseDelay)
+        onClose();
+      }, autoCloseDelay);
 
-      return () => clearTimeout(timer)
+      return () => clearTimeout(timer);
     }
-  }, [isOpen, autoClose, autoCloseDelay, onClose])
+  }, [isOpen, autoClose, autoCloseDelay, onClose]);
 
-  if (!isOpen) return null
+  if (!isOpen) return null;
 
   return (
     <div className="fixed inset-0 z-50 flex items-start justify-center pt-20 px-4 animate-fade-in">
-      <div className="fixed inset-0 bg-black/20 backdrop-blur-sm" onClick={onClose} aria-hidden="true" />
+      <div
+        className="fixed inset-0 bg-black/20 backdrop-blur-sm"
+        onClick={onClose}
+        aria-hidden="true"
+      />
 
       <div
         className={`relative w-full max-w-md bg-card border-2 ${config.borderColor} rounded-2xl shadow-2xl animate-scale-in`}
       >
         <div className="p-6">
           <div className="flex items-start gap-4">
-            <div className={`flex-shrink-0 w-12 h-12 ${config.bgColor} rounded-xl flex items-center justify-center`}>
+            <div
+              className={`flex-shrink-0 w-12 h-12 ${config.bgColor} rounded-xl flex items-center justify-center`}
+            >
               <IconComponent className={`w-6 h-6 ${config.iconColor}`} />
             </div>
 
@@ -108,5 +114,5 @@ export default function NotificationModal({
         </div>
       </div>
     </div>
-  )
+  );
 }

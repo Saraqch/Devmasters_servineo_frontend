@@ -1,37 +1,37 @@
-"use client"
+'use client';
 
-import { useState } from "react"
-import { zodResolver } from "@hookform/resolvers/zod"
-import { useForm } from "react-hook-form"
-import { X } from "lucide-react"
-import { jobOfferSchema, type JobOfferFormData } from "@/app/lib/validations/Job-offer-Schemas"
-import { availableServices, type JobOffer } from "@/app/lib/mock-data"
+import { useState } from 'react';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { useForm } from 'react-hook-form';
+import { X } from 'lucide-react';
+import { jobOfferSchema, type JobOfferFormData } from '@/app/lib/validations/Job-offer-Schemas';
+import { availableServices, type JobOffer } from '@/app/lib/mock-data';
 
 interface JobOfferFormProps {
-  onSubmit: (data: JobOfferFormData) => void
-  onCancel: () => void
-  defaultValues?: Partial<JobOffer> | Partial<JobOfferFormData>
-  submitButtonText?: string
+  onSubmit: (data: JobOfferFormData) => void;
+  onCancel: () => void;
+  defaultValues?: Partial<JobOffer> | Partial<JobOfferFormData>;
+  submitButtonText?: string;
 }
 
 export default function JobOfferForm({
   onSubmit,
   onCancel,
   defaultValues,
-  submitButtonText = "Publicar Oferta",
+  submitButtonText = 'Publicar Oferta',
 }: JobOfferFormProps) {
   // Normalize services to object format
   const normalizeServices = (services?: string[] | { id: string; value: string }[]) => {
-    if (!services) return []
+    if (!services) return [];
     if (typeof services[0] === 'string') {
-      return (services as string[]).map((s) => ({ id: s, value: s }))
+      return (services as string[]).map((s) => ({ id: s, value: s }));
     }
-    return services as { id: string; value: string }[]
-  }
+    return services as { id: string; value: string }[];
+  };
 
   const [selectedServices, setSelectedServices] = useState<Array<{ id: string; value: string }>>(
-    normalizeServices(defaultValues?.services)
-  )
+    normalizeServices(defaultValues?.services),
+  );
 
   const {
     register,
@@ -41,40 +41,44 @@ export default function JobOfferForm({
   } = useForm<JobOfferFormData>({
     resolver: zodResolver(jobOfferSchema),
     defaultValues: {
-      description: defaultValues?.description || "",
-      city: defaultValues?.city || "Cochabamba",
+      description: defaultValues?.description || '',
+      city: defaultValues?.city || 'Cochabamba',
       price: defaultValues?.price || 0,
       photos: defaultValues?.photos || [],
       services: normalizeServices(defaultValues?.services),
     },
-  })
+  });
 
   const toggleService = (service: string) => {
-    const serviceObj = { id: service, value: service }
-    const isSelected = selectedServices.some((s) => s.value === service)
+    const serviceObj = { id: service, value: service };
+    const isSelected = selectedServices.some((s) => s.value === service);
 
     if (isSelected) {
-      const newServices = selectedServices.filter((s) => s.value !== service)
-      setSelectedServices(newServices)
-      setValue("services", newServices)
+      const newServices = selectedServices.filter((s) => s.value !== service);
+      setSelectedServices(newServices);
+      setValue('services', newServices);
     } else {
-      const newServices = [...selectedServices, serviceObj]
-      setSelectedServices(newServices)
-      setValue("services", newServices)
+      const newServices = [...selectedServices, serviceObj];
+      setSelectedServices(newServices);
+      setValue('services', newServices);
     }
-  }
+  };
 
   const handleFormSubmit = (data: JobOfferFormData) => {
-    onSubmit({ ...data, services: selectedServices })
-  }
+    onSubmit({ ...data, services: selectedServices });
+  };
 
   return (
     <div className="bg-white rounded-2xl shadow-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
       <div className="sticky top-0 bg-white border-b px-6 py-4 flex items-center justify-between z-10">
         <h2 className="text-2xl font-bold text-blue-600">
-          {defaultValues ? "Editar Oferta" : "Nueva Oferta de Trabajo"}
+          {defaultValues ? 'Editar Oferta' : 'Nueva Oferta de Trabajo'}
         </h2>
-        <button onClick={onCancel} className="p-2 hover:bg-gray-100 rounded-lg transition-colors" aria-label="Cerrar">
+        <button
+          onClick={onCancel}
+          className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
+          aria-label="Cerrar"
+        >
           <X className="w-5 h-5" />
         </button>
       </div>
@@ -87,12 +91,14 @@ export default function JobOfferForm({
           </label>
           <textarea
             id="description"
-            {...register("description")}
+            {...register('description')}
             placeholder="Describe tu servicio..."
             maxLength={100}
             className="w-full min-h-[100px] px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none"
           />
-          {errors.description && <p className="text-sm text-red-600">{errors.description.message}</p>}
+          {errors.description && (
+            <p className="text-sm text-red-600">{errors.description.message}</p>
+          )}
         </div>
 
         <div className="space-y-2">
@@ -101,7 +107,7 @@ export default function JobOfferForm({
           </label>
           <select
             id="city"
-            {...register("city")}
+            {...register('city')}
             className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
           >
             <option value="Cochabamba">Cochabamba</option>
@@ -122,8 +128,8 @@ export default function JobOfferForm({
                 onClick={() => toggleService(service)}
                 className={`px-4 py-2 rounded-lg border-2 transition-all font-medium ${
                   selectedServices.some((s) => s.value === service)
-                    ? "border-blue-600 bg-blue-600 text-white"
-                    : "border-gray-200 hover:border-blue-600 text-gray-700"
+                    ? 'border-blue-600 bg-blue-600 text-white'
+                    : 'border-gray-200 hover:border-blue-600 text-gray-700'
                 }`}
               >
                 {service}
@@ -141,7 +147,7 @@ export default function JobOfferForm({
           <input
             id="price"
             type="number"
-            {...register("price", { valueAsNumber: true })}
+            {...register('price', { valueAsNumber: true })}
             placeholder="0"
             max={9999999999}
             className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
@@ -166,5 +172,5 @@ export default function JobOfferForm({
         </div>
       </form>
     </div>
-  )
+  );
 }

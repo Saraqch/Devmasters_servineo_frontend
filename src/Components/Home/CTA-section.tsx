@@ -1,6 +1,5 @@
-
-"use client";
-import Link from "next/link";
+'use client';
+import Link from 'next/link';
 
 export default function CTASection() {
   return (
@@ -10,8 +9,7 @@ export default function CTASection() {
           ¿Listo para encontrar al profesional ideal?
         </h2>
         <p className="text-xl mb-8 opacity-90">
-          Únete a miles de personas que ya encontraron al profesional perfecto
-          para sus necesidades
+          Únete a miles de personas que ya encontraron al profesional perfecto para sus necesidades
         </p>
         <div className="flex flex-col sm:flex-row justify-center gap-4">
           <Link

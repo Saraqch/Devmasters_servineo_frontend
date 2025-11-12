@@ -1,7 +1,7 @@
-import type React from "react"
+import type React from 'react';
 interface CardProps {
-  title: string
-  children: React.ReactNode
+  title: string;
+  children: React.ReactNode;
 }
 
 export function Card({ title, children }: CardProps) {
@@ -10,5 +10,5 @@ export function Card({ title, children }: CardProps) {
       <h3 className="mb-3 text-center text-lg font-semibold">{title}</h3>
       {children}
     </div>
-  )
+  );
 }

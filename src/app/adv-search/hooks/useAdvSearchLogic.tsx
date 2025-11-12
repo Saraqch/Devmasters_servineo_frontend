@@ -228,7 +228,11 @@ export default function useAdvSearchLogic() {
         .filter(Boolean);
     } else {
       const cat = sp.get('category');
-      if (cat != null) urlCategory = cat.split(',').map((s) => s.trim()).filter(Boolean);
+      if (cat != null)
+        urlCategory = cat
+          .split(',')
+          .map((s) => s.trim())
+          .filter(Boolean);
     }
     if (urlCategory.length) setSelectedJobs(urlCategory);
 
@@ -241,7 +245,11 @@ export default function useAdvSearchLogic() {
         .filter(Boolean);
     } else {
       const t = sp.get('tags');
-      if (t != null) urlTags = t.split(',').map((s) => s.trim()).filter(Boolean);
+      if (t != null)
+        urlTags = t
+          .split(',')
+          .map((s) => s.trim())
+          .filter(Boolean);
     }
     if (urlTags.length) setSelectedTags(urlTags);
 
@@ -268,11 +276,11 @@ export default function useAdvSearchLogic() {
     }
 
     // Open relevant sections so user sees applied filters when returning
-  const shouldOpenFixer = ranges.length > 0;
-  const shouldOpenCiudad = !!city;
-  const shouldOpenTrabajo = !!(urlCategory && urlCategory.length);
-  const shouldOpenCategorias = !!(urlTags && urlTags.length);
-  const shouldOpenPrecio = !!(min || max);
+    const shouldOpenFixer = ranges.length > 0;
+    const shouldOpenCiudad = !!city;
+    const shouldOpenTrabajo = !!(urlCategory && urlCategory.length);
+    const shouldOpenCategorias = !!(urlTags && urlTags.length);
+    const shouldOpenPrecio = !!(min || max);
 
     setOpenSections((prev) => ({
       ...prev,

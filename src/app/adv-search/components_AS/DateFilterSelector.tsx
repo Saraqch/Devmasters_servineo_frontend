@@ -11,7 +11,12 @@ interface Props {
   onCalendarToggle?: (isOpen: boolean) => void;
 }
 
-const DateFilterSelector: React.FC<Props> = ({ selectedFilter, selectedDate, onChange, onCalendarToggle }) => {
+const DateFilterSelector: React.FC<Props> = ({
+  selectedFilter,
+  selectedDate,
+  onChange,
+  onCalendarToggle,
+}) => {
   const [showCalendar, setShowCalendar] = useState(false);
   const [day, setDay] = useState('');
   const [month, setMonth] = useState('');
@@ -55,17 +60,25 @@ const DateFilterSelector: React.FC<Props> = ({ selectedFilter, selectedDate, onC
     if (typeof window === 'undefined') return;
 
     // Solo si el filtro es 'specific' y hay una entrada completa.
-    if (selectedFilter !== 'specific' || day.length !== 2 || month.length !== 2 || year.length !== 4) {
+    if (
+      selectedFilter !== 'specific' ||
+      day.length !== 2 ||
+      month.length !== 2 ||
+      year.length !== 4
+    ) {
       // Limpiar URL si no estamos en 'specific' o si la entrada está incompleta
       const sp = new URLSearchParams(window.location.search);
       if (sp.has('date') && selectedFilter !== 'specific') {
-         sp.delete('date');
-         const qs = sp.toString();
-         const target = qs ? `${pathname}?${qs}` : pathname;
-         router.replace(target, { scroll: false });
-      } else if (selectedFilter === 'specific' && (day.length !== 2 || month.length !== 2 || year.length !== 4)) {
-         // Asegurarse de que el padre sabe que la fecha es inválida/incompleta
-         onChange('specific', null);
+        sp.delete('date');
+        const qs = sp.toString();
+        const target = qs ? `${pathname}?${qs}` : pathname;
+        router.replace(target, { scroll: false });
+      } else if (
+        selectedFilter === 'specific' &&
+        (day.length !== 2 || month.length !== 2 || year.length !== 4)
+      ) {
+        // Asegurarse de que el padre sabe que la fecha es inválida/incompleta
+        onChange('specific', null);
       }
       return;
     }
@@ -79,12 +92,11 @@ const DateFilterSelector: React.FC<Props> = ({ selectedFilter, selectedDate, onC
         const iso = `${year}-${month}-${day}`;
         sp.set('date', iso);
         const newDate = new Date(Number(year), Number(month) - 1, Number(day));
-        
+
         // Notificar al padre solo si la fecha válida actual es diferente a la almacenada.
         if (!selectedDate || newDate.getTime() !== selectedDate.getTime()) {
-           onChange('specific', newDate);
+          onChange('specific', newDate);
         }
-
       } else {
         sp.delete('date');
         // Notificar al padre que la fecha es inválida
@@ -99,7 +111,6 @@ const DateFilterSelector: React.FC<Props> = ({ selectedFilter, selectedDate, onC
 
     return () => clearTimeout(handler);
   }, [day, month, year, selectedFilter, pathname, router, isValidDate, onChange, selectedDate]);
-
 
   // 🖱️ Detectar clics fuera del calendario para cerrarlo
   useEffect(() => {
@@ -146,7 +157,6 @@ const DateFilterSelector: React.FC<Props> = ({ selectedFilter, selectedDate, onC
           : 'border-red-500 ring-2 ring-red-500 ring-opacity-20'
         : 'border-gray-300 focus:ring-[#2B6AE0]'
       : 'border-gray-300';
-
 
   return (
     <div>
@@ -201,7 +211,9 @@ const DateFilterSelector: React.FC<Props> = ({ selectedFilter, selectedDate, onC
                   className={`w-12 px-2 py-2 border rounded-lg text-sm font-mono text-center bg-white focus:outline-none focus:ring-2 transition-all ${inputBorderClass}`}
                 />
 
-                <span className="text-gray-500 text-xl flex items-center justify-center h-full">/</span>
+                <span className="text-gray-500 text-xl flex items-center justify-center h-full">
+                  /
+                </span>
 
                 {/* Mes */}
                 <input
@@ -213,7 +225,9 @@ const DateFilterSelector: React.FC<Props> = ({ selectedFilter, selectedDate, onC
                   className={`w-12 px-2 py-2 border rounded-lg text-sm font-mono text-center bg-white focus:outline-none focus:ring-2 transition-all ${inputBorderClass}`}
                 />
 
-                <span className="text-gray-500 text-xl flex items-center justify-center h-full">/</span>
+                <span className="text-gray-500 text-xl flex items-center justify-center h-full">
+                  /
+                </span>
 
                 {/* Año */}
                 <input
@@ -238,7 +252,9 @@ const DateFilterSelector: React.FC<Props> = ({ selectedFilter, selectedDate, onC
 
                   {/* Calendario desplegable */}
                   {showCalendar && (
-                    <div className="absolute z-50 mt-2 -left-100"> {/* Ajuste de posición para mejor UX */}
+                    <div className="absolute z-50 mt-2 -left-100">
+                      {' '}
+                      {/* Ajuste de posición para mejor UX */}
                       <CalendarComponent
                         selectedDate={selectedDate || new Date()}
                         onDateSelect={handleDateSelect}

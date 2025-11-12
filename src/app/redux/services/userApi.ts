@@ -1,6 +1,5 @@
 import { baseApi } from './baseApi';
 
-
 interface User {
   id: string;
   name: string;
@@ -17,7 +16,6 @@ interface LoginResponse {
   user: User;
   token: string;
 }
-
 
 export const userApi = baseApi.injectEndpoints({
   endpoints: (builder) => ({
@@ -53,9 +51,5 @@ export const userApi = baseApi.injectEndpoints({
   overrideExisting: false,
 });
 
-export const {
-  useLoginMutation,
-  useGetUserQuery,
-  useUpdateUserMutation,
-  useGetProfileQuery,
-} = userApi;
+export const { useLoginMutation, useGetUserQuery, useUpdateUserMutation, useGetProfileQuery } =
+  userApi;

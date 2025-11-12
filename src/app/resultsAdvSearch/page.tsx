@@ -1,4 +1,4 @@
- 'use client';
+'use client';
 import React, { Suspense } from 'react';
 import Header from './components_RAS/Header';
 import Footer from './components_RAS/Footer';
@@ -6,12 +6,7 @@ import AppliedFilters from './components_RAS/AppliedFilters';
 import useAppliedFilters from '../jobOfert/hooks/useAppliedFilters';
 
 // Reutilizamos las cards y componentes de paginación desde jobOfert
-import {
-  CardJob,
-  Paginacion,
-  PaginationInfo,
-  PaginationSelector,
-} from '../jobOfert/components_jo';
+import { CardJob, Paginacion, PaginationInfo, PaginationSelector } from '../jobOfert/components_jo';
 
 // Store hooks y acciones
 import { useAppDispatch, useAppSelector } from '../jobOfert/hooks/hook';
@@ -21,7 +16,8 @@ import { useSyncUrlParams } from '../jobOfert/hooks/useSyncUrlParams';
 
 export default function ResultsAdvSearchPage() {
   const dispatch = useAppDispatch();
-  const { showAppliedFilters, appliedParams } = useAppliedFilters();
+  // Only destructure what we need - appliedParams
+  const { appliedParams } = useAppliedFilters();
 
   // Inicializar la página a partir de los query params (viene de AdvSearch)
   useInitialUrlParams();
@@ -94,52 +90,63 @@ export default function ResultsAdvSearchPage() {
   });
 
   return (
-    <Suspense fallback={<div />}> 
+    <Suspense fallback={<div />}>
       <>
         <Header />
         <main className="pt-20 lg:pt-24 px-4 sm:px-6 md:px-12 lg:px-24 pb-12">
-        <h1 className="text-center text-xl sm:text-2xl md:text-3xl font-bold mb-8 mt-4">
-          Resultados de Búsqueda Avanzada
-        </h1>
+          <h1 className="text-center text-xl sm:text-2xl md:text-3xl font-bold mb-8 mt-4">
+            Resultados de Búsqueda Avanzada
+          </h1>
 
-        {/* Filtros aplicados: renderizo siempre el contenedor para evitar
+          {/* Filtros aplicados: renderizo siempre el contenedor para evitar
             desajustes de hidratación entre servidor/cliente. Si no hay
             appliedParams se pasa un objeto vacío (no se muestran tags). */}
-        <AppliedFilters params={appliedParams ?? {}} />
+          <AppliedFilters params={appliedParams ?? {}} />
 
-        {/* Selector y resumen de paginación (components de jobOfert) */}
-        {/* Alinéo el selector con el mismo ancho y padding que AppliedFilters */}
-        <div className="w-full max-w-5xl mx-auto mt-4 px-4 mb-2">
-          <PaginationSelector registrosPorPagina={registrosPorPagina} onChange={handleRegistrosChange} />
-        </div>
-
-        <div className="flex justify-center my-4">
-          <PaginationInfo paginaActual={paginaActual} registrosPorPagina={registrosPorPagina} totalRegistros={totalRegistros} />
-        </div>
-
-        {/* Cards de resultados (reutilizadas) */}
-        <div className="w-full max-w-5xl mx-auto">
-          {!loading && trabajos && trabajos.length > 0 ? (
-            <CardJob trabajos={trabajos} />
-          ) : !loading ? (
-            <div className="text-gray-500 text-center">No se encontraron resultados</div>
-          ) : (
-            <div className="text-blue-500 text-center mb-4 p-3 bg-blue-100 rounded">Cargando resultados...</div>
-          )}
-        </div>
-
-        {/* Paginación inferior (reutilizada) */}
-        {!loading && trabajos && trabajos.length > 0 && (
-          <div className="mt-8 mb-24 flex justify-center">
-            <Paginacion paginaActual={paginaActual} registrosPorPagina={registrosPorPagina} totalRegistros={totalRegistros} onChange={handlePageChange} />
+          {/* Selector y resumen de paginación (components de jobOfert) */}
+          {/* Alinéo el selector con el mismo ancho y padding que AppliedFilters */}
+          <div className="w-full max-w-5xl mx-auto mt-4 px-4 mb-2">
+            <PaginationSelector
+              registrosPorPagina={registrosPorPagina}
+              onChange={handleRegistrosChange}
+            />
           </div>
-        )}
+
+          <div className="flex justify-center my-4">
+            <PaginationInfo
+              paginaActual={paginaActual}
+              registrosPorPagina={registrosPorPagina}
+              totalRegistros={totalRegistros}
+            />
+          </div>
+
+          {/* Cards de resultados (reutilizadas) */}
+          <div className="w-full max-w-5xl mx-auto">
+            {!loading && trabajos && trabajos.length > 0 ? (
+              <CardJob trabajos={trabajos} />
+            ) : !loading ? (
+              <div className="text-gray-500 text-center">No se encontraron resultados</div>
+            ) : (
+              <div className="text-blue-500 text-center mb-4 p-3 bg-blue-100 rounded">
+                Cargando resultados...
+              </div>
+            )}
+          </div>
+
+          {/* Paginación inferior (reutilizada) */}
+          {!loading && trabajos && trabajos.length > 0 && (
+            <div className="mt-8 mb-24 flex justify-center">
+              <Paginacion
+                paginaActual={paginaActual}
+                registrosPorPagina={registrosPorPagina}
+                totalRegistros={totalRegistros}
+                onChange={handlePageChange}
+              />
+            </div>
+          )}
         </main>
         <Footer />
       </>
     </Suspense>
   );
 }
-
-
-

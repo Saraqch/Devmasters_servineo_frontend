@@ -8,10 +8,7 @@ interface ResultsCounterProps {
 
 export function ResultsCounter({ total, loading = false }: ResultsCounterProps) {
   return (
-    <div
-      className="flex items-center gap-2"
-      style={{ fontFamily: 'Roboto, sans-serif' }}
-    >
+    <div className="flex items-center gap-2" style={{ fontFamily: 'Roboto, sans-serif' }}>
       {/* MÓVIL: Sin escudo, solo texto */}
       <p className="block md:hidden text-sm font-bold text-gray-900 whitespace-nowrap">
         CANTIDAD DE RESULTADOS:{' '}

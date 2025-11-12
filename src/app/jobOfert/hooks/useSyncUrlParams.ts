@@ -1,4 +1,4 @@
-"use client";
+'use client';
 import { useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { FilterState } from '../lib/slice';
@@ -58,5 +58,16 @@ export const useSyncUrlParams = ({
     if (typeof window !== 'undefined' && window.location.search === target) return;
 
     router.replace(target, { scroll: false });
-  }, [search, filters, sortBy, date, paginaActual, registrosPorPagina, titleOnly, exact, router]);
+  }, [
+    search,
+    filters,
+    sortBy,
+    date,
+    rating,
+    paginaActual,
+    registrosPorPagina,
+    titleOnly,
+    exact,
+    router,
+  ]);
 };

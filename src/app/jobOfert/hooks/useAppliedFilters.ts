@@ -7,26 +7,12 @@ type FilterParamValue = string | string[] | number | boolean | null;
 type ParamsMap = Record<string, FilterParamValue>;
 
 export default function useAppliedFilters() {
-  // Initialize from sessionStorage if available so a refresh keeps the UI state
-  const getInitial = (): { show: boolean; params: ParamsMap | null } => {
-    if (typeof window === 'undefined') return { show: false, params: null };
-    try {
-      const raw = window.sessionStorage.getItem('appliedFilters');
-      if (raw) {
-        const parsed = JSON.parse(raw) as ParamsMap;
-        return { show: true, params: parsed };
-      }
-    } catch {
-      // ignore parse errors
-    }
-    return { show: false, params: null };
-  };
-
   // Start without applied filters on first render to avoid hydration mismatches.
   const [showAppliedFilters, setShowAppliedFilters] = useState<boolean>(false);
   const [appliedParams, setAppliedParams] = useState<ParamsMap | null>(null);
   const dispatch = useAppDispatch();
 
+  // First effect: Check for 'fromAdv' marker and parse URL params
   useEffect(() => {
     if (typeof window === 'undefined') return;
     try {
@@ -98,26 +84,23 @@ export default function useAppliedFilters() {
         } catch {
           // ignore
         }
+      } else {
+        // If not coming from AdvSearch, check if there are persisted applied filters
+        try {
+          const raw = window.sessionStorage.getItem('appliedFilters');
+          if (raw) {
+            const parsed = JSON.parse(raw) as ParamsMap;
+            setAppliedParams(parsed);
+            setShowAppliedFilters(true);
+          }
+        } catch {
+          // ignore
+        }
       }
     } catch {
       // ignore
     }
     // run once on mount
-  }, []);
-
-  // After mount, if there's persisted appliedFilters, load them so refresh keeps tags.
-  useEffect(() => {
-    if (typeof window === 'undefined') return;
-    try {
-      const raw = window.sessionStorage.getItem('appliedFilters');
-      if (raw) {
-        const parsed = JSON.parse(raw) as ParamsMap;
-        setAppliedParams(parsed);
-        setShowAppliedFilters(true);
-      }
-    } catch {
-      // ignore
-    }
   }, []);
 
   const handleClearApplied = () => {

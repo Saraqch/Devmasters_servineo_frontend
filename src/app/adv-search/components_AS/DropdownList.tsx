@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect } from 'react';
 
 interface DropdownListProps {
   onFilterChange?: (filters: { categories: string[] }) => void;
@@ -25,8 +25,6 @@ const DropdownList: React.FC<DropdownListProps> = ({
   const [hasRestoredFromUrl, setHasRestoredFromUrl] = useState(false);
   const [previousClearSignal, setPreviousClearSignal] = useState<number | undefined>(clearSignal);
 
-  const categoryFiltersKey = useMemo(() => JSON.stringify(categoryFilters), [categoryFilters]);
-
   // Restaurar etiquetas desde la URL al montar (solo una vez)
   useEffect(() => {
     if (typeof window === 'undefined' || hasRestoredFromUrl) return;
@@ -43,7 +41,10 @@ const DropdownList: React.FC<DropdownListProps> = ({
     } else {
       const t = sp.get('tags');
       if (t != null) {
-        urlTags = t.split(',').map((s) => s.trim()).filter(Boolean);
+        urlTags = t
+          .split(',')
+          .map((s) => s.trim())
+          .filter(Boolean);
       }
     }
 
@@ -63,20 +64,27 @@ const DropdownList: React.FC<DropdownListProps> = ({
         setLoading(true);
         setError(null);
 
-        const API_URL = process.env.NEXT_PUBLIC_API_URL || 'https://devmastersservineobackend-ashy.vercel.app';
+        const API_URL =
+          process.env.NEXT_PUBLIC_API_URL || 'https://devmastersservineobackend-ashy.vercel.app';
 
         // Build query params: if searchQuery or categoryFilters provided, request tags derived from matching offers.
         // Otherwise (no search, no category) ask for recent tags (from latest offers).
         const params: string[] = [];
-        if (searchQuery && searchQuery.trim()) params.push(`search=${encodeURIComponent(searchQuery.trim())}`);
-        if (categoryFilters && categoryFilters.length) params.push(`category=${encodeURIComponent(categoryFilters.join(','))}`);
-        if (!searchQuery && (!categoryFilters || categoryFilters.length === 0)) params.push('recent=true');
+        if (searchQuery && searchQuery.trim())
+          params.push(`search=${encodeURIComponent(searchQuery.trim())}`);
+        if (categoryFilters && categoryFilters.length)
+          params.push(`category=${encodeURIComponent(categoryFilters.join(','))}`);
+        if (!searchQuery && (!categoryFilters || categoryFilters.length === 0))
+          params.push('recent=true');
         // limit how many offers to inspect / tags to return
         params.push('limit=10');
 
         const endpoint = `${API_URL}/api/devmaster/tags${params.length ? `?${params.join('&')}` : ''}`;
 
-        const response = await fetch(endpoint, { method: 'GET', headers: { 'Content-Type': 'application/json' } });
+        const response = await fetch(endpoint, {
+          method: 'GET',
+          headers: { 'Content-Type': 'application/json' },
+        });
         if (!response.ok) throw new Error(`Error ${response.status}: ${response.statusText}`);
         const data: unknown = await response.json();
 
@@ -93,12 +101,15 @@ const DropdownList: React.FC<DropdownListProps> = ({
 
         if (isStringArray(data)) incoming = data;
         else if (getFieldStringArray(data, 'tags')) incoming = getFieldStringArray(data, 'tags')!;
-        else if (getFieldStringArray((data as Record<string, unknown>)?.data, 'tags')) incoming = getFieldStringArray((data as Record<string, unknown>)?.data, 'tags')!;
-        else if (getFieldStringArray(data, 'result')) incoming = getFieldStringArray(data, 'result')!;
+        else if (getFieldStringArray((data as Record<string, unknown>)?.data, 'tags'))
+          incoming = getFieldStringArray((data as Record<string, unknown>)?.data, 'tags')!;
+        else if (getFieldStringArray(data, 'result'))
+          incoming = getFieldStringArray(data, 'result')!;
         else if (getFieldStringArray(data, 'items')) incoming = getFieldStringArray(data, 'items')!;
         else {
           // Fallback: try to find the first array-of-strings value in the object
-          const vals = data && typeof data === 'object' ? Object.values(data as Record<string, unknown>) : [];
+          const vals =
+            data && typeof data === 'object' ? Object.values(data as Record<string, unknown>) : [];
           const found = vals.find((v) => isStringArray(v));
           if (isStringArray(found)) incoming = found as string[];
         }
@@ -115,7 +126,8 @@ const DropdownList: React.FC<DropdownListProps> = ({
       } catch (err) {
         let errorMessage = 'Error desconocido';
         if (err instanceof TypeError && err.message === 'Failed to fetch') {
-          errorMessage = 'No se puede conectar con el servidor. Verifica que el backend esté corriendo.';
+          errorMessage =
+            'No se puede conectar con el servidor. Verifica que el backend esté corriendo.';
         } else if (err instanceof Error) {
           errorMessage = err.message;
         }
@@ -133,14 +145,14 @@ const DropdownList: React.FC<DropdownListProps> = ({
       mounted = false;
     };
     // Re-run when search or category filters change or when clearSignal toggles
-  }, [searchQuery, categoryFiltersKey, clearSignal]);
+  }, [searchQuery, categoryFilters, clearSignal]);
 
   // When parent requests a clear (clearSignal changes), reset internal selection
   // But only if clearSignal actually changed (not on first render)
   useEffect(() => {
     if (!hasRestoredFromUrl) return; // Wait until URL restoration is done
     if (clearSignal === previousClearSignal) return; // Only act if clearSignal actually changed
-    
+
     setSelectedCategories([]);
     onFilterChange?.({ categories: [] });
     setPreviousClearSignal(clearSignal);

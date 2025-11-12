@@ -15,21 +15,25 @@ export const InputOnlySearch = ({ onSearch, onValueChange }: InputOnlySearchProp
   const [value, setValue] = React.useState('');
   const [error, setError] = React.useState<string | undefined>();
 
+  // Use a ref to track if we've already initialized from URL
+  const hasInitialized = React.useRef(false);
+
   // On mount, if there's a `search` query param (coming from AdvSearch "Modificar"), populate the input
   React.useEffect(() => {
-    if (typeof window === 'undefined') return;
+    if (typeof window === 'undefined' || hasInitialized.current) return;
+
     try {
       const sp = new URLSearchParams(window.location.search);
       const s = sp.get('search');
-      if (s && s.length && value === '') {
+      if (s && s.length) {
         setValue(s);
         if (typeof onValueChange === 'function') onValueChange(s);
+        hasInitialized.current = true;
       }
     } catch {
       // ignore
     }
-    // run once
-  }, []);
+  }, [onValueChange]);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setValue(e.target.value);

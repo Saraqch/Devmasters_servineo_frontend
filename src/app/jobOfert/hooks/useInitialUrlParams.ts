@@ -33,7 +33,7 @@ export const useInitialUrlParams = () => {
     const urlTitleOnly = searchParams.get('titleOnly');
     const urlExact = searchParams.get('exact');
     const urlDate = searchParams.get('date') || null;
-  const urlRating = searchParams.get('rating');
+    const urlRating = searchParams.get('rating');
     // support both `sort` and `sortBy` (AdvSearch may set either)
     const urlSort = searchParams.get('sortBy') || searchParams.get('sort') || 'recent';
     const urlPage = parseInt(searchParams.get('page') || '1', 10);
@@ -42,9 +42,10 @@ export const useInitialUrlParams = () => {
     // Normalize numeric values
     const minPrice = urlMin ? Number(urlMin) : null;
     const maxPrice = urlMax ? Number(urlMax) : null;
-  const rating = urlRating ? Number(urlRating) : null;
-  // ratingForFetch is a number | undefined to satisfy fetchOffers typing
-  const ratingForFetch = urlRating != null && !Number.isNaN(Number(urlRating)) ? Number(urlRating) : undefined;
+    const rating = urlRating ? Number(urlRating) : null;
+    // ratingForFetch is a number | undefined to satisfy fetchOffers typing
+    const ratingForFetch =
+      urlRating != null && !Number.isNaN(Number(urlRating)) ? Number(urlRating) : undefined;
     const titleOnly = urlTitleOnly === 'true';
     const exact = urlExact === 'true';
 
@@ -61,7 +62,13 @@ export const useInitialUrlParams = () => {
     // Actualizar el estado de Redux con los valores de la URL
     if (urlSearch) dispatch(setSearch(urlSearch));
     // Siempre actualizar filters (puede ser vacío)
-    dispatch(setFilters({ range: filters.range || [], city: filters.city || '', category: filters.category || [] }));
+    dispatch(
+      setFilters({
+        range: filters.range || [],
+        city: filters.city || '',
+        category: filters.category || [],
+      }),
+    );
     // Guardar sort, pagina y limite
     dispatch(setSortBy(urlSort));
     dispatch(setPaginaActual(urlPage));
@@ -76,10 +83,17 @@ export const useInitialUrlParams = () => {
     dispatch(
       fetchOffers({
         searchText: urlSearch,
-        filters: { range: filters.range || [], city: filters.city || '', category: filters.category || [] , tags: filters.tags || [], minPrice: minPrice ?? null, maxPrice: maxPrice ?? null},
+        filters: {
+          range: filters.range || [],
+          city: filters.city || '',
+          category: filters.category || [],
+          tags: filters.tags || [],
+          minPrice: minPrice ?? null,
+          maxPrice: maxPrice ?? null,
+        },
         sortBy: urlSort,
         date: urlDate || undefined,
-  rating: ratingForFetch,
+        rating: ratingForFetch,
         page: urlPage,
         limit: urlLimit,
         titleOnly,

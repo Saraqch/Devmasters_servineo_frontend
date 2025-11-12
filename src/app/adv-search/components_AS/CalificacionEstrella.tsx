@@ -23,8 +23,7 @@ const CalificacionEstrella: React.FC<Props> = ({ value = null, onChange }) => {
 
   const handleSubScaleClick = (subScale: number) => {
     if (selectedMainStar && onChange) {
-      const decimalValue =
-        subScale === 0 ? selectedMainStar : selectedMainStar + subScale / 10;
+      const decimalValue = subScale === 0 ? selectedMainStar : selectedMainStar + subScale / 10;
 
       onChange(decimalValue);
     }
@@ -86,19 +85,16 @@ const CalificacionEstrella: React.FC<Props> = ({ value = null, onChange }) => {
           {/* CUADRO DE OPCIONES */}
           <div className="absolute mt-2 right-0 translate-x-[160px] bg-white rounded-lg border-2 border-gray-300 shadow-xl p-3 w-64 max-h-[60vh] z-[9999]">
             <div className="flex items-center justify-between mb-2 pb-2 border-b border-gray-200">
-              <h3 className="text-sm font-semibold">
-                Selecciona calificación 
-              </h3>
-             <button
-  onClick={() => {
-    setShowModal(false);
-    setSelectedMainStar(null);
-  }}
-  className="text-black-600 hover:text-black-800 text-xs font-bold"
->
-  ✖
-</button>
-
+              <h3 className="text-sm font-semibold">Selecciona calificación</h3>
+              <button
+                onClick={() => {
+                  setShowModal(false);
+                  setSelectedMainStar(null);
+                }}
+                className="text-black-600 hover:text-black-800 text-xs font-bold"
+              >
+                ✖
+              </button>
             </div>
 
             {/* CONTENEDOR CON SCROLL */}
@@ -113,9 +109,7 @@ const CalificacionEstrella: React.FC<Props> = ({ value = null, onChange }) => {
                 }`}
               >
                 <Star size={18} fill="#fbbf24" stroke="#000000" strokeWidth={2} />
-                <span className="font-medium text-base">
-                  {selectedMainStar}.0
-                </span>
+                <span className="font-medium text-base">{selectedMainStar}.0</span>
               </button>
 
               {/* .1 - .9 */}
@@ -131,12 +125,7 @@ const CalificacionEstrella: React.FC<Props> = ({ value = null, onChange }) => {
                       hoverSubStar === subNumber ? 'bg-gray-100' : 'hover:bg-gray-50'
                     }`}
                   >
-                    <Star
-                      size={18}
-                      fill="#fbbf24"
-                      stroke="#000000"
-                      strokeWidth={2}
-                    />
+                    <Star size={18} fill="#fbbf24" stroke="#000000" strokeWidth={2} />
                     <span className="font-medium text-base">
                       {selectedMainStar}.{subNumber}
                     </span>
@@ -152,5 +141,3 @@ const CalificacionEstrella: React.FC<Props> = ({ value = null, onChange }) => {
 };
 
 export default CalificacionEstrella;
-
-

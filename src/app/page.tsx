@@ -9,12 +9,11 @@ import MapSection from '@/Components/Home/Map-section';
 import InspirationSection from '@/Components/Home/Inspiration-section';
 import RecentOffersSection from '@/Components/Home/RecentOffer-secction';
 
-
 export default function Home() {
   return (
     <div className="min-h-screen bg-white">
       <HeroSection />
-      
+
       <section className="py-16 px-4 bg-white">
         <div className="max-w-7xl mx-auto">
           <MapSection />
@@ -25,7 +24,7 @@ export default function Home() {
 
       <ServicesSection />
       <HowItWorksSection />
-      
+
       <CTASection />
     </div>
   );

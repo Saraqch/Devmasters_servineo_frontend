@@ -1,3 +1,4 @@
+// src\app\jobOfert\components_jo\Search\SearchBar.tsx
 'use client';
 
 import React from 'react';
@@ -11,6 +12,7 @@ import { SearchButton } from './SearchButton';
 import { AdvancedSearchButton } from './AdvancedSearchButton';
 import { FilterButton } from '../Filter/FilterButton';
 import { validateSearch } from '../../validators/search.validator';
+import { useAppSelector } from '../../hooks/hook';
 
 interface SearchBarProps {
   onSearch: (query: string) => void;
@@ -21,11 +23,10 @@ interface SearchHistoryItem {
   searchTerm: string;
 }
 
-// NOTE: getOrCreateSessionId must NOT run at module import time (server).
-// It will be defined inside the component below so it only runs on the client.
-
 export const SearchBar = ({ onSearch, onFilter }: SearchBarProps) => {
-  // sessionId se gestiona mediante ensureSessionId() en tiempo de ejecución en cliente
+  // Leer el valor de búsqueda desde Redux
+  const searchFromStore = useAppSelector((state) => state.jobOffers.search);
+
   const [value, setValue] = React.useState('');
   const [error, setError] = React.useState<string | undefined>();
   const [isOpen, setIsOpen] = React.useState(false);
@@ -34,14 +35,25 @@ export const SearchBar = ({ onSearch, onFilter }: SearchBarProps) => {
   const [highlighted, setHighlighted] = React.useState<number>(-1);
   const containerRef = React.useRef<HTMLDivElement | null>(null);
   const inputRef = React.useRef<HTMLInputElement | null>(null);
+  const [previewValue, setPreviewValue] = React.useState<string | null>(null);
 
   const HISTORY_KEY = 'job_search_history_v1';
 
-  // (getOrCreateSessionId moved to module scope)
+  // Track previous Redux value to prevent unnecessary updates
+  const prevSearchFromStore = React.useRef(searchFromStore);
+
+  // Sincronizar el input con el valor de Redux cuando cambie
+  React.useEffect(() => {
+    // Only update if Redux value actually changed and differs from current input
+    if (searchFromStore !== prevSearchFromStore.current && searchFromStore !== value) {
+      setValue(searchFromStore);
+      setError(undefined);
+      prevSearchFromStore.current = searchFromStore;
+    }
+  }, [searchFromStore, value]);
 
   const deleteFromBackend = async (searchTerm: string) => {
     try {
-      // Asegurar sessionId en localStorage
       ensureSessionId();
       const endpoint = `/api/devmaster/offers?action=deleteHistory&searchTerm=${encodeURIComponent(searchTerm)}`;
       const resp = await api.get<unknown>(endpoint);
@@ -65,6 +77,7 @@ export const SearchBar = ({ onSearch, onFilter }: SearchBarProps) => {
       return false;
     }
   };
+
   interface HistoryPayload {
     searchHistory?: SearchHistoryItem[];
   }
@@ -110,6 +123,7 @@ export const SearchBar = ({ onSearch, onFilter }: SearchBarProps) => {
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const newValue = e.target.value;
     setValue(newValue);
+    setPreviewValue(null); // Clear preview when user types
     const { isValid, error } = validateSearch(newValue);
     setError(isValid ? undefined : error);
     setHighlighted(-1);
@@ -149,12 +163,9 @@ export const SearchBar = ({ onSearch, onFilter }: SearchBarProps) => {
   const deleteHistoryItem = async (item: string) => {
     console.log('Deleting item:', item);
 
-    // Primero eliminamos del backend
     const success = await deleteFromBackend(item);
 
     if (success) {
-      // Luego recargamos el historial completo desde el backend
-      // IMPORTANTE: Pasar string vacío para obtener TODO el historial activo
       const updatedHistory = await fetchHistoryFromBackend('');
       console.log('Updated history after delete:', updatedHistory);
 
@@ -253,7 +264,7 @@ export const SearchBar = ({ onSearch, onFilter }: SearchBarProps) => {
 
       setHistory(filteredHistory);
       setSuggestionsFromBackend(fetchedSuggestions);
-    }, 300); // Debounce de 300ms
+    }, 300);
 
     return () => clearTimeout(timer);
   }, [value, fetchHistoryFromBackend]);
@@ -293,8 +304,6 @@ export const SearchBar = ({ onSearch, onFilter }: SearchBarProps) => {
       }
     }
   };
-
-  const [previewValue, setPreviewValue] = React.useState<string | null>(null);
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key === 'Enter') {
@@ -371,10 +380,7 @@ export const SearchBar = ({ onSearch, onFilter }: SearchBarProps) => {
             placeholder="¿Qué servicio necesitas?"
             className={inputClasses}
             value={previewValue ?? value}
-            onChange={(e) => {
-              setValue(e.target.value);
-              setPreviewValue(null);
-            }}
+            onChange={handleChange}
             ref={(el) => {
               inputRef.current = el as HTMLInputElement | null;
             }}

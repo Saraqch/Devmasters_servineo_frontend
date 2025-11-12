@@ -1,6 +1,7 @@
-"use client"
+// src\app\fixer\[id]\FixerProfileContent.tsx
+'use client';
 
-import { JobOfferCard } from "@/Components/Job-offers/Job-offer-card"
+import CardJob from '@/app/jobOfert/components_jo/CardJob';
 import {
   MapPin,
   Star,
@@ -14,47 +15,115 @@ import {
   CreditCard,
   Phone,
   Mail,
-} from "lucide-react"
-import { useRouter } from "next/navigation"
-import { useState } from "react"
-import type { Fixer } from "@/app/lib/mock-data"
-import Image from "next/image"
+} from 'lucide-react';
+import { useRouter } from 'next/navigation';
+import { useState, useMemo } from 'react';
+import type { Fixer } from '@/app/lib/mock-data';
+import Image from 'next/image';
+import { mockFixers } from '@/app/lib/mock-data';
 
 interface FixerProfileContentProps {
-  fixer: Fixer
+  fixer: Fixer;
 }
 
-export function FixerProfileContent({ fixer }: FixerProfileContentProps) {
-  const router = useRouter()
-  const [activeTab, setActiveTab] = useState("inicio")
+export function FixerProfileContent({ fixer: rawFixer }: FixerProfileContentProps) {
+  const router = useRouter();
+  const [activeTab, setActiveTab] = useState('inicio');
+
+  // Mezclar datos reales con mock como respaldo
+  const fixer = useMemo(() => {
+    // Buscar datos mock del fixer por ID
+    const mockFixer = mockFixers.find((f) => f.id === rawFixer.id) || mockFixers[0];
+
+    return {
+      // Datos básicos - priorizar BD
+      id: rawFixer.id,
+      name: rawFixer.name || mockFixer.name,
+      photo: rawFixer.photo || mockFixer.photo,
+      city: rawFixer.city || mockFixer.city,
+      phone: rawFixer.phone || mockFixer.phone,
+      email: rawFixer.email || mockFixer.email,
+      whatsapp: rawFixer.whatsapp || mockFixer.whatsapp,
+
+      // Estadísticas - priorizar BD
+      rating: rawFixer.rating ?? mockFixer.rating,
+      completedJobs: rawFixer.completedJobs ?? mockFixer.completedJobs,
+
+      // Datos complejos - usar BD si existe, sino mock
+      bio: rawFixer.bio || mockFixer.bio,
+      services:
+        rawFixer.services && rawFixer.services.length > 0 ? rawFixer.services : mockFixer.services,
+      paymentMethods:
+        rawFixer.paymentMethods && rawFixer.paymentMethods.length > 0
+          ? rawFixer.paymentMethods
+          : mockFixer.paymentMethods,
+      jobOffers:
+        rawFixer.jobOffers && rawFixer.jobOffers.length > 0
+          ? rawFixer.jobOffers
+          : mockFixer.jobOffers,
+
+      // Fechas
+      joinDate: rawFixer.joinDate || mockFixer.joinDate,
+    };
+  }, [rawFixer]);
+
+  // Transform JobOffer[] to OfferData[] format for CardJob component
+  const transformedJobOffers = useMemo(() => {
+    if (!fixer.jobOffers || fixer.jobOffers.length === 0) return [];
+
+    return fixer.jobOffers.map((offer) => ({
+      _id: offer.id,
+      fixerName: fixer.name,
+      title: offer.title,
+      description: offer.description,
+      category: 'General', // Default category since JobOffer doesn't have this property
+      tags: offer.tags || [],
+      price: offer.price,
+      city: fixer.city,
+      contactPhone: fixer.phone || '', // Use fixer's phone as default
+      createdAt: offer.createdAt
+        ? typeof offer.createdAt === 'string'
+          ? offer.createdAt
+          : offer.createdAt.toISOString()
+        : new Date().toISOString(),
+      rating: fixer.rating,
+      fixerPhoto: fixer.photo,
+      completedJobs: fixer.completedJobs,
+      imagenUrl: offer.photos?.[0],
+      photos: offer.photos,
+      fixerId: fixer.id,
+      allImages: offer.photos || [],
+      imagenAsignada: offer.photos?.[0],
+    }));
+  }, [fixer]);
 
   const getTimeSinceRegistration = (joinDate: Date) => {
-    const diff = new Date().getTime() - new Date(joinDate).getTime()
-    const years = Math.floor(diff / (1000 * 60 * 60 * 24 * 365))
-    if (years > 0) return `Se unió en ${new Date(joinDate).getFullYear()}`
-    return `Se unió hace ${Math.floor(diff / (1000 * 60 * 60 * 24 * 30))} meses`
-  }
+    const diff = new Date().getTime() - new Date(joinDate).getTime();
+    const years = Math.floor(diff / (1000 * 60 * 60 * 24 * 365));
+    if (years > 0) return `Se unió en ${new Date(joinDate).getFullYear()}`;
+    return `Se unió hace ${Math.floor(diff / (1000 * 60 * 60 * 24 * 30))} meses`;
+  };
 
   const handleOfferClick = (offerId: string) => {
-    router.push(`/offers/${offerId}`)
-  }
+    router.push(`/offers/${offerId}`);
+  };
 
   const handleContact = () => {
-    window.open(`https://wa.me/${fixer.whatsapp}`, "_blank")
-  }
+    window.open(`https://wa.me/${fixer.whatsapp}`, '_blank');
+  };
 
   const renderTabContent = () => {
     switch (activeTab) {
-      case "servicios":
-        return renderServicesTab()
-      case "reseñas":
-        return renderReviewsTab()
-      case "fotos":
-        return renderPhotosTab()
+      case 'servicios':
+        return renderServicesTab();
+      case 'reseñas':
+        return renderReviewsTab();
+      case 'fotos':
+        return renderPhotosTab();
       default:
-        return renderHomeTab()
+        return renderHomeTab();
     }
-  }
+  };
 
   const renderHomeTab = () => (
     <div className="space-y-6">
@@ -65,7 +134,7 @@ export function FixerProfileContent({ fixer }: FixerProfileContentProps) {
           <h2 className="text-2xl font-bold text-gray-900">Acerca de</h2>
         </div>
         <p className="text-gray-700 text-lg leading-relaxed mb-6">
-          {fixer.bio || "Este profesional aún no ha agregado una descripción."}
+          {fixer.bio || 'Este profesional aún no ha agregado una descripción.'}
         </p>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div className="flex items-center gap-4 p-4 bg-gray-50 rounded-xl">
@@ -132,7 +201,7 @@ export function FixerProfileContent({ fixer }: FixerProfileContentProps) {
       </div>
 
       {/* Recent Jobs */}
-      {fixer.jobOffers && fixer.jobOffers.length > 0 && (
+      {transformedJobOffers.length > 0 && (
         <div className="bg-white rounded-2xl shadow-lg p-8">
           <div className="flex items-center justify-between mb-8">
             <div className="flex items-center gap-3">
@@ -141,23 +210,28 @@ export function FixerProfileContent({ fixer }: FixerProfileContentProps) {
             </div>
             <button
               className="text-primary hover:text-primary/80 font-semibold transition-colors flex items-center gap-2"
-              onClick={() => setActiveTab("servicios")}
+              onClick={() => setActiveTab('servicios')}
             >
               Ver todos
               <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M9 5l7 7-7 7"
+                />
               </svg>
             </button>
           </div>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            {fixer.jobOffers.slice(0, 4).map((offer) => (
-              <JobOfferCard key={offer.id} offer={offer} onClick={() => handleOfferClick(offer.id)} />
-            ))}
-          </div>
+          <CardJob
+            trabajos={transformedJobOffers.slice(0, 4)}
+            viewMode="grid"
+            onCardClick={(id) => handleOfferClick(id)}
+          />
         </div>
       )}
     </div>
-  )
+  );
 
   const renderServicesTab = () => (
     <div className="bg-white rounded-2xl shadow-lg p-8">
@@ -176,13 +250,14 @@ export function FixerProfileContent({ fixer }: FixerProfileContentProps) {
             </div>
             <h3 className="text-xl font-bold text-gray-900 mb-3">{service}</h3>
             <p className="text-gray-600 leading-relaxed">
-              Servicio profesional especializado en {service.toLowerCase()} con los más altos estándares de calidad.
+              Servicio profesional especializado en {service.toLowerCase()} con los más altos
+              estándares de calidad.
             </p>
           </div>
         ))}
       </div>
     </div>
-  )
+  );
 
   const renderReviewsTab = () => (
     <div className="bg-white rounded-2xl shadow-lg p-8">
@@ -194,7 +269,9 @@ export function FixerProfileContent({ fixer }: FixerProfileContentProps) {
             <div className="flex items-center mt-2">
               <div className="flex items-center bg-amber-50 px-3 py-1 rounded-full">
                 <Star className="w-5 h-5 text-amber-400 fill-amber-400" />
-                <span className="ml-1 text-lg font-bold text-amber-700">{fixer.rating?.toFixed(1) || "Nuevo"}</span>
+                <span className="ml-1 text-lg font-bold text-amber-700">
+                  {fixer.rating?.toFixed(1) || 'Nuevo'}
+                </span>
               </div>
               <span className="mx-3 text-gray-300">•</span>
               <span className="text-gray-600">{fixer.completedJobs} trabajos realizados</span>
@@ -208,7 +285,10 @@ export function FixerProfileContent({ fixer }: FixerProfileContentProps) {
 
       <div className="space-y-6">
         {[1, 2, 3].map((_, i) => (
-          <div key={i} className="border border-gray-200 rounded-2xl p-6 hover:shadow-lg transition-shadow">
+          <div
+            key={i}
+            className="border border-gray-200 rounded-2xl p-6 hover:shadow-lg transition-shadow"
+          >
             <div className="flex items-center justify-between mb-4">
               <div className="flex items-center">
                 <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-gray-200 to-gray-300 mr-4 flex items-center justify-center">
@@ -220,25 +300,25 @@ export function FixerProfileContent({ fixer }: FixerProfileContentProps) {
                     {[1, 2, 3, 4, 5].map((star) => (
                       <Star
                         key={star}
-                        className={`w-4 h-4 ${star <= 5 ? "text-amber-400 fill-amber-400" : "text-gray-300"}`}
+                        className={`w-4 h-4 ${star <= 5 ? 'text-amber-400 fill-amber-400' : 'text-gray-300'}`}
                       />
                     ))}
                   </div>
                 </div>
               </div>
               <span className="text-sm text-gray-500 bg-gray-100 px-3 py-1 rounded-full">
-                Hace {i + 1} semana{i !== 0 ? "s" : ""}
+                Hace {i + 1} semana{i !== 0 ? 's' : ''}
               </span>
             </div>
             <p className="text-gray-700 leading-relaxed text-lg">
-              &quot;Excelente servicio, muy profesional y puntual. El trabajo quedó impecable y el trato fue excelente.
-              ¡Totalmente recomendado!&quot;
+              &quot;Excelente servicio, muy profesional y puntual. El trabajo quedó impecable y el
+              trato fue excelente. ¡Totalmente recomendado!&quot;
             </p>
           </div>
         ))}
       </div>
     </div>
-  )
+  );
 
   const renderPhotosTab = () => (
     <div className="bg-white rounded-2xl shadow-lg p-8">
@@ -255,7 +335,7 @@ export function FixerProfileContent({ fixer }: FixerProfileContentProps) {
                 className="aspect-square rounded-xl overflow-hidden group cursor-pointer relative"
               >
                 <Image
-                  src={photo || "/placeholder.svg"}
+                  src={photo || '/placeholder.svg'}
                   alt={`Trabajo ${i + 1}`}
                   width={200}
                   height={200}
@@ -278,7 +358,7 @@ export function FixerProfileContent({ fixer }: FixerProfileContentProps) {
         </div>
       )}
     </div>
-  )
+  );
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 via-blue-50/30 to-gray-100">
@@ -301,7 +381,7 @@ export function FixerProfileContent({ fixer }: FixerProfileContentProps) {
                   <div className="w-32 h-32 lg:w-44 lg:h-44 rounded-3xl border-4 border-white bg-white shadow-2xl overflow-hidden">
                     {fixer.photo ? (
                       <Image
-                        src={fixer.photo || "/placeholder.svg"}
+                        src={fixer.photo || '/placeholder.svg'}
                         alt={fixer.name}
                         width={176}
                         height={176}
@@ -323,14 +403,16 @@ export function FixerProfileContent({ fixer }: FixerProfileContentProps) {
               <div className="flex-1">
                 <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6">
                   <div className="flex-1">
-                    <h1 className="text-3xl lg:text-4xl font-bold text-gray-900 mb-2">{fixer.name}</h1>
+                    <h1 className="text-3xl lg:text-4xl font-bold text-gray-900 mb-2">
+                      {fixer.name}
+                    </h1>
                     <div className="flex items-center text-gray-600 mb-4">
                       <MapPin className="w-5 h-5 mr-2 text-primary" />
                       <span className="text-lg">{fixer.city}</span>
                       <span className="mx-3 text-gray-300">•</span>
                       <span className="flex items-center text-lg">
                         <Star className="w-5 h-5 text-amber-400 fill-amber-400 mr-1" />
-                        {fixer.rating?.toFixed(1) || "Nuevo"}
+                        {fixer.rating?.toFixed(1) || 'Nuevo'}
                       </span>
                     </div>
 
@@ -369,12 +451,16 @@ export function FixerProfileContent({ fixer }: FixerProfileContentProps) {
                 {/* Enhanced Stats */}
                 <div className="flex items-center gap-8 mt-6 pt-6 border-t border-gray-200">
                   <div className="text-center">
-                    <div className="text-2xl font-bold text-gray-900">{fixer.completedJobs || 0}</div>
+                    <div className="text-2xl font-bold text-gray-900">
+                      {fixer.completedJobs || 0}
+                    </div>
                     <div className="text-sm text-gray-500 font-medium">Trabajos</div>
                   </div>
                   <div className="h-12 w-px bg-gray-200" />
                   <div className="text-center">
-                    <div className="text-2xl font-bold text-gray-900">{fixer.rating?.toFixed(1) || "Nuevo"}</div>
+                    <div className="text-2xl font-bold text-gray-900">
+                      {fixer.rating?.toFixed(1) || 'Nuevo'}
+                    </div>
                     <div className="text-sm text-gray-500 font-medium">Calificación</div>
                   </div>
                   <div className="h-12 w-px bg-gray-200" />
@@ -394,18 +480,18 @@ export function FixerProfileContent({ fixer }: FixerProfileContentProps) {
           <div className="border-t border-gray-200 bg-gray-50/50">
             <nav className="flex overflow-x-auto">
               {[
-                { id: "inicio", label: "Inicio", icon: "🏠" },
-                { id: "servicios", label: "Servicios", icon: "🛠️" },
-                { id: "reseñas", label: "Reseñas", icon: "⭐" },
-                { id: "fotos", label: "Galería", icon: "📷" },
+                { id: 'inicio', label: 'Inicio', icon: '🏠' },
+                { id: 'servicios', label: 'Servicios', icon: '🛠️' },
+                { id: 'reseñas', label: 'Reseñas', icon: '⭐' },
+                { id: 'fotos', label: 'Galería', icon: '📷' },
               ].map((tab) => (
                 <button
                   key={tab.id}
                   onClick={() => setActiveTab(tab.id)}
                   className={`flex items-center gap-2 px-8 py-5 text-sm font-semibold transition-all duration-300 ${
                     activeTab === tab.id
-                      ? "text-primary border-b-2 border-primary bg-white shadow-sm"
-                      : "text-gray-500 hover:text-gray-700 hover:bg-white/50"
+                      ? 'text-primary border-b-2 border-primary bg-white shadow-sm'
+                      : 'text-gray-500 hover:text-gray-700 hover:bg-white/50'
                   }`}
                 >
                   <span className="text-lg">{tab.icon}</span>
@@ -420,5 +506,5 @@ export function FixerProfileContent({ fixer }: FixerProfileContentProps) {
         <div className="mt-8 space-y-8 pb-12">{renderTabContent()}</div>
       </div>
     </div>
-  )
+  );
 }

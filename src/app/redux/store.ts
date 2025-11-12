@@ -3,10 +3,9 @@ import { setupListeners } from '@reduxjs/toolkit/query';
 import { userApi } from './services/userApi';
 import userReducer from './slice/userSlice';
 import fixerReducer from './slice/fixerSlice';
-import filterReducer from "./slice/filterSlice"
+import filterReducer from './slice/filterSlice';
 import jobOffersReducer from './slice/jobOffersSlice';
 import logger from 'redux-logger';
-
 
 export const store = configureStore({
   reducer: {
@@ -17,9 +16,7 @@ export const store = configureStore({
     jobOffers: jobOffersReducer,
   },
   middleware: (getDefaultMiddleware) =>
-    getDefaultMiddleware()
-      .concat(userApi.middleware)
-      .concat(logger), 
+    getDefaultMiddleware().concat(userApi.middleware).concat(logger),
   devTools: process.env.NODE_ENV !== 'production',
 });
 

@@ -1,8 +1,8 @@
 import type { Metadata } from 'next';
 import { Geist, Geist_Mono } from 'next/font/google';
-import "./globals.css";
+import './globals.css';
 import { roboto } from './fonts';
-import 'leaflet/dist/leaflet.css'
+import 'leaflet/dist/leaflet.css';
 import { ReduxProvider } from './redux/ReduxProvider';
 import TopMenu from '@/Components/Navigation/TopMenu';
 import { Providers } from './provider';
@@ -29,19 +29,15 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className={`${roboto.className} `}>
-      <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
+    <html lang="en" className={`${roboto.className} ${geistSans.variable} ${geistMono.variable}`}>
+      <body className="antialiased">
         <ReduxProvider>
-          <div className="">
-            <TopMenu/>
-          </div>
-          {children}
+          <Providers>
+            <TopMenu />
+            <Suspense fallback={<div />}>{children}</Suspense>
+          </Providers>
         </ReduxProvider>
       </body>
-    {/* <html lang="en" className={`${roboto.className}`}>
-      <body className="antialiased">
-        <Providers>{children}</Providers>
-      </body> */}
     </html>
   );
 }

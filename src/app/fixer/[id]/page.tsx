@@ -1,13 +1,34 @@
-// src/app/fixer/[id]/page.tsx
-import { notFound } from "next/navigation"
-import { mockFixers } from "@/app/lib/mock-data"
-import { FixerProfileContent } from "./FixerProfileContent"
+import { notFound } from 'next/navigation';
+import { mockFixers } from '@/app/lib/mock-data';
+import { FixerProfileContent } from './FixerProfileContent';
 
-export default function FixerProfile({ params }: { params: { id: string } }) {
-  const fixer = mockFixers.find(f => f.id === params.id)
-  if (!fixer) notFound()
+interface FixerProfileProps {
+  params: Promise<{ id: string }>;
+}
 
-  return <FixerProfileContent fixer={fixer} />
-} 
+export default async function FixerProfile({ params }: FixerProfileProps) {
+  const resolvedParams = await params;
+  const id = resolvedParams.id;
 
+  console.log('🔍 Buscando fixer con ID:', id);
+  console.log(
+    '📋 Fixers disponibles:',
+    mockFixers.map((f) => ({ id: f.id, name: f.name })),
+  );
 
+  const fixer = mockFixers.find((f) => f.id === id);
+
+  if (!fixer) {
+    console.error('❌ Fixer no encontrado:', id);
+    notFound();
+  }
+
+  console.log('✅ Fixer encontrado:', fixer.name);
+  return <FixerProfileContent fixer={fixer} />;
+}
+
+export async function generateStaticParams() {
+  return mockFixers.map((fixer) => ({
+    id: fixer.id,
+  }));
+}

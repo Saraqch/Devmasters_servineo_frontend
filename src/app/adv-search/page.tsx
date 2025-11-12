@@ -3,7 +3,7 @@
 import React, { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Header from '@/app/jobOfert/components_jo/Header';
-import { ResultsCounter } from '@/app/AdvSearch/components_AS/ResultsCounter';
+import { ResultsCounter } from '@/app/adv-search/components_AS/ResultsCounter';
 import { InputOnlySearch } from '@/app/jobOfert/components_jo/Search/InputOnlySearch';
 import { SearchCheckboxes } from './components_AS/SearchCheckboxes';
 import { HelpButton } from './components_AS/HelpButton';
@@ -161,7 +161,9 @@ function AdvancedSearchPage() {
       <Header />
       <HelpButton />
 
-      <main className={`pt-20 lg:pt-24 px-4 sm:px-6 md:px-12 lg:px-24 transition-all duration-300 ${isCalendarOpen ? 'pb-96' : 'pb-12'}`}>
+      <main
+        className={`pt-20 lg:pt-24 px-4 sm:px-6 md:px-12 lg:px-24 transition-all duration-300 ${isCalendarOpen ? 'pb-96' : 'pb-12'}`}
+      >
         <h1 className="text-center text-xl sm:text-2xl md:text-3xl font-bold mb-8 mt-4">
           Búsqueda Avanzada
         </h1>
@@ -171,7 +173,7 @@ function AdvancedSearchPage() {
             <div className="mb-3">
               <ResultsCounter total={totalRegistros ?? 0} loading={storeLoading ?? loading} />
             </div>
-          
+
             <div className="mb-4">
               <InputOnlySearch onSearch={handleSearch} onValueChange={(v) => setSearchQuery(v)} />
             </div>

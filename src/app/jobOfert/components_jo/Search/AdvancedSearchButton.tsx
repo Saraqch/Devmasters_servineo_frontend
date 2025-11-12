@@ -18,14 +18,14 @@ export function AdvancedSearchButton({
 
   const handleClick = () => {
     // Navega a la página AdvSearch (src/app/AdvancedSearch/page.tsx)
-    router.push('/AdvSearch');
+    router.push('/adv-search');
   };
 
   return (
     <Button
       onClick={handleClick}
       aria-label="Ir a búsqueda avanzada"
-      size ="lg"
+      size="lg"
       className={`
         bg-[#2B6AE0] text-white
         hover:bg-[#2B6AE0]/90

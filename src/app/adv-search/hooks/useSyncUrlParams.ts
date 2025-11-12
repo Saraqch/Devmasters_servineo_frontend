@@ -31,7 +31,14 @@ export const useSyncUrlParamsAdv = (p: Params) => {
   const { search, filters, titleOnly, exact, date, sortBy, page, limit, skipSyncRef } = p;
   // rating is declared on Params; use it directly to avoid `any` casts
   const rating: number | null | undefined = p.rating;
-  const filtersJson = JSON.stringify(filters || {});
+
+  // Extract nested filter properties to satisfy exhaustive-deps
+  const filterRange = filters?.range;
+  const filterCity = filters?.city;
+  const filterCategory = filters?.category;
+  const filterTags = filters?.tags;
+  const filterMinPrice = filters?.minPrice;
+  const filterMaxPrice = filters?.maxPrice;
 
   useEffect(() => {
     // If parent signals skipping sync (e.g. about to navigate), consume the flag and skip one run
@@ -48,25 +55,24 @@ export const useSyncUrlParamsAdv = (p: Params) => {
       (date && date.trim() !== '') ||
       (sortBy && sortBy.trim() !== '') ||
       rating != null ||
-      (filters?.range && filters.range.length) ||
-      filters?.city ||
-      (filters?.category && filters.category.length) ||
-      (filters?.tags && filters.tags.length) ||
-      filters?.minPrice != null ||
-      filters?.maxPrice != null
+      (filterRange && filterRange.length) ||
+      filterCity ||
+      (filterCategory && filterCategory.length) ||
+      (filterTags && filterTags.length) ||
+      filterMinPrice != null ||
+      filterMaxPrice != null
     );
 
     const params = new URLSearchParams();
     if (search && search.trim()) params.set('search', search.trim());
     if (titleOnly) params.set('titleOnly', 'true');
     if (exact) params.set('exact', 'true');
-    filters?.range?.forEach((r) => params.append('range', r));
-    if (filters?.city) params.set('city', filters.city);
-    if (filters?.category && filters.category.length)
-      params.set('category', filters.category.join(','));
-    if (filters?.tags && filters.tags.length) params.set('tags', filters.tags.join(','));
-    if (filters?.minPrice != null) params.set('minPrice', String(filters.minPrice));
-    if (filters?.maxPrice != null) params.set('maxPrice', String(filters.maxPrice));
+    filterRange?.forEach((r) => params.append('range', r));
+    if (filterCity) params.set('city', filterCity);
+    if (filterCategory && filterCategory.length) params.set('category', filterCategory.join(','));
+    if (filterTags && filterTags.length) params.set('tags', filterTags.join(','));
+    if (filterMinPrice != null) params.set('minPrice', String(filterMinPrice));
+    if (filterMaxPrice != null) params.set('maxPrice', String(filterMaxPrice));
     if (date) params.set('date', date);
     if (rating != null) params.set('rating', String(rating));
     if (sortBy) params.set('sort', sortBy);
@@ -103,7 +109,6 @@ export const useSyncUrlParamsAdv = (p: Params) => {
         /* noop */
       }
     }
-    // Use stable primitive deps to avoid re-running on new object identity
   }, [
     search,
     titleOnly,
@@ -112,18 +117,15 @@ export const useSyncUrlParamsAdv = (p: Params) => {
     sortBy,
     page,
     limit,
-    filtersJson,
+    rating,
     router,
     skipSyncRef,
-    // include specific filter fields to satisfy linting (stable primitives)
-    (filters && filters.range) || null,
-    (filters && filters.category) || null,
-    (filters && filters.city) || null,
-    (filters && filters.tags) || null,
-    (filters && filters.minPrice) || null,
-    (filters && filters.maxPrice) || null,
-    // rating must be included so changing the star selection updates the URL
-    rating,
+    filterRange,
+    filterCity,
+    filterCategory,
+    filterTags,
+    filterMinPrice,
+    filterMaxPrice,
   ]);
 };
 export default useSyncUrlParamsAdv;

@@ -37,7 +37,7 @@ export default function AppliedFilters({ params, onModify }: Props) {
         sp.set(k, String(val));
       }
     });
-    router.push(`/AdvSearch?${sp.toString()}`);
+    router.push(`/adv-search?${sp.toString()}`);
   };
 
   return (

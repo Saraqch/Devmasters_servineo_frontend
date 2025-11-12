@@ -10,7 +10,7 @@ export const baseQuery = fetchBaseQuery({
     // Puedes obtener el token del estado si lo necesitas
     // const token = (getState() as RootState).auth.token
     const token = localStorage.getItem('token');
-    
+
     // Si tenemos un token, lo añadimos a los headers
     if (token) {
       headers.set('authorization', `Bearer ${token}`);
@@ -30,7 +30,6 @@ export const baseApi = createApi({
   tagTypes: ['Requester', 'Fixer', 'JobOffer'],
 });
 
-
 export interface ApiError {
   status: number;
   data: {
@@ -39,12 +38,6 @@ export interface ApiError {
   };
 }
 
-
 export const isApiError = (error: unknown): error is ApiError => {
-  return (
-    typeof error === 'object' &&
-    error !== null &&
-    'status' in error &&
-    'data' in error
-  );
+  return typeof error === 'object' && error !== null && 'status' in error && 'data' in error;
 };

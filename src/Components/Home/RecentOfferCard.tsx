@@ -244,7 +244,7 @@ export default function RecentOfferCard({ offer, onCardClick }: RecentOfferCardP
         </div>
         <button
           onClick={handleWhatsAppClick}
-          className="bg-green-500 hover:bg-green-600 p-2 rounded-full transition-colors shadow-sm flex items-center gap-2 flex-shrink-0"
+          className="bg-[#1AA7ED] hover:bg-[#1AA7ED] p-2 rounded-full transition-colors shadow-sm flex items-center gap-2 flex-shrink-0"
           aria-label="Contactar por WhatsApp"
         >
           <MessageCircle className="w-4 h-4 text-white" />

@@ -346,7 +346,7 @@ const CardJob = ({ trabajos, viewMode = 'grid', onCardClick }: CardJobProps) => 
                 </div>
                 <button
                   onClick={(e) => handleWhatsAppClick(e, t.contactPhone)}
-                  className="bg-green-500 hover:bg-green-600 px-3 py-2 rounded-full transition-colors shadow-sm flex items-center gap-2 flex-shrink-0"
+                  className="bg-[#1AA7ED] hover:bg-[#1AA7ED] px-3 py-2 rounded-full transition-colors shadow-sm flex items-center gap-2 flex-shrink-0"
                   aria-label="Contactar por WhatsApp"
                 >
                   <MessageCircle className="w-4 h-4 text-white" />
@@ -590,7 +590,7 @@ const CardJob = ({ trabajos, viewMode = 'grid', onCardClick }: CardJobProps) => 
                   </div>
                   <button
                     onClick={(e) => handleWhatsAppClick(e, t.contactPhone)}
-                    className="bg-green-500 hover:bg-green-600 px-3 py-2 rounded-full transition-colors shadow-sm flex items-center gap-2 flex-shrink-0"
+                    className="bg-[#1AA7ED] hover:bg-[#1AA7ED] px-3 py-2 rounded-full transition-colors shadow-sm flex items-center gap-2 flex-shrink-0"
                     aria-label="Contactar por WhatsApp"
                   >
                     <MessageCircle className="w-4 h-4 text-white" />

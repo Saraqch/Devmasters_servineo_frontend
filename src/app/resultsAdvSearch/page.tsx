@@ -1,18 +1,18 @@
 'use client';
 import React, { Suspense } from 'react';
-import Header from './components_RAS/Header';
-import Footer from './components_RAS/Footer';
-import AppliedFilters from './components_RAS/AppliedFilters';
-import useAppliedFilters from '../jobOfert/hooks/useAppliedFilters';
+import Header from '../../Components/ResultsAdvSearch/Header';
+import Footer from '../../Components/ResultsAdvSearch/Footer';
+import AppliedFilters from '../../Components/ResultsAdvSearch/AppliedFilters';
+import useAppliedFilters from '../job-offers/hooks/useAppliedFilters';
 
-// Reutilizamos las cards y componentes de paginación desde jobOfert
-import { CardJob, Paginacion, PaginationInfo, PaginationSelector } from '../jobOfert/components_jo';
+// Reutilizamos las cards y componentes de paginación desde job-offer
+import { CardJob, Paginacion, PaginationInfo, PaginationSelector } from '../job-offers';
 
 // Store hooks y acciones
-import { useAppDispatch, useAppSelector } from '../jobOfert/hooks/hook';
-import { fetchOffers, setRegistrosPorPagina, setPaginaActual } from '../jobOfert/lib/slice';
-import { useInitialUrlParams } from '../jobOfert/hooks/useInitialUrlParams';
-import { useSyncUrlParams } from '../jobOfert/hooks/useSyncUrlParams';
+import { useAppDispatch, useAppSelector } from '../job-offers/hooks/hook';
+import { fetchOffers, setRegistrosPorPagina, setPaginaActual } from '../job-offers/lib/slice';
+import { useInitialUrlParams } from '../job-offers/hooks/useInitialUrlParams';
+import { useSyncUrlParams } from '../job-offers/hooks/useSyncUrlParams';
 
 export default function ResultsAdvSearchPage() {
   const dispatch = useAppDispatch();
@@ -103,7 +103,7 @@ export default function ResultsAdvSearchPage() {
             appliedParams se pasa un objeto vacío (no se muestran tags). */}
           <AppliedFilters params={appliedParams ?? {}} />
 
-          {/* Selector y resumen de paginación (components de jobOfert) */}
+          {/* Selector y resumen de paginación (components de job-offer) */}
           {/* Alinéo el selector con el mismo ancho y padding que AppliedFilters */}
           <div className="w-full max-w-5xl mx-auto mt-4 px-4 mb-2">
             <PaginationSelector

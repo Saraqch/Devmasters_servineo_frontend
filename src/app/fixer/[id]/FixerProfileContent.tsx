@@ -1,7 +1,7 @@
 // src\app\fixer\[id]\FixerProfileContent.tsx
 'use client';
 
-import CardJob from '@/app/jobOfert/components_jo/CardJob';
+import CardJob from '@/Components/Job-offers/CardJob';
 import {
   MapPin,
   Star,

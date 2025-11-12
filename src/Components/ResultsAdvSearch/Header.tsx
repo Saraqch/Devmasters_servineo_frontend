@@ -2,8 +2,8 @@
 import React from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
-import { useAppDispatch } from '@/app/jobOfert/hooks/hook';
-import { resetFilters } from '@/app/jobOfert/lib/slice';
+import { useAppDispatch } from '@/app/job-offers/hooks/hook';
+import { resetFilters } from '@/app/job-offers/lib/slice';
 
 const Header = () => {
   const dispatch = useAppDispatch();
@@ -30,8 +30,8 @@ const Header = () => {
       // ignore
     }
 
-    // Force a full navigation to /jobOfert without query params
-    window.location.href = '/jobOfert';
+    // Force a full navigation to /job-offer without query params
+    window.location.href = '/job-offer';
   };
 
   return (
@@ -64,7 +64,7 @@ const Header = () => {
             Servicios
           </Link>
           <Link
-            href="/jobOfert"
+            href="/job-offer"
             onClick={handleJobOffersClick}
             className="text-[#2B6AE0] hover:text-[#2B6AE0]/90 font-medium relative after:absolute after:bottom-0 after:left-0 after:h-0.5 after:w-full after:bg-[#2B6AE0] after:transition-all"
           >

@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { useAppDispatch, useAppSelector } from '@/app/jobOfert/hooks/hook';
-import { fetchOffers as fetchOffersThunk } from '@/app/jobOfert/lib/slice';
+import { useAppDispatch, useAppSelector } from '@/app/job-offers/hooks/hook';
+import { fetchOffers as fetchOffersThunk } from '@/app/job-offers/lib/slice';
 
 interface FilterStateLocal {
   range: string[];

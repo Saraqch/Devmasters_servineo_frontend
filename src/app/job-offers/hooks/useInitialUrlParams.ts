@@ -1,5 +1,5 @@
 'use client';
-//src/app/jobOfert/hooks/useInitialUrlParams.ts
+//src/app/job-offer/hooks/useInitialUrlParams.ts
 import { useSearchParams } from 'next/navigation';
 import { useEffect, useRef } from 'react';
 import { useAppDispatch } from './hook';

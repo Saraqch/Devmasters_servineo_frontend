@@ -114,10 +114,10 @@ export default function useAppliedFilters() {
       } catch {
         // ignore
       }
-      // Do a full navigation to /jobOfert without any query params
-      window.location.href = '/jobOfert';
+      // Do a full navigation to /job-offer without any query params
+      window.location.href = '/job-offer';
     }
-    // fetch will be triggered by the jobOfert page on load after navigation
+    // fetch will be triggered by the job-offer page on load after navigation
   };
 
   return { showAppliedFilters, appliedParams, handleClearApplied };

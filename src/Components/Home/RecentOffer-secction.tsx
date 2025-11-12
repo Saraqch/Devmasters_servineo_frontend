@@ -3,10 +3,10 @@
 
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
-import { useAppDispatch, useAppSelector } from '@/app/jobOfert/hooks/hook';
-import { fetchOffers } from '@/app/jobOfert/lib/slice';
+import { useAppDispatch, useAppSelector } from '@/app/job-offers/hooks/hook';
+import { fetchOffers } from '@/app/job-offers/lib/slice';
 import RecentOfferCard from './RecentOfferCard';
-import { categoryImages } from '@/app/jobOfert/lib/constants/img';
+import { categoryImages } from '@/app/job-offers/lib/constants/img';
 import { mockFixers } from '@/app/lib/mock-data';
 import { JobOfferModal } from '@/Components/Job-offers/Job-offer-modal';
 
@@ -177,7 +177,7 @@ export default function RecentOffersSection() {
             <p className="text-gray-600">Descubre las últimas ofertas publicadas</p>
           </div>
           <Link
-            href="/jobOfert"
+            href="/job-offer"
             className="inline-flex items-center gap-2 px-6 py-3 bg-primary text-white font-medium rounded-lg hover:bg-primary/90 transition-colors shadow-sm"
           >
             Ver todas

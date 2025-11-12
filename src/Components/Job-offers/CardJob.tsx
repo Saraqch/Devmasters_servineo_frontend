@@ -1,11 +1,11 @@
-// src\app\jobOfert\components_jo\CardJob.tsx
+// src\app\job-offer\components_jo\CardJob.tsx
 'use client';
 
 import React, { useMemo, useCallback, useState, useEffect, useRef } from 'react';
 import Image from 'next/image';
 import { MapPin, Star, ChevronLeft, ChevronRight, MessageCircle } from 'lucide-react';
 import { useRouter } from 'next/navigation';
-import { categoryImages } from '../lib/constants/img';
+import { categoryImages } from '../../app/job-offers/lib/constants/img';
 
 interface OfferData {
   _id: string;

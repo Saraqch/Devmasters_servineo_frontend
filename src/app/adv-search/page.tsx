@@ -2,21 +2,21 @@
 
 import React, { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import Header from '@/app/jobOfert/components_jo/Header';
-import { ResultsCounter } from '@/app/adv-search/components_AS/ResultsCounter';
-import { InputOnlySearch } from '@/app/jobOfert/components_jo/Search/InputOnlySearch';
-import { SearchCheckboxes } from './components_AS/SearchCheckboxes';
-import { HelpButton } from './components_AS/HelpButton';
-import DropdownList from './components_AS/DropdownList'; // <-- Nuevo componente
+import Header from '@/Components/Job-offers/Header';
+import { ResultsCounter } from '@/Components/Adv-search/ResultsCounter';
+import { InputOnlySearch } from '@/Components/Job-offers/Search/InputOnlySearch';
+import { SearchCheckboxes } from '@/Components/Adv-search/SearchCheckboxes';
+import { HelpButton } from '@/Components/Adv-search/HelpButton';
+import DropdownList from '@/Components/Adv-search/DropdownList'; // <-- Nuevo componente
 import useSyncUrlParamsAdv from './hooks/useSyncUrlParams'; // ajustar ruta si hace falta
 // removed unused useRouter
 import useAdvSearchLogic from './hooks/useAdvSearchLogic';
-import PriceRangeList from './components_AS/PriceRangeList';
-import DateFilterSelector from './components_AS/DateFilterSelector';
-import CalificacionEstrella from './components_AS/CalificacionEstrella';
-import ButtonAplicarBus from './components_AS/ButtonAplicarBus';
-import ClearButton from './components_AS/ClearButton';
-import Footer from './components_AS/Footer';
+import PriceRangeList from '@/Components/Adv-search/PriceRangeList';
+import DateFilterSelector from '@/Components/Adv-search/DateFilterSelector';
+import CalificacionEstrella from '@/Components/Adv-search/CalificacionEstrella';
+import ButtonAplicarBus from '@/Components/Adv-search/ButtonAplicarBus';
+import ClearButton from '@/Components/Adv-search/ClearButton';
+import Footer from '@/Components/Adv-search/Footer';
 
 const FIXER_RANGES = [
   ['De (A-C)', 'De (D-F)', 'De (G-I)', 'De (J-L)', 'De (M-Ñ)'],
@@ -109,11 +109,11 @@ function AdvancedSearchPage() {
 
   const router = useRouter();
 
-  // Close advanced search and go back to jobOfert when user presses Escape
+  // Close advanced search and go back to job-offer when user presses Escape
   useEffect(() => {
     const onKeyDown = (e: KeyboardEvent) => {
       if (e.key === 'Escape') {
-        router.push('/jobOfert');
+        router.push('/job-offer');
       }
     };
 

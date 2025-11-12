@@ -3,7 +3,10 @@
 import { Fragment } from 'react';
 import { Listbox, Transition } from '@headlessui/react';
 import { ChevronDown } from 'lucide-react';
-import { validatePagination, JOBOFERT_ALLOWED_LIMITS } from '../validators/pagination.validator';
+import {
+  validatePagination,
+  JOBOFERT_ALLOWED_LIMITS,
+} from '../../app/resultsAdvSearch/validators/pagination.validator';
 
 interface PaginationSelectorProps {
   registrosPorPagina: number;

@@ -1,4 +1,4 @@
-// src\app\jobOfert\lib\slice.ts
+// src\app\job-offer\lib\slice.ts
 import { createSlice, createAsyncThunk, PayloadAction } from '@reduxjs/toolkit';
 import { api, ApiResponse } from '@/lib/api';
 import { JOBOFERT_ALLOWED_LIMITS } from '../validators/pagination.validator';

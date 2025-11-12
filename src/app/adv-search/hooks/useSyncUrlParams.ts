@@ -80,7 +80,7 @@ export const useSyncUrlParamsAdv = (p: Params) => {
     if (limit != null) params.set('limit', String(limit));
 
     const qs = params.toString();
-    // Use relative query update like jobOfert: replace only the search part (keeps pathname)
+    // Use relative query update like job-offer: replace only the search part (keeps pathname)
     const targetSearch = qs ? `?${qs}` : '';
 
     // If nothing is active, ensure the search is cleared

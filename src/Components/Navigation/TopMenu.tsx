@@ -18,7 +18,7 @@ export default function TopMenu() {
 
   const navItems = [
     { name: 'Inicio', href: '/' },
-    { name: 'Ofertas de trabajo', href: '/jobOfert' },
+    { name: 'Ofertas de trabajo', href: '/job-offer' },
   ];
 
   return (

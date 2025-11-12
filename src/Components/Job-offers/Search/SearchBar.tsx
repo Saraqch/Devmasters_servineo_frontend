@@ -1,4 +1,4 @@
-// src\app\jobOfert\components_jo\Search\SearchBar.tsx
+// src\app\job-offer\components_jo\Search\SearchBar.tsx
 'use client';
 
 import React from 'react';
@@ -11,8 +11,8 @@ import { ClearButton } from './ClearButton';
 import { SearchButton } from './SearchButton';
 import { AdvancedSearchButton } from './AdvancedSearchButton';
 import { FilterButton } from '../Filter/FilterButton';
-import { validateSearch } from '../../validators/search.validator';
-import { useAppSelector } from '../../hooks/hook';
+import { validateSearch } from '../../../app/job-offers/validators/search.validator';
+import { useAppSelector } from '../../../app/job-offers/hooks/hook';
 
 interface SearchBarProps {
   onSearch: (query: string) => void;

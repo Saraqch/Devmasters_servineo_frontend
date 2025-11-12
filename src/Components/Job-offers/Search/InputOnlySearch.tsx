@@ -4,7 +4,7 @@ import React from 'react';
 import { Input } from '@/Components/ui/input';
 import { SearchIcon } from './SearchIcon';
 import { ClearButton } from './ClearButton';
-import { validateSearch } from '../../validators/search.validator';
+import { validateSearch } from '../../../app/job-offers/validators/search.validator';
 
 interface InputOnlySearchProps {
   onSearch: (query: string) => void;

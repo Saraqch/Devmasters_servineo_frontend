@@ -15,16 +15,16 @@ export default function HeroSection() {
 
     if (trimmedSearch) {
       // Redirigir a la página de ofertas con el término de búsqueda
-      router.push(`/jobOfert?search=${encodeURIComponent(trimmedSearch)}`);
+      router.push(`/job-offer?search=${encodeURIComponent(trimmedSearch)}`);
     } else {
       // Si está vacío, ir a la página sin parámetros
-      router.push('/jobOfert');
+      router.push('/job-offer');
     }
   };
 
   const handleTagClick = (tag: string) => {
     // Redirigir directamente cuando se hace clic en un tag
-    router.push(`/jobOfert?search=${encodeURIComponent(tag)}`);
+    router.push(`/job-offer?search=${encodeURIComponent(tag)}`);
   };
 
   return (

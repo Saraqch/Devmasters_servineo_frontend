@@ -1,4 +1,4 @@
-// src/app/jobOfert/page.tsx
+// src/app/job-offer/page.tsx
 'use client';
 
 import React, { useEffect, useRef, useState } from 'react';
@@ -14,7 +14,7 @@ import {
   SortCard,
   Header,
   Footer,
-} from '@/app/jobOfert/components_jo';
+} from '@/app/job-offers';
 
 import { useAppDispatch, useAppSelector } from './hooks/hook';
 import {

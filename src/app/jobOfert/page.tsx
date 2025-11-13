@@ -29,8 +29,8 @@ import {
 import { getSortValue, sortMapInverse } from './lib/constants/sortOptions';
 import { useSyncUrlParams } from './hooks/useSyncUrlParams';
 import useApplyQueryToStore from './hooks/useApplyQueryToStore';
-import { JobOfferModal } from '@/Components/Job-offers/Job-offer-modal';
-import { MapView } from '@/Components/Job-offers/maps/MapView';
+import { JobOfferModal } from '@/components/Job-offers/Job-offer-modal';
+import { MapView } from '@/components/Job-offers/maps/MapView';
 import { Map, List, LayoutGrid } from 'lucide-react';
 import { categoryImages } from './lib/constants/img';
 import { mockFixers } from '@/app/lib/mock-data';

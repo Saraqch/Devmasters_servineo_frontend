@@ -8,7 +8,7 @@ import { fetchOffers } from '@/app/jobOfert/lib/slice';
 import RecentOfferCard from './RecentOfferCard';
 import { categoryImages } from '@/app/jobOfert/lib/constants/img';
 import { mockFixers } from '@/app/lib/mock-data';
-import { JobOfferModal } from '@/Components/Job-offers/Job-offer-modal';
+import { JobOfferModal } from '@/components/Job-offers/Job-offer-modal';
 
 // Type for the offer data from the backend
 interface OfferData {

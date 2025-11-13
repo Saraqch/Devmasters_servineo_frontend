@@ -1,4 +1,5 @@
 'use client';
+export const dynamic = 'force-dynamic';
 import React, { Suspense } from 'react';
 import Header from './components_RAS/Header';
 import Footer from './components_RAS/Footer';

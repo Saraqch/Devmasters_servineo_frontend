@@ -1,6 +1,8 @@
 // src/app/jobOfert/page.tsx
 'use client';
 
+ export const dynamic = 'force-dynamic';
+
 import React, { useEffect, useRef, useState } from 'react';
 import {
   SearchBar,

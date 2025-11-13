@@ -1,13 +1,14 @@
 
 "use client";
-import HeroSection from "@/Components/Home/Hero-section";
-import ServicesSection from "@/Components/Home/Services-section";
-import HowItWorksSection from "@/Components/Home/HowItWorks-section";
-import CTASection from "@/Components/Home/CTA-section";
-import MapSection from "@/Components/Home/Map-section";
-import InspirationSection from "@/Components/Home/Inspiration-section";
-import RecentOffersSection from "@/Components/Home/RecentOffer-secction";
-import FooterSection from "@/Components/Home/Footer-section";
+import HeroSection from "@/components/Home/Hero-section";
+import ServicesSection from "@/components/Home/Services-section";
+import HowItWorksSection from "@/components/Home/HowItWorks-section";
+import CTASection from "@/components/Home/CTA-section";
+import MapSection from "@/components/Home/Map-section";
+import InspirationSection from "@/components/Home/Inspiration-section";
+// RecentOfferCard requiere una prop `offer` con datos; se comenta temporalmente
+// para evitar añadir lógica o mocks en este archivo de alto impacto.
+import FooterSection from "@/components/Footer";
 
 
 export default function Home() {
@@ -18,7 +19,7 @@ export default function Home() {
         <div className="max-w-7xl mx-auto">
           <MapSection />
           <InspirationSection />
-          <RecentOffersSection />
+          {/* <RecentOfferCard /> */}
         </div>
       </section>
 
@@ -26,7 +27,7 @@ export default function Home() {
       <HowItWorksSection />
       
       <CTASection />
-        <FooterSection />
+      <FooterSection />
     </div>
   );
 }

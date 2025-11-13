@@ -4,11 +4,11 @@ import "../globals.css";
 import { roboto } from '../fonts';
 import 'leaflet/dist/leaflet.css'
 import { ReduxProvider } from '../redux/ReduxProvider';
-import TopMenu from '@/Components/Navigation/TopMenu';
+import TopMenu from '@/components/Navigation/TopMenu';
 import { ReactNode } from 'react';
 import { notFound } from 'next/navigation';
 import {NextIntlClientProvider} from 'next-intl';
-import { TranslationButton } from '@/Components/Shared/TranslationButton';
+import { TranslationButton } from '@/components/Shared/TranslationButton';
 
 const geistSans = Geist({
   variable: '--font-geist-sans',

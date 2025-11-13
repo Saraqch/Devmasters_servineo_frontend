@@ -1,6 +1,6 @@
 "use client"
 
-import { JobOfferCard } from "@/Components/Job-offers/Job-offer-card"
+import { JobOfferCard } from "@/components/Job-offers/Job-offer-card"
 import { MapPin, Star, Briefcase, MessageSquare, Share2 } from "lucide-react"
 import { useRouter } from "next/navigation"
 import { useState } from "react"

@@ -2,15 +2,17 @@ import { notFound } from "next/navigation"
 import { mockFixers } from "@/app/lib/mock-data"
 import { FixerProfileContent } from "./FixerProfileContent"
 
-export default function AboutFixerProfile({ params }: { params: { id: string } }) {
-  const fixer = mockFixers.find((f) => f.id === params.id)
+export default async function AboutFixerProfile({ params }: { params?: Promise<{ id: string }> }) {
+  const resolvedParams = await params
+  const id = resolvedParams?.id || ''
+  const fixer = mockFixers.find((f) => f.id === id)
 
   if (!fixer) {
-    console.error("❌ Fixer no encontrado:", params.id)
+    console.error("❌ Fixer no encontrado:", id)
     notFound()
   }
 
-  console.log("🔍 Buscando fixer con ID:", params.id)
+  console.log("🔍 Buscando fixer con ID:", id)
   console.log(
     "📋 Fixers disponibles:",
     mockFixers.map((f) => ({ id: f.id, name: f.name })),

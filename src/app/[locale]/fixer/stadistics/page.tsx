@@ -1,6 +1,6 @@
 "use client" 
 
-import EstadisticasTrabajos from "@/Components/fixer/Fixer-statistics";
+import EstadisticasTrabajos from "@/components/fixer/Fixer-statistics";
 
 export default function StadisticsPage() {
     return (

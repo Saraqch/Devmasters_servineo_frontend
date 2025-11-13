@@ -1,4 +1,4 @@
-import { FixerProfile } from "@/Components/Fixer-profile";
+import { FixerProfile } from "@/components/Fixer-profile";
 import type { Fixer } from "@/app/lib/mock-data";
 
 const mockFixer: Fixer = {

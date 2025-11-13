@@ -1,15 +1,18 @@
 'use client';
 
+// Evitar prerender estático en esta ruta para prevenir errores de prerendering
+export const dynamic = 'force-dynamic';
+
 import { useState, useEffect, useMemo, useRef } from 'react';
 import { mockJobOffers } from '../../lib/mock-data';
 import { JobOffer } from '../../lib/mock-data';
-import { JobOfferCard } from '@/Components/Job-offers/Job-offer-card';
-import { JobOfferModal } from '@/Components/Job-offers/Job-offer-modal';
-import { MapView } from '@/Components/Job-offers/maps/MapView';
-import { SearchHeader } from '@/Components/SearchHeader';
+import { JobOfferCard } from '@/components/Job-offers/Job-offer-card';
+import { JobOfferModal } from '@/components/Job-offers/Job-offer-modal';
+import { MapView } from '@/components/Job-offers/maps/MapView';
+import { SearchHeader } from '@/components/SearchHeader';
 import { useLogClickMutation } from '../../redux/services/activityApi';
 import { useLogSearchMutation, useUpdateFiltersMutation } from '../../redux/services/searchApi';
-import { FiltersPanel } from '@/Components/FiltersPanel';
+import { FiltersPanel } from '@/components/FiltersPanel';
 import { useAppSelector } from '../../redux/hooks';
 import {
   selectSearchQuery,

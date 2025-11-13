@@ -1,0 +1,101 @@
+{
+    "HeroSection":
+    {
+        "title": "Find the perfect professional ",
+        "subtitle": "We connect your home with verified experts in your city.",
+        "placeholder": "what service do you need?",
+        "search": "Search"
+    },
+    "jobOffers":
+        {
+    "pageTitle": "Job Offers",
+    "available": "available",
+    "backToHome": "Home",
+    "viewModes": {
+        "list": "List",
+        "map": "Map"
+    },
+    "emptyState": {
+        "title": "No offers found",
+        "description": "There are no offers matching your current search or filters."
+    },
+    "map": {
+            "loading": "Loading map...",
+            "yourLocation": "Your location",
+            "jobOffers": "Job offers",
+            "radius": "Radius: ~1km",
+            "mapDetails": "Map details",
+            "availableOffers": {
+                "singular": "available offer",
+                "plural": "available offers"
+            },
+            "distance": "away"
+    }
+    },
+    "search": {
+        "placeholder": "What service do you need?",
+        "buttonSearch": "Search",
+        "openFilters": "Open filters",
+        "clearSearch": "Clear search",
+        "moreFilters": "More filters",
+        "recentSearches": "Recent searches",
+        "clear": "Clear"
+    },
+    "filtersPanel": {
+        "filters": "Filters",
+        "resetButton": {
+            "desktop": "Reset",
+            "mobile": "Reset Filters"
+        },
+        "fixerName": "Fixer Name",
+        "city": "City",
+        "jobCategory": "Job Type"
+    },
+    "navigation": {
+        "home": "Home",
+        "jobOffers": "Job Offers",
+        "login": "Sign In",
+        "register": "Sign Up",
+        "logo": "LOGO"
+    },
+
+    
+    
+
+    "cta": { 
+        "footerTitle": "Ready to find the ideal professional?", 
+        "footerSubtitle": "Join thousands of people who have already found the perfect professional for their needs", 
+        "footerButton": "Sign up for free", 
+        "footerButtonView": "View services" 
+    },
+    "HowItWorks": {
+    "question": "How does it work?",
+    "questionResponse": "Find and hire the ideal professional in simple steps",
+    "HowItWorksSearch": "Search",
+    "HowItWorksSearchDescription": "Find the service you need",
+    "HowItWorksCompare": "Compare",
+    "HowItWorksCompareDescription": "Review profiles and ratings",
+    "HowItWorksContact": "Contact",
+    "HowItWorksContactDescription": "Talk directly with professionals",
+    "HowItWorksRate": "Rate",
+    "HowItWorksRateDescription": "Share your experience"
+    },
+    "Inspiration":{
+        "insTitle": "Inspiration for your home",
+        "insDescription": "Discover ideas and projects carried out by our expert professionals"
+    },
+    "Map":{
+        "mapTitle": "Find services near you",
+        "mapDescription": "Explore available professionals in your area",
+        "mapInteractive": "Interactive map here"
+    },
+    "RecentOffer":{
+        "recOfTitle": "Recent Offers",
+        "recOfDescription": "Discover the latest published offers",
+        "viewAll": "View all →"
+    },
+    "Services":{
+    "serTitle": "Our Services",
+    "serDescription": "Find the perfect service for your needs"
+    }
+}

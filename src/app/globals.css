@@ -1,4 +1,4 @@
-@plugin "tailwindcss-animate";
+@import "tailwindcss";
 @custom-variant dark (&:is(.dark *));
 @import 'tailwindcss';
 @import 'leaflet/dist/leaflet.css';

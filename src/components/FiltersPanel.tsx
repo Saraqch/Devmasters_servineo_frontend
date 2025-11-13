@@ -11,8 +11,9 @@ import {
   selectSelectedJobTypes,
   selectSidebarOpen,
   setSidebarOpen,
-} from '../app/redux/slice/filterSlice';
-import { X } from 'lucide-react';
+} from "../app/redux/slice/filterSlice"
+import { X } from "lucide-react"
+import { useTranslations } from "next-intl"
 
 const FIXER_NAMES = ['A-C', 'D-F', 'G-I', 'J-L', 'M-N'];
 const CITIES = [
@@ -38,11 +39,12 @@ const JOB_TYPES = [
 ];
 
 export function FiltersPanel() {
-  const dispatch = useAppDispatch();
-  const sidebarOpen = useAppSelector(selectSidebarOpen);
-  const selectedFixerNames = useAppSelector(selectSelectedFixerNames);
-  const selectedCities = useAppSelector(selectSelectedCities);
-  const selectedJobTypes = useAppSelector(selectSelectedJobTypes);
+  const t= useTranslations("filtersPanel");
+  const dispatch = useAppDispatch()
+  const sidebarOpen = useAppSelector(selectSidebarOpen)
+  const selectedFixerNames = useAppSelector(selectSelectedFixerNames)
+  const selectedCities = useAppSelector(selectSelectedCities)
+  const selectedJobTypes = useAppSelector(selectSelectedJobTypes)
 
   return (
     <>
@@ -63,7 +65,7 @@ export function FiltersPanel() {
         <div className="p-4 space-y-6">
           {/* Mobile Header */}
           <div className="flex items-center justify-between lg:hidden">
-            <h2 className="text-xl font-semibold text-gray-800">Filtros</h2>
+            <h2 className="text-xl font-semibold text-gray-800">{t("filters")}</h2>
             <button
               onClick={() => dispatch(setSidebarOpen(false))}
               className="p-2 text-gray-500 hover:bg-gray-100 rounded-full transition-colors"
@@ -74,12 +76,12 @@ export function FiltersPanel() {
 
           {/* Desktop Header */}
           <div className="hidden lg:flex items-center justify-between">
-            <h2 className="text-xl font-semibold text-gray-800">Filtros</h2>
+            <h2 className="text-xl font-semibold text-gray-800">{t("filters")}</h2>
             <button
               onClick={() => dispatch(resetFilters())}
               className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors text-sm font-medium"
             >
-              Resetear
+              {t("resetButton.desktop")}
             </button>
           </div>
 
@@ -88,7 +90,7 @@ export function FiltersPanel() {
             onClick={() => dispatch(resetFilters())}
             className="lg:hidden w-full px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium"
           >
-            Resetear Filtros
+            {t("resetButton.mobile")}
           </button>
 
           {/* Filter Sections */}
@@ -96,7 +98,7 @@ export function FiltersPanel() {
             {/* Nombre de Fixer */}
             <div className="space-y-3">
               <div className="px-3 py-2 bg-blue-50 rounded-lg">
-                <h3 className="font-medium text-blue-800">Nombre de Fixer</h3>
+                <h3 className="font-medium text-blue-800">{t("fixerName")}</h3>
               </div>
               <div className="grid grid-cols-2 gap-2">
                 {FIXER_NAMES.map((name) => (
@@ -119,7 +121,7 @@ export function FiltersPanel() {
             {/* Ciudad */}
             <div className="space-y-3">
               <div className="px-3 py-2 bg-blue-50 rounded-lg">
-                <h3 className="font-medium text-blue-800">Ciudad</h3>
+                <h3 className="font-medium text-blue-800">{t("city")}</h3>
               </div>
               <div className="space-y-2 max-h-48 overflow-y-auto pr-2">
                 {CITIES.map((city) => (
@@ -142,7 +144,7 @@ export function FiltersPanel() {
             {/* Tipo de Trabajo */}
             <div className="space-y-3">
               <div className="px-3 py-2 bg-blue-50 rounded-lg">
-                <h3 className="font-medium text-blue-800">Tipo de Trabajo</h3>
+                <h3 className="font-medium text-blue-800">{t("jobCategory")}</h3>
               </div>
               <div className="space-y-2 max-h-48 overflow-y-auto pr-2">
                 {JOB_TYPES.map((type) => (

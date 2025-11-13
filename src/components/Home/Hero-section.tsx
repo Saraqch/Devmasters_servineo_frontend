@@ -1,13 +1,14 @@
-// src\components\Home\Hero-section.tsx
-'use client';
-import { Search } from 'lucide-react';
-import { useState } from 'react';
+"use client";
 import { useRouter } from 'next/navigation';
-import StatCard from '../Common/StatCard';
+import { Search } from "lucide-react";
+import { useState } from "react";
+import StatCard from "../Common/StatCard";
+import { useTranslations } from "next-intl";
 
 export default function HeroSection() {
-  const [searchText, setSearchText] = useState('');
+  const t= useTranslations("HeroSection");
   const router = useRouter();
+  const [searchText, setSearchText] = useState("");
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
@@ -35,10 +36,10 @@ export default function HeroSection() {
 
       <div className="max-w-6xl mx-auto relative z-10">
         <h1 className="text-4xl md:text-6xl font-bold mb-6 bg-gradient-to-r from-primary to-primary/80 bg-clip-text text-transparent drop-shadow-sm">
-          Encuentra el profesional perfecto
+          {t("title")}
         </h1>
         <p className="text-lg md:text-xl text-gray-700 mb-12 max-w-3xl mx-auto font-medium">
-          Conectamos tu hogar con expertos verificados en tu ciudad
+          {t("subtitle")}
         </p>
 
         <form onSubmit={handleSearch} className="mb-10 max-w-2xl mx-auto">
@@ -51,13 +52,13 @@ export default function HeroSection() {
               value={searchText}
               onChange={(e) => setSearchText(e.target.value)}
               className="block w-full pl-10 pr-3 py-4 border border-gray-300 rounded-xl shadow-sm focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary text-lg"
-              placeholder="¿Qué servicio necesitas?"
+              placeholder={t("placeholder")}
             />
             <button
               type="submit"
               className="absolute right-1.5 top-1.5 px-6 py-2.5 bg-primary text-white rounded-lg font-medium hover:bg-primary/90 transition-colors"
             >
-              Buscar
+              {t('search')}
             </button>
           </div>
         </form>

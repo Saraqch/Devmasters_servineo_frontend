@@ -1,7 +1,8 @@
 'use client';
 
-import { useState, useRef, useEffect } from 'react';
-import { useAppDispatch, useAppSelector } from '@/app/redux/hooks';
+import { useState, useRef, useEffect } from "react"
+import { useTranslations } from 'next-intl'
+import { useAppDispatch, useAppSelector } from "@/app/redux/hooks"
 import {
   setSearchQuery,
   addRecentSearch,
@@ -14,12 +15,14 @@ import {
 import { Search, Settings2, Trash2, X, Clock, FilterIcon } from 'lucide-react';
 
 export function SearchHeader() {
-  const dispatch = useAppDispatch();
-  const searchQuery = useAppSelector(selectSearchQuery);
-  const recentSearches = useAppSelector(selectRecentSearches);
-  const sidebarOpen = useAppSelector(selectSidebarOpen);
-  const [showRecent, setShowRecent] = useState(false);
-  const searchRef = useRef<HTMLDivElement>(null);
+  const t = useTranslations('search')
+  
+  const dispatch = useAppDispatch()
+  const searchQuery = useAppSelector(selectSearchQuery)
+  const recentSearches = useAppSelector(selectRecentSearches)
+  const sidebarOpen = useAppSelector(selectSidebarOpen)
+  const [showRecent, setShowRecent] = useState(false)
+  const searchRef = useRef<HTMLDivElement>(null)
 
   // Close dropdown when clicking outside
   useEffect(() => {
@@ -56,7 +59,7 @@ export function SearchHeader() {
           type="button"
           onClick={() => dispatch(setSidebarOpen(!sidebarOpen))}
           className="p-2.5 hover:bg-primary/10 rounded-lg transition-all hover:scale-110 border-2 border-border"
-          title="Abrir filtros"
+          title={t('openFilters')}
         >
           <FilterIcon className="w-5 h-5" />
         </button>
@@ -66,7 +69,7 @@ export function SearchHeader() {
             <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground group-focus-within:text-primary transition-colors" />
             <input
               type="text"
-              placeholder="¿Qué servicio necesitas?"
+              placeholder={t('placeholder')}
               value={searchQuery}
               onChange={(e) => dispatch(setSearchQuery(e.target.value))}
               onFocus={() => setShowRecent(true)}
@@ -81,7 +84,7 @@ export function SearchHeader() {
                   setShowRecent(true);
                 }}
                 className="absolute right-3 top-1/2 -translate-y-1/2 p-1 hover:bg-primary/10 rounded-full transition-all"
-                title="Limpiar búsqueda"
+                title={t('clearSearch')}
               >
                 <X className="w-4 h-4 text-muted-foreground" />
               </button>
@@ -93,7 +96,7 @@ export function SearchHeader() {
               <div className="p-3">
                 <div className="flex items-center justify-between mb-2 px-1">
                   <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
-                    Búsquedas recientes
+                    {t('recentSearches')}
                   </p>
                   <button
                     type="button"
@@ -104,7 +107,7 @@ export function SearchHeader() {
                     className="text-xs text-destructive hover:text-destructive/80 flex items-center gap-1 transition-colors"
                   >
                     <Trash2 className="w-3 h-3" />
-                    Borrar
+                    {t('clear')}
                   </button>
                 </div>
                 <div className="space-y-1 max-h-60 overflow-y-auto">
@@ -129,13 +132,13 @@ export function SearchHeader() {
           type="submit"
           className="px-6 py-3 bg-primary text-primary-foreground rounded-xl hover:shadow-xl hover:shadow-primary/30 hover:scale-105 transition-all font-semibold whitespace-nowrap"
         >
-          Buscar
+          {t('buttonSearch')}
         </button>
 
         <button
           type="button"
           className="p-3 hover:bg-primary/10 rounded-xl transition-all hover:scale-110 border-2 border-border"
-          title="Más filtros"
+          title={t('moreFilters')}
         >
           <Settings2 className="w-5 h-5" />
         </button>

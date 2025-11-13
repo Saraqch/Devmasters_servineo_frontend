@@ -1,7 +1,8 @@
 'use client';
 
-import { ChevronLeft, ChevronRight } from 'lucide-react';
-import { useState } from 'react';
+import { useTranslations } from "next-intl";
+import { ChevronLeft, ChevronRight } from "lucide-react"
+import { useState } from "react"
 
 const inspirationProjects = [
   {
@@ -28,7 +29,8 @@ const inspirationProjects = [
 ];
 
 export default function InspirationSection() {
-  const [currentSlide, setCurrentSlide] = useState(0);
+  const t=useTranslations("Inspiration");
+  const [currentSlide, setCurrentSlide] = useState(0)
 
   const nextSlide = () => {
     setCurrentSlide((prev) => (prev + 1) % inspirationProjects.length);
@@ -45,11 +47,9 @@ export default function InspirationSection() {
       <div className="max-w-5xl mx-auto">
         {/* Header */}
         <div className="text-center mb-12">
-          <h2 className="text-3xl md:text-4xl font-bold text-gray-800 mb-4">
-            Inspiración para tu hogar
-          </h2>
+          <h2 className="text-3xl md:text-4xl font-bold text-gray-800 mb-4">{t("insTitle")}</h2>
           <p className="text-lg text-gray-600 max-w-2xl mx-auto">
-            Descubre ideas y proyectos realizados por nuestros profesionales expertos
+            {t("insDescription")}
           </p>
         </div>
 

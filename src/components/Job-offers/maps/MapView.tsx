@@ -1,10 +1,11 @@
 'use client';
 
-import { useState, useEffect, useRef, useCallback } from 'react';
-import type { JobOffer } from '@/app/lib/mock-data';
-import { userLocation } from '@/app/lib/mock-data';
-import { JobQuickInfo } from './JobQuickInfo';
-import { ZoomIn, ZoomOut, Locate, MapPin } from 'lucide-react';
+import { useState, useEffect, useRef, useCallback } from "react"
+import { useTranslations } from 'next-intl'
+import type { JobOffer } from "@/app/lib/mock-data"
+import { userLocation } from "@/app/lib/mock-data"
+import { JobQuickInfo } from "./JobQuickInfo"
+import { ZoomIn, ZoomOut, Locate, MapPin } from "lucide-react"
 import type { Map, Marker } from 'leaflet';
 
 interface MapViewProps {
@@ -13,13 +14,14 @@ interface MapViewProps {
 }
 
 export function MapView({ offers, onOfferClick }: MapViewProps) {
-  const [isClient, setIsClient] = useState(false);
-  const [hoveredOffer, setHoveredOffer] = useState<JobOffer | null>(null);
-  const mapRef = useRef<HTMLDivElement>(null);
-  const mapInstanceRef = useRef<Map | null>(null);
-  const markersRef = useRef<Marker[]>([]);
-  const userMarkerRef = useRef<Marker | null>(null);
-  const hoverTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const t = useTranslations('jobOffers.map')
+  const [isClient, setIsClient] = useState(false)
+  const [hoveredOffer, setHoveredOffer] = useState<JobOffer | null>(null)
+  const mapRef = useRef<HTMLDivElement>(null)
+  const mapInstanceRef = useRef<Map | null>(null)
+  const markersRef = useRef<Marker[]>([])
+  const userMarkerRef = useRef<Marker | null>(null)
+  const hoverTimeoutRef = useRef<NodeJS.Timeout | null>(null)
 
   const calculateDistance = (lat1: number, lng1: number, lat2: number, lng2: number) => {
     const R = 6371;
@@ -98,21 +100,19 @@ export function MapView({ offers, onOfferClick }: MapViewProps) {
           });
         }
 
-        // Popup al hacer click
-        marker.bindPopup(
-          `<div class="text-center p-3">
+      // Popup al hacer click - NO traducir fixerName ni description (son datos)
+      marker.bindPopup(
+        `<div class="text-center p-3">
           <p class="font-bold text-sm text-gray-800 mb-1">${offer.fixerName}</p>
           <p class="text-xs text-gray-600 mb-2">${offer.description}</p>
-          <p class="text-xs text-primary font-semibold">${distance} km de distancia</p>
+          <p class="text-xs text-primary font-semibold">${distance} km ${t('distance')}</p>
         </div>`,
           { className: 'custom-popup' },
         );
 
-        markersRef.current.push(marker);
-      });
-    },
-    [],
-  ); // Dependencias: calculateDistance y userLocation son estables, pero si no, se pueden incluir
+      markersRef.current.push(marker)
+    })
+  }, [t])
 
   useEffect(() => {
     setIsClient(true);
@@ -153,11 +153,10 @@ export function MapView({ offers, onOfferClick }: MapViewProps) {
       // Marcador de usuario
       const userMarker = L.marker([userLocation.lat, userLocation.lng], {
         icon: userIcon,
-      }).addTo(map);
-
+      }).addTo(map)
       userMarker.bindPopup(
         `<div class="text-center p-3">
-          <p class="font-bold text-sm text-blue-400 mb-1">Tu ubicación</p>
+          <p class="font-bold text-sm text-blue-400 mb-1">${t('yourLocation')}</p>
           <p class="text-xs text-gray-600">${userLocation.address}</p>
         </div>`,
         { className: 'custom-popup' },
@@ -188,8 +187,8 @@ export function MapView({ offers, onOfferClick }: MapViewProps) {
         mapInstanceRef.current.remove();
         mapInstanceRef.current = null;
       }
-    };
-  }, [isClient, offers, updateMarkers]);
+    }
+  }, [isClient, offers, updateMarkers, t])
 
   // Efecto para actualizar marcadores cuando las ofertas cambian
   useEffect(() => {
@@ -230,7 +229,7 @@ export function MapView({ offers, onOfferClick }: MapViewProps) {
   if (!isClient) {
     return (
       <div className="w-full h-full rounded-2xl overflow-hidden shadow-lg border border-blue-200 bg-gray-200 flex items-center justify-center">
-        <p>Cargando mapa...</p>
+        <p>{t('loading')}</p>
       </div>
     );
   }
@@ -292,30 +291,30 @@ export function MapView({ offers, onOfferClick }: MapViewProps) {
       <div className="absolute bottom-4 left-4 bg-white/20 backdrop-blur-xl border-1 border-primary rounded-2xl p-4 shadow-2xl shadow-blue-500/20 z-[1000] animate-in fade-in slide-in-from-left duration-500 max-w-xs">
         <h4 className="font-bold text-sm text-primary mb-3 flex items-center gap-2">
           <MapPin className="w-4 h-4" />
-          Detalles del mapa
+          {t('mapDetails')}
         </h4>
         <div className="space-y-2.5 text-sm">
           <div className="flex items-center gap-3 group cursor-default">
             <div className="relative">
               <div className="w-5 h-5 rounded-full bg-primary border-2 border-white/50 shadow-lg transition-transform duration-300 group-hover:scale-110" />
             </div>
-            <span className="font-medium">Tu ubicación</span>
+            <span className="font-medium">{t('yourLocation')}</span>
           </div>
           <div className="flex items-center gap-3 group cursor-default">
             <div className="relative">
               <div className="w-5 h-5 rounded-full bg-black/20 border-2 border-white/50 shadow-lg transition-transform duration-300 group-hover:scale-110" />
             </div>
-            <span className="font-medium">Ofertas de trabajo</span>
+            <span className="font-medium">{t('jobOffers')}</span>
           </div>
           <div className="flex items-center gap-3 pt-2 border-t border-blue-500/30">
             <div className="w-5 h-5 rounded-full border-2 border-blue-500/60 bg-blue-500/10" />
-            <span className="text-gray-600 text-xs">Radio: ~1km</span>
+            <span className="text-gray-600 text-xs">{t('radius')}</span>
           </div>
         </div>
 
         <div className="mt-3 pt-3 border-t border-blue-500/30">
           <p className="text-xs font-semibold text-primary">
-            {offers.length} {offers.length === 1 ? 'oferta disponible' : 'ofertas disponibles'}
+            {offers.length} {offers.length === 1 ? t('availableOffers.singular') : t('availableOffers.plural')}
           </p>
         </div>
       </div>

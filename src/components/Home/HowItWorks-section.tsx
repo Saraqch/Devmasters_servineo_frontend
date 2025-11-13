@@ -1,27 +1,29 @@
 'use client';
 import { Search, UserCheck, MessageSquare, Star } from 'lucide-react';
+import { useTranslations } from "next-intl";
 
 export default function HowItWorksSection() {
+  const t=useTranslations("HowItWorks");
   const steps = [
     {
       icon: <Search className="w-8 h-8 text-primary" />,
-      title: 'Busca',
-      description: 'Encuentra el servicio que necesitas',
+      title: t("HowItWorksSearch"),
+      description: t("HowItWorksSearchDescription"),
     },
     {
       icon: <UserCheck className="w-8 h-8 text-primary" />,
-      title: 'Compara',
-      description: 'Revisa perfiles y calificaciones',
+      title: t("HowItWorksCompare"),
+      description: t("HowItWorksCompareDescription"),
     },
     {
       icon: <MessageSquare className="w-8 h-8 text-primary" />,
-      title: 'Contacta',
-      description: 'Habla directamente con los profesionales',
+      title: t("HowItWorksContact"),
+      description: t("HowItWorksContactDescription"),
     },
     {
       icon: <Star className="w-8 h-8 text-primary" />,
-      title: 'Califica',
-      description: 'Comparte tu experiencia',
+      title: t("HowItWorksRate"),
+      description: t("HowItWorksRateDescription"),
     },
   ];
 
@@ -29,9 +31,11 @@ export default function HowItWorksSection() {
     <section className="py-16 px-4 bg-gray-50">
       <div className="max-w-7xl mx-auto">
         <div className="text-center mb-12">
-          <h2 className="text-3xl md:text-4xl font-bold text-gray-800 mb-4">¿Cómo funciona?</h2>
+          <h2 className="text-3xl md:text-4xl font-bold text-gray-800 mb-4">
+            {t("question")}
+          </h2>
           <p className="text-lg text-gray-600 max-w-2xl mx-auto">
-            Encuentra y contrata al profesional ideal en simples pasos
+            {t("questionResponse")}
           </p>
         </div>
 

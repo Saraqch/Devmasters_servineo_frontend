@@ -1,0 +1,98 @@
+{
+    "HeroSection":
+    {
+        "title": "Encuentra el profesional perfecto",
+        "subtitle": "Conectamos tu hogar con expertos verificados en tu ciudad",
+        "placeholder": "¿Que servicio necesitas?",
+        "search": "Buscar"
+    },
+    "jobOffers": 
+    {
+        "pageTitle": "Ofertas de Trabajo",
+        "available": "disponibles",
+        "backToHome": "Inicio",
+        "viewModes": {
+        "list": "Lista",
+        "map": "Mapa"
+        },
+        "emptyState": {
+        "title": "No se encontraron ofertas",
+        "description": "No hay ofertas que coincidan con tu búsqueda o filtros actuales."
+        },
+        "map": {
+            "loading": "Cargando mapa...",
+            "yourLocation": "Tu ubicación",
+            "jobOffers": "Ofertas de trabajo",
+            "radius": "Radio: ~1km",
+            "mapDetails": "Detalles del mapa",
+            "availableOffers": {
+                "singular": "oferta disponible",
+                "plural": "ofertas disponibles"
+            },
+            "distance": "de distancia"
+        }
+    },
+    "search": {
+    "placeholder": "¿Qué servicio necesitas?",
+    "buttonSearch": "Buscar",
+    "openFilters": "Abrir filtros",
+    "clearSearch": "Limpiar búsqueda",
+    "moreFilters": "Más filtros",
+    "recentSearches": "Búsquedas recientes",
+    "clear": "Borrar"
+    },
+    "filtersPanel": {
+        "filters": "Filtros",
+        "resetButton": {
+            "desktop": "Resetear",
+            "mobile": "Resetear Filtros"
+        },
+        "fixerName": "Nombre de Fixer",
+        "city": "Ciudad",
+        "jobCategory": "Tipo de Trabajo"
+    },
+    "navigation": {
+        "home": "Inicio",
+        "jobOffers": "Ofertas de trabajo",
+        "login": "Iniciar Sesión",
+        "register": "Regístrate",
+        "logo": "LOGO"
+    },
+
+    "cta":{
+        "footerTitle": "¿Listo para encontrar al profesional ideal?",
+        "footerSubtitle": "Únete a miles de personas que ya encontraron al profesional perfecto para sus necesidades",
+        "footerButton": "Registrarse gratis",
+        "footerButtonView": "Ver servicios"
+    },
+    "HowItWorks":{
+        "question":"¿Cómo funciona?",
+        "questionResponse": "Encuentra y contrata al profesional ideal en simples pasos",
+        "HowItWorksSearch": "Busca",
+        "HowItWorksSearchDescription": "Encuentra el servicio que necesitas",
+        "HowItWorksCompare": "Compara",
+        "HowItWorksCompareDescription": "Revisa perfiles y calificaciones",
+        "HowItWorksContact": "Contacta",
+        "HowItWorksContactDescription": "Habla directamente con los profesionales",
+        "HowItWorksRate": "Califica",
+        "HowItWorksRateDescription": "Comparte tu experiencia"
+    },
+    "Inspiration":{
+        "insTitle":"Inspiración para tu hogar",
+        "insDescription": "Descubre ideas y proyectos realizados por nuestros profesionales expertos"
+    },
+    "Map":{
+        "mapTitle":"Encuentra servicios cerca de ti",
+        "mapDescription": "Explora los profesionales disponibles en tu zona",
+        "mapInteractive": "Mapa interactivo aqui"
+    },
+    "RecentOffer":{
+        "recOfTitle":"Ofertas Recientes",
+        "recOfDescription": "Descubre las últimas ofertas publicadas",
+        "viewAll": "Ver todas →"
+    },
+    "Services":{
+        "serTitle":"Nuestros Servicios",
+        "serDescription": "Encuentra el servicio perfecto para tus necesidades"
+    }
+}

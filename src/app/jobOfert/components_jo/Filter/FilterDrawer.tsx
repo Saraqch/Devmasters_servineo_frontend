@@ -3,6 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import { roboto } from '../../../fonts';
 import { validateFilters } from '../../validators/filter.validator';
+import { useAppSelector } from '../../hooks/hook';
 
 interface FilterState {
   range: string[];
@@ -14,23 +15,29 @@ interface FilterDrawerProps {
   isOpen: boolean;
   onClose: () => void;
   onFiltersApply?: (filters: FilterState) => void;
-  onReset?: () => void; // Nuevo: callback para resetear a resultados iniciales
+  onReset?: () => void;
 }
 
 export function FilterDrawer({ isOpen, onClose, onFiltersApply, onReset }: FilterDrawerProps) {
+  const filtersFromStore = useAppSelector((state) => state.jobOffers.filters);
   const [openSections, setOpenSections] = useState<{ [key: string]: boolean }>({
     fixer: false,
     ciudad: false,
     trabajo: false,
   });
 
-  const [selectedRanges, setSelectedRanges] = useState<string[]>([]);
-  const [selectedCity, setSelectedCity] = useState<string>('');
-  const [selectedJobs, setSelectedJobs] = useState<string[]>([]);
+  const [selectedRanges, setSelectedRanges] = useState<string[]>(filtersFromStore.range || []);
+  const [selectedCity, setSelectedCity] = useState<string>(filtersFromStore.city || '');
+  const [selectedJobs, setSelectedJobs] = useState<string[]>(filtersFromStore.category || []);
+
+  useEffect(() => {
+  setSelectedRanges(filtersFromStore.range || []);
+  setSelectedCity(filtersFromStore.city || '');
+  setSelectedJobs(filtersFromStore.category || []);
+  }, [filtersFromStore]);
 
   useEffect(() => {
     if (isOpen) {
-      // En lugar de 'hidden', usa 'scroll' para mantener el espacio de la scrollbar
       document.body.style.overflowY = 'scroll';
     } else {
       document.body.style.overflowY = 'unset';
@@ -47,7 +54,6 @@ export function FilterDrawer({ isOpen, onClose, onFiltersApply, onReset }: Filte
     }));
   };
 
-  // Aplicar filtro automáticamente cuando cambia un rango
   const handleRangeChange = (range: string) => {
     const newRanges = selectedRanges.includes(range)
       ? selectedRanges.filter((r) => r !== range)
@@ -57,14 +63,12 @@ export function FilterDrawer({ isOpen, onClose, onFiltersApply, onReset }: Filte
     applyFilters(newRanges, selectedCity, selectedJobs);
   };
 
-  // Aplicar filtro automáticamente cuando cambia la ciudad
   const handleCityChange = (city: string) => {
     const newCity = selectedCity === city ? '' : city;
     setSelectedCity(newCity);
     applyFilters(selectedRanges, newCity, selectedJobs);
   };
 
-  // Aplicar filtro automáticamente cuando cambia el trabajo
   const handleJobChange = (job: string) => {
     const newJobs = selectedJobs.includes(job)
       ? selectedJobs.filter((j) => j !== job)
@@ -74,12 +78,11 @@ export function FilterDrawer({ isOpen, onClose, onFiltersApply, onReset }: Filte
     applyFilters(selectedRanges, selectedCity, newJobs);
   };
 
-  // Función para aplicar filtros
   const applyFilters = (ranges: string[], city: string, jobs: string[]) => {
     const filtersToValidate = { range: ranges, city, category: jobs };
     const { isValid, data } = validateFilters(filtersToValidate);
 
-    if (!isValid || !data) return; // ignoramos filtros inválidos
+    if (!isValid || !data) return;
 
     if (onFiltersApply) {
       onFiltersApply({
@@ -89,14 +92,13 @@ export function FilterDrawer({ isOpen, onClose, onFiltersApply, onReset }: Filte
     }
   };
 
-  // Resetear y aplicar los resultados iniciales
   const handleReset = () => {
     setSelectedRanges([]);
     setSelectedCity('');
     setSelectedJobs([]);
 
     if (onReset) {
-      onReset(); // Restaura los resultados iniciales
+      onReset();
     } else if (onFiltersApply) {
       onFiltersApply({
         range: [],

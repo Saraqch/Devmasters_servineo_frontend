@@ -495,7 +495,7 @@ export const SearchBar = ({ onSearch, onFilter }: SearchBarProps) => {
                                 e.stopPropagation();
                                 previewItem(item);
                               }}
-                              className="sm:hidden p-1 rounded text-slate-400"
+                              className="2xl:hidden p-1 rounded text-slate-400"
                               aria-label={`Previsualizar ${item}`}
                             >
                               <ArrowUpLeft className="w-4 h-4" />
@@ -507,7 +507,7 @@ export const SearchBar = ({ onSearch, onFilter }: SearchBarProps) => {
                                 e.stopPropagation();
                                 await deleteHistoryItem(item);
                               }}
-                              className="hidden sm:inline-flex opacity-0 group-hover:opacity-100 text-slate-400 hover:text-red-500 transition-opacity cursor-pointer"
+                              className="hidden 2xl:inline-flex opacity-0 group-hover:opacity-100 text-slate-400 hover:text-red-500 transition-opacity cursor-pointer"
                               aria-label={`Eliminar ${item}`}
                             >
                               <X className="w-4 h-4" />

@@ -221,7 +221,7 @@ export default function JobOffersPage() {
     return () => {
       window.removeEventListener('beforeunload', saveScrollPosition);
     };
-  }, []);  
+  }, []);
 
   // Restaurar posición del scroll
   useEffect(() => {

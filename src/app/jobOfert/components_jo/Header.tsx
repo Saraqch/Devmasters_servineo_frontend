@@ -76,7 +76,7 @@ const Header = () => {
           >
             Ayuda
           </Link>
-           <Link
+          <Link
             href="/users"
             className="text-gray-700 hover:text-[#2B6AE0]/90 font-medium relative after:absolute after:bottom-0 after:left-0 after:h-0.5 after:w-0 after:bg-[#2B6AE0] after:transition-all hover:after:w-full"
           >

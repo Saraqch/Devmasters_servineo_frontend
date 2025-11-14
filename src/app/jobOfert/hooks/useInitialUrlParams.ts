@@ -98,7 +98,7 @@ export const useInitialUrlParams = () => {
         limit: urlLimit,
         titleOnly,
         exact,
-        isInitialSearch: true, 
+        isInitialSearch: true,
       }),
     );
   }, [searchParams, dispatch]);

@@ -31,9 +31,9 @@ export function FilterDrawer({ isOpen, onClose, onFiltersApply, onReset }: Filte
   const [selectedJobs, setSelectedJobs] = useState<string[]>(filtersFromStore.category || []);
 
   useEffect(() => {
-  setSelectedRanges(filtersFromStore.range || []);
-  setSelectedCity(filtersFromStore.city || '');
-  setSelectedJobs(filtersFromStore.category || []);
+    setSelectedRanges(filtersFromStore.range || []);
+    setSelectedCity(filtersFromStore.city || '');
+    setSelectedJobs(filtersFromStore.category || []);
   }, [filtersFromStore]);
 
   useEffect(() => {

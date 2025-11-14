@@ -221,7 +221,7 @@ export default function JobOffersPage() {
     return () => {
       window.removeEventListener('beforeunload', saveScrollPosition);
     };
-  }, []);
+  }, []);  
 
   // Restaurar posición del scroll
   useEffect(() => {
@@ -359,7 +359,7 @@ export default function JobOffersPage() {
         sortBy: backendSort,
         date: date || undefined,
         rating: rating ?? undefined,
-        page: paginaActual,
+        page: 1,
         limit: registrosPorPagina,
         titleOnly,
         exact,

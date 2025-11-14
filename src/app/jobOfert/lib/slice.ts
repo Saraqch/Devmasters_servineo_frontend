@@ -387,6 +387,14 @@ const jobOffersSlice = createSlice({
         const payload = action.payload as FetchOffersResult;
         const key = payload.listKey || 'offers';
 
+        if (payload.page < 1) {// Caso: página negativa o cero//
+          state.error = `La página ${payload.page} no es válida. Debe ser mayor o igual a 1.`;
+          state.paginaActual = 1;
+
+          saveToStorage('jobOffers_paginaActual', 1);// actualizar en storage//
+          return;
+        }
+        
         // Asegurar que exista la entrada para esta clave
         if (!state.paginaciones[key]) {
           state.paginaciones[key] = {
@@ -428,6 +436,7 @@ const jobOffersSlice = createSlice({
           action.payload.requestedPage > action.payload.totalPages &&
           action.payload.totalPages > 0
         ) {
+         
           state.error = `Página ${action.payload.requestedPage} no existe. Total de páginas: ${action.payload.totalPages}. Ajustando a página 1.`;
           state.paginaActual = 1;
           saveToStorage('jobOffers_paginaActual', 1);

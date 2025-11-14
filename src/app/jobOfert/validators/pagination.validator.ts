@@ -2,7 +2,7 @@
 import { z } from 'zod';
 
 // Límites permitidos específicamente para JobOfert
-const JOBOFERT_ALLOWED_LIMITS: number[] = [10, 20, 50, 100, 8];
+const JOBOFERT_ALLOWED_LIMITS: number[] = [10, 20, 50, 100];
 
 const PaginationSchema = z.object({
   page: z.number().int().min(1, { message: 'La página mínima es 1.' }).default(1),

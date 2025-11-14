@@ -2,6 +2,9 @@
 import { createSlice, createAsyncThunk, PayloadAction } from '@reduxjs/toolkit';
 import { api, ApiResponse } from '@/lib/api';
 import { JOBOFERT_ALLOWED_LIMITS } from '../validators/pagination.validator';
+import { setSearchQuery } from '@/app/redux/slice/filterSlice';
+import { Search } from 'lucide-react';
+import { createSearchParamsFromClient } from 'next/dist/server/request/search-params';
 
 export interface OfferData {
   _id: string;
@@ -39,6 +42,7 @@ interface FetchOffersResult {
   limit: number;
   totalPages: number;
   requestedPage: number;
+  searchText: string; //
 }
 
 export interface FilterState {
@@ -227,6 +231,7 @@ export const fetchOffers = createAsyncThunk<FetchOffersResult, FetchOffersParams
           limit: params.limit,
           totalPages: totalPages,
           requestedPage: params.page,
+          searchText: params.searchText, //
         };
       } else {
         return rejectWithValue(response.error || 'Error al cargar las ofertas');
@@ -381,6 +386,14 @@ const jobOffersSlice = createSlice({
         const payload = action.payload as FetchOffersResult;
         const key = payload.listKey || 'offers';
 
+        if (payload.page < 1) {// Caso: página negativa o cero//
+          state.error = `La página ${payload.page} no es válida. Debe ser mayor o igual a 1.`;
+          state.paginaActual = 1;
+
+          saveToStorage('jobOffers_paginaActual', 1);// actualizar en storage//
+          return;
+        }
+        
         // Asegurar que exista la entrada para esta clave
         if (!state.paginaciones[key]) {
           state.paginaciones[key] = {
@@ -409,12 +422,19 @@ const jobOffersSlice = createSlice({
         // Guardar en localStorage
         saveToStorage('jobOffers_paginaActual', state.paginaActual);
 
+        
+
         // Manejo de páginas que no existen
+       /* const searchTerm = action.payload.searchText?.trim()
+         ? `'${action.payload.searchText.trim()}'`
+          : 'la búsqueda actual';*/
+
         if (
-          action.payload.requestedPage > action.payload.totalPages &&
-          action.payload.totalPages > 0
+          payload.requestedPage > action.payload.totalPages &&
+          payload.totalPages > 0
         ) {
-          state.error = `Página ${action.payload.requestedPage} no existe. Total de páginas: ${action.payload.totalPages}. Ajustando a página 1.`;
+          //state.error = `No existe la página ${action.payload.requestedPage} para ${searchTerm}. Máximo disponible: ${action.payload.totalPages}.`;
+          state.error = `Página ${payload.requestedPage} no existe. Total de páginas: ${payload.totalPages}. Ajustando a página 1.`;
           state.paginaActual = 1;
           saveToStorage('jobOffers_paginaActual', 1);
         } else {

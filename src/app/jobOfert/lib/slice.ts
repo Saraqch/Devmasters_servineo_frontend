@@ -39,6 +39,7 @@ interface FetchOffersResult {
   limit: number;
   totalPages: number;
   requestedPage: number;
+  isInitialSearch?: boolean; // Flag para indicar si es la búsqueda inicial
 }
 
 export interface FilterState {
@@ -65,6 +66,7 @@ interface JobOffersState {
   paginaActual: number;
   registrosPorPagina: number;
   totalRegistros: number;
+  preservedTotalRegistros: number; // Total preservado de la búsqueda inicial
   totalPages: number;
   paginaciones: Record<string, PaginationState>;
 }
@@ -118,6 +120,7 @@ const getInitialJobOffersState = (): JobOffersState => {
     paginaActual: savedPage,
     registrosPorPagina: savedPageSize,
     totalRegistros: 0,
+    preservedTotalRegistros: 0,
     totalPages: 0,
     paginaciones: {
       offers: {
@@ -144,6 +147,7 @@ interface FetchOffersParams {
   // optional integer rating (1..5) meaning filter for that integer range (1 -> 1.0-1.9)
   rating?: number;
   listKey?: string;
+  isInitialSearch?: boolean; // Flag para indicar si es búsqueda inicial
 }
 
 export const fetchOffers = createAsyncThunk<FetchOffersResult, FetchOffersParams>(
@@ -227,6 +231,7 @@ export const fetchOffers = createAsyncThunk<FetchOffersResult, FetchOffersParams
           limit: params.limit,
           totalPages: totalPages,
           requestedPage: params.page,
+          isInitialSearch: params.isInitialSearch,
         };
       } else {
         return rejectWithValue(response.error || 'Error al cargar las ofertas');
@@ -315,6 +320,7 @@ const jobOffersSlice = createSlice({
       state.sortBy = 'recent';
       state.search = '';
       state.paginaActual = 1;
+      state.preservedTotalRegistros = 0; // Reset el total preservado
 
       // Guardar en localStorage
       saveToStorage('jobOffers_filters', state.filters);
@@ -400,10 +406,18 @@ const jobOffersSlice = createSlice({
         state.paginaciones[key].totalRegistros = payload.total;
         state.paginaciones[key].totalPages = payload.totalPages;
 
+        // IMPORTANTE: Si es una búsqueda inicial (página 1 y marcada como inicial), preservar el total
+        if (payload.page === 1 && payload.isInitialSearch) {
+          state.preservedTotalRegistros = payload.total;
+        }
+
+        // Usar el total preservado si está disponible, sino usar el del payload
+        const totalToUse = state.preservedTotalRegistros > 0 ? state.preservedTotalRegistros : payload.total;
+
         // Sincronizar campos top-level para compatibilidad
         state.paginaActual = state.paginaciones[key].paginaActual;
         state.registrosPorPagina = state.paginaciones[key].registrosPorPagina;
-        state.totalRegistros = state.paginaciones[key].totalRegistros;
+        state.totalRegistros = totalToUse;
         state.totalPages = state.paginaciones[key].totalPages;
 
         // Guardar en localStorage

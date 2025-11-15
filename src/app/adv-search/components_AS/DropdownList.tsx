@@ -210,7 +210,15 @@ const DropdownList: React.FC<DropdownListProps> = ({
     );
   }
 
-  if (categories.length === 0) {
+  // Combine filtered categories with selected ones that are not in the filtered list
+  const selectedButNotInFilter = selectedCategories.filter(
+    (selectedTag) => !categories.includes(selectedTag)
+  );
+  
+  // Create display list: filtered categories + selected ones that don't match current filter
+  const displayCategories = [...categories, ...selectedButNotInFilter];
+
+  if (displayCategories.length === 0) {
     return (
       <div className="w-full border border-gray-300 rounded-lg p-4">
         <p className="text-gray-500 text-sm text-center">No hay categorías disponibles</p>
@@ -221,22 +229,31 @@ const DropdownList: React.FC<DropdownListProps> = ({
   return (
     <div className="w-full border border-gray-300 rounded-lg overflow-hidden">
       <div className="max-h-64 overflow-y-auto">
-        {categories.map((category, index) => (
-          <label
-            key={`${category}-${index}`}
-            className={`flex items-center px-4 py-3 cursor-pointer hover:bg-gray-50 transition-colors ${
-              index !== categories.length - 1 ? 'border-b border-gray-200' : ''
-            }`}
-          >
-            <input
-              type="checkbox"
-              checked={selectedCategories.includes(category)}
-              onChange={() => handleCheckboxChange(category)}
-              className="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-2 focus:ring-blue-500 cursor-pointer"
-            />
-            <span className="ml-3 text-sm text-gray-700 capitalize">{category}</span>
-          </label>
-        ))}
+        {displayCategories.map((category, index) => {
+          // Check if this category is from a previous selection (not in current filtered list)
+          const isFromPreviousSelection = !categories.includes(category);
+          
+          return (
+            <label
+              key={`${category}-${index}`}
+              className={`flex items-center px-4 py-3 cursor-pointer hover:bg-gray-50 transition-colors ${
+                index !== displayCategories.length - 1 ? 'border-b border-gray-200' : ''
+              } ${isFromPreviousSelection ? 'bg-gray-50' : ''}`}
+            >
+              <input
+                type="checkbox"
+                checked={selectedCategories.includes(category)}
+                onChange={() => handleCheckboxChange(category)}
+                className="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-2 focus:ring-blue-500 cursor-pointer"
+              />
+              <span className={`ml-3 text-sm capitalize ${
+                isFromPreviousSelection ? 'text-gray-500 italic' : 'text-gray-700'
+              }`}>
+                {category}
+              </span>
+            </label>
+          );
+        })}
       </div>
     </div>
   );

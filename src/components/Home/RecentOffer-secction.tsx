@@ -1,14 +1,13 @@
-// src/components/Home/RecentOffer-secction.tsx
+// src/components/Home/RecentOffer-section.tsx
 'use client';
 
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
-import { useAppDispatch, useAppSelector } from '@/app/jobOfert/hooks/hook';
-import { fetchOffers } from '@/app/jobOfert/lib/slice';
 import RecentOfferCard from './RecentOfferCard';
 import { categoryImages } from '@/app/jobOfert/lib/constants/img';
 import { mockFixers } from '@/app/lib/mock-data';
-import { JobOfferModal } from '@/components/Job-offers/Job-offer-modal';
+import { JobOfferModal } from '@/Components/Job-offers/Job-offer-modal';
+import { api } from '@/lib/api';
 
 // Type for the offer data from the backend
 interface OfferData {
@@ -30,11 +29,19 @@ interface OfferData {
   city?: string;
   rating?: number;
   completedJobs?: number;
+  allImages?: string[];
   location?: {
     lat?: number;
     lng?: number;
     address?: string;
   };
+}
+
+interface OfferResponse {
+  total: number;
+  count: number;
+  data: OfferData[];
+  currentPage?: number;
 }
 
 // Type for the adapted offer format
@@ -62,10 +69,15 @@ interface AdaptedOffer {
 }
 
 export default function RecentOffersSection() {
-  const dispatch = useAppDispatch();
-
-  // Obtener datos del slice
-  const { trabajos, loading, error } = useAppSelector((state) => state.jobOffers);
+  // Estados
+  const [trabajos, setTrabajos] = useState<OfferData[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [hoveredCard, setHoveredCard] = useState<string | null>(null);
+  const [currentImageIndex, setCurrentImageIndex] = useState<Record<string, number>>({});
+  const [intervals, setIntervals] = useState<Record<string, NodeJS.Timeout>>({});
+  const [selectedOffer, setSelectedOffer] = useState<AdaptedOffer | null>(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
   // Función para obtener imágenes de categoría
   const getImagesForCategory = (jobId: string, category: string): string[] => {
@@ -84,7 +96,7 @@ export default function RecentOffersSection() {
     return selectedImages;
   };
 
-  // Función para adaptar datos de BD a formato mock (mismo que en page.tsx)
+  // Función para adaptar datos de BD a formato mock
   const adaptOfferToMockFormat = (offer: OfferData): AdaptedOffer | null => {
     if (!offer) return null;
 
@@ -93,7 +105,9 @@ export default function RecentOffersSection() {
       mockFixers.find((f) => f.id === fixerIdToUse) || mockFixers.find((f) => f.id === 'fixer-001');
 
     let photos: string[] = [];
-    if (offer.photos && offer.photos.length > 0) {
+    if (offer.allImages && offer.allImages.length > 0) {
+      photos = offer.allImages;
+    } else if (offer.photos && offer.photos.length > 0) {
       photos = offer.photos;
     } else if (offer.imagenUrl) {
       photos = [offer.imagenUrl];
@@ -125,29 +139,47 @@ export default function RecentOffersSection() {
     };
   };
 
-  // Cargar las 8 ofertas más recientes al montar el componente
+  // Fetch offers usando api.get
   useEffect(() => {
-    dispatch(
-      fetchOffers({
-        searchText: '',
-        filters: { range: [], city: '', category: [] },
-        sortBy: 'recent',
-        page: 1,
-        limit: 8, // 8 cards para mostrar en 4 columnas (2 filas)
-        listKey: 'recentOffers', // Clave única para esta lista
-      }),
-    );
-  }, [dispatch]);
+    const fetchOffers = async () => {
+      setLoading(true);
 
-  // Estados para el modal
-  const [selectedOffer, setSelectedOffer] = useState<AdaptedOffer | null>(null);
-  const [isModalOpen, setIsModalOpen] = useState(false);
+      try {
+        const urlParams = new URLSearchParams({
+          sortBy: 'recent',
+          page: '1',
+          limit: '8',
+        });
 
-  // Obtener las 8 ofertas más recientes
-  const recentOffers = trabajos.slice(0, 8);
+        const endpoint = `/api/devmaster/offers?${urlParams.toString()}`;
+        const response = await api.get<OfferResponse>(endpoint);
+
+        if (response.success && response.data) {
+          setTrabajos(response.data.data || []);
+          setError(null);
+        } else {
+          const errorMsg = response.error || 'Error al cargar ofertas';
+          setError(errorMsg);
+        }
+      } catch (err) {
+        setError(err instanceof Error ? err.message : 'Error de conexión');
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchOffers();
+  }, []);
+
+  // Cleanup intervals
+  useEffect(() => {
+    return () => {
+      Object.values(intervals).forEach(clearInterval);
+    };
+  }, [intervals]);
 
   // Adaptar trabajos con imágenes
-  const trabajosConImagenes = recentOffers.map((trabajo) => {
+  const trabajosConImagenes = trabajos.slice(0, 8).map((trabajo) => {
     const allImages = getImagesForCategory(trabajo._id, trabajo.category);
 
     return {
@@ -157,13 +189,118 @@ export default function RecentOffersSection() {
     };
   });
 
+  // Handlers para navegación de imágenes
+  const handleMouseEnter = (cardId: string, totalImages: number) => {
+    setHoveredCard(cardId);
+    if (totalImages > 1) {
+      const interval = setInterval(() => {
+        setCurrentImageIndex((prev) => ({
+          ...prev,
+          [cardId]: ((prev[cardId] || 0) + 1) % totalImages,
+        }));
+      }, 2000);
+
+      setIntervals((prev) => ({
+        ...prev,
+        [cardId]: interval,
+      }));
+    }
+  };
+
+  const handleMouseLeave = (cardId: string) => {
+    setHoveredCard(null);
+
+    if (intervals[cardId]) {
+      clearInterval(intervals[cardId]);
+      setIntervals((prev) => {
+        const newIntervals = { ...prev };
+        delete newIntervals[cardId];
+        return newIntervals;
+      });
+    }
+
+    setCurrentImageIndex((prev) => ({
+      ...prev,
+      [cardId]: 0,
+    }));
+  };
+
+  const handlePrevImage = (cardId: string, totalImages: number) => (e: React.MouseEvent) => {
+    e.stopPropagation();
+    if (intervals[cardId]) {
+      clearInterval(intervals[cardId]);
+    }
+    setCurrentImageIndex((prev) => ({
+      ...prev,
+      [cardId]: ((prev[cardId] || 0) - 1 + totalImages) % totalImages,
+    }));
+
+    const interval = setInterval(() => {
+      setCurrentImageIndex((prev) => ({
+        ...prev,
+        [cardId]: ((prev[cardId] || 0) + 1) % totalImages,
+      }));
+    }, 2000);
+
+    setIntervals((prev) => ({
+      ...prev,
+      [cardId]: interval,
+    }));
+  };
+
+  const handleNextImage = (cardId: string, totalImages: number) => (e: React.MouseEvent) => {
+    e.stopPropagation();
+    if (intervals[cardId]) {
+      clearInterval(intervals[cardId]);
+    }
+    setCurrentImageIndex((prev) => ({
+      ...prev,
+      [cardId]: ((prev[cardId] || 0) + 1) % totalImages,
+    }));
+
+    const interval = setInterval(() => {
+      setCurrentImageIndex((prev) => ({
+        ...prev,
+        [cardId]: ((prev[cardId] || 0) + 1) % totalImages,
+      }));
+    }, 2000);
+
+    setIntervals((prev) => ({
+      ...prev,
+      [cardId]: interval,
+    }));
+  };
+
   // Handler para abrir modal
-  const handleCardClick = (id: string) => {
-    const offer = trabajos.find((t: OfferData) => t._id === id);
-    if (offer) {
-      const adaptedOffer = adaptOfferToMockFormat(offer);
-      setSelectedOffer(adaptedOffer);
-      setIsModalOpen(true);
+  const handleCardClick = (offer: OfferData) => {
+    const adaptedOffer = adaptOfferToMockFormat(offer);
+    setSelectedOffer(adaptedOffer);
+    setIsModalOpen(true);
+  };
+
+  const retryFetch = async () => {
+    setLoading(true);
+    setError(null);
+
+    try {
+      const urlParams = new URLSearchParams({
+        sortBy: 'recent',
+        page: '1',
+        limit: '8',
+      });
+
+      const endpoint = `/api/devmaster/offers?${urlParams.toString()}`;
+      const response = await api.get<OfferResponse>(endpoint);
+
+      if (response.success && response.data) {
+        setTrabajos(response.data.data || []);
+      } else {
+        setError(response.error || 'Error al cargar ofertas');
+      }
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Error de conexión');
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -199,18 +336,7 @@ export default function RecentOffersSection() {
           <div className="text-center py-12">
             <p className="text-red-500 mb-4">{error}</p>
             <button
-              onClick={() =>
-                dispatch(
-                  fetchOffers({
-                    searchText: '',
-                    filters: { range: [], city: '', category: [] },
-                    sortBy: 'recent',
-                    page: 1,
-                    limit: 8,
-                    listKey: 'recentOffers',
-                  }),
-                )
-              }
+              onClick={retryFetch}
               className="px-6 py-2 bg-primary text-white rounded-lg hover:bg-primary/90 transition-colors"
             >
               Reintentar
@@ -222,7 +348,17 @@ export default function RecentOffersSection() {
         {!loading && !error && trabajosConImagenes.length > 0 && (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
             {trabajosConImagenes.map((offer) => (
-              <RecentOfferCard key={offer._id} offer={offer} onCardClick={handleCardClick} />
+              <RecentOfferCard
+                key={offer._id}
+                offer={offer}
+                onCardClick={handleCardClick}
+                hoveredCard={hoveredCard}
+                currentImageIndex={currentImageIndex[offer._id] || 0}
+                onMouseEnter={() => handleMouseEnter(offer._id, offer.allImages?.length || 1)}
+                onMouseLeave={() => handleMouseLeave(offer._id)}
+                onPrevImage={handlePrevImage(offer._id, offer.allImages?.length || 1)}
+                onNextImage={handleNextImage(offer._id, offer.allImages?.length || 1)}
+              />
             ))}
           </div>
         )}

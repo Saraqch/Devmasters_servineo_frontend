@@ -1,17 +1,16 @@
 // src\components\Home\Hero-section.tsx
 'use client';
-import { Search } from 'lucide-react';
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import StatCard from '../Common/StatCard';
+import { SearchBar } from './Searchbar-section';
 
 export default function HeroSection() {
   const [searchText, setSearchText] = useState('');
   const router = useRouter();
 
-  const handleSearch = (e: React.FormEvent) => {
-    e.preventDefault();
-    const trimmedSearch = searchText.trim();
+  const handleSearch = (query: string) => {
+    const trimmedSearch = query.trim();
 
     if (trimmedSearch) {
       // Redirigir a la página de ofertas con el término de búsqueda
@@ -41,26 +40,15 @@ export default function HeroSection() {
           Conectamos tu hogar con expertos verificados en tu ciudad
         </p>
 
-        <form onSubmit={handleSearch} className="mb-10 max-w-2xl mx-auto">
-          <div className="relative">
-            <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-              <Search className="h-5 w-5 text-gray-400" />
-            </div>
-            <input
-              type="text"
-              value={searchText}
-              onChange={(e) => setSearchText(e.target.value)}
-              className="block w-full pl-10 pr-3 py-4 border border-gray-300 rounded-xl shadow-sm focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary text-lg"
-              placeholder="¿Qué servicio necesitas?"
-            />
-            <button
-              type="submit"
-              className="absolute right-1.5 top-1.5 px-6 py-2.5 bg-primary text-white rounded-lg font-medium hover:bg-primary/90 transition-colors"
-            >
-              Buscar
-            </button>
-          </div>
-        </form>
+        {/* SearchBar integrado */}
+        <div className="mb-10 max-w-2xl mx-auto">
+          <SearchBar
+            value={searchText}
+            onChange={setSearchText}
+            placeholder="¿Qué servicio necesitas?"
+            onSearch={handleSearch}
+          />
+        </div>
 
         <div className="mb-16">
           <div className="flex flex-col md:flex-row justify-center items-center space-y-4 md:space-y-0 md:space-x-4 mb-6">

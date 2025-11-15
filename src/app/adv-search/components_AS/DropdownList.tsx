@@ -77,7 +77,7 @@ const DropdownList: React.FC<DropdownListProps> = ({
         if (!searchQuery && (!categoryFilters || categoryFilters.length === 0))
           params.push('recent=true');
         // limit how many offers to inspect / tags to return
-        params.push('limit=10');
+        params.push('limit=20');
 
         const endpoint = `${API_URL}/api/devmaster/tags${params.length ? `?${params.join('&')}` : ''}`;
 

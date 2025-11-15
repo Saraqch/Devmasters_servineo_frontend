@@ -4,7 +4,7 @@ import type React from 'react';
 
 import { useState } from 'react';
 import { Upload, User, X } from 'lucide-react';
-import { Card } from '@/Components/Card';
+import { Card } from '@/components/Card';
 import { fixerService } from '@/app/lib/service/fixer-service';
 import Image from 'next/image';
 

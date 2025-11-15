@@ -2,7 +2,7 @@
 
 import type React from 'react';
 
-import { Card } from '@/Components/Card';
+import { Card } from '@/components/Card';
 import { Banknote, CreditCard, QrCode, AlertCircle } from 'lucide-react';
 
 export type PaymentMethod = 'cash' | 'qr' | 'card';

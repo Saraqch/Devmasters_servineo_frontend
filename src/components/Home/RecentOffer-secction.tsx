@@ -6,7 +6,7 @@ import Link from 'next/link';
 import RecentOfferCard from './RecentOfferCard';
 import { categoryImages } from '@/app/jobOfert/lib/constants/img';
 import { mockFixers } from '@/app/lib/mock-data';
-import { JobOfferModal } from '@/Components/Job-offers/Job-offer-modal';
+import { JobOfferModal } from '@/components/Job-offers/Job-offer-modal';
 import { api } from '@/lib/api';
 
 // Type for the offer data from the backend

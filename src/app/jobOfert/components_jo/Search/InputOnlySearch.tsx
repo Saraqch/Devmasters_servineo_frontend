@@ -1,7 +1,7 @@
 'use client';
 
 import React from 'react';
-import { Input } from '@/Components/ui/input';
+import { Input } from '@/components/ui/input';
 import { SearchIcon } from './SearchIcon';
 import { ClearButton } from './ClearButton';
 import { validateSearch } from '../../validators/search.validator';

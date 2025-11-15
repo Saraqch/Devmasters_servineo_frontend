@@ -4,7 +4,7 @@ import './globals.css';
 import { roboto } from './fonts';
 import 'leaflet/dist/leaflet.css';
 import { ReduxProvider } from './redux/ReduxProvider';
-import TopMenu from '@/Components/Navigation/TopMenu';
+import TopMenu from '@/components/Navigation/TopMenu';
 import { Providers } from './provider';
 import React, { Suspense } from 'react';
 

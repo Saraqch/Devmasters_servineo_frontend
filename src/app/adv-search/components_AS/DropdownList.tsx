@@ -212,9 +212,9 @@ const DropdownList: React.FC<DropdownListProps> = ({
 
   // Combine filtered categories with selected ones that are not in the filtered list
   const selectedButNotInFilter = selectedCategories.filter(
-    (selectedTag) => !categories.includes(selectedTag)
+    (selectedTag) => !categories.includes(selectedTag),
   );
-  
+
   // Create display list: filtered categories + selected ones that don't match current filter
   const displayCategories = [...categories, ...selectedButNotInFilter];
 
@@ -232,7 +232,7 @@ const DropdownList: React.FC<DropdownListProps> = ({
         {displayCategories.map((category, index) => {
           // Check if this category is from a previous selection (not in current filtered list)
           const isFromPreviousSelection = !categories.includes(category);
-          
+
           return (
             <label
               key={`${category}-${index}`}
@@ -246,9 +246,11 @@ const DropdownList: React.FC<DropdownListProps> = ({
                 onChange={() => handleCheckboxChange(category)}
                 className="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-2 focus:ring-blue-500 cursor-pointer"
               />
-              <span className={`ml-3 text-sm capitalize ${
-                isFromPreviousSelection ? 'text-gray-500 italic' : 'text-gray-700'
-              }`}>
+              <span
+                className={`ml-3 text-sm capitalize ${
+                  isFromPreviousSelection ? 'text-gray-500 italic' : 'text-gray-700'
+                }`}
+              >
                 {category}
               </span>
             </label>

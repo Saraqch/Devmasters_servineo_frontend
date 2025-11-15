@@ -144,6 +144,22 @@ export default function AppliedFilters({ params, onModify }: Props) {
                   return;
                 }
 
+                // Special display for rating
+                if (k === 'rating' && (typeof v === 'number' || typeof v === 'string')) {
+                  const ratingNum = typeof v === 'string' ? parseFloat(v) : v;
+                  if (!Number.isNaN(ratingNum)) {
+                    tags.push(
+                      <span
+                        key={k}
+                        className="inline-block bg-sky-50 text-sky-500 text-sm px-3 py-1 rounded"
+                      >
+                        {`Calificación: ${ratingNum.toFixed(1)}`}
+                      </span>,
+                    );
+                    return;
+                  }
+                }
+
                 let value = renderValue(v as FilterParamValue);
                 if (!value) return;
                 // If the value contains a dollar sign, convert to 'bs' like in selectors

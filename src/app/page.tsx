@@ -1,13 +1,13 @@
 // src/app/page.tsx
 'use client';
-import HeroSection from '@/components/Home/Hero-section';
-import ServicesSection from '@/components/Home/Services-section';
-import HowItWorksSection from '@/components/Home/HowItWorks-section';
+import HeroSection from '@/Components/Home/Hero-section';
+import ServicesSection from '@/Components/Home/Services-section';
+import HowItWorksSection from '@/Components/Home/HowItWorks-section';
 
-import CTASection from '@/components/Home/CTA-section';
-import MapSection from '@/components/Home/Map-section';
-import InspirationSection from '@/components/Home/Inspiration-section';
-import RecentOffersSection from '@/components/Home/RecentOffer-secction';
+import CTASection from '@/Components/Home/CTA-section';
+import MapSection from '@/Components/Home/Map-section';
+import InspirationSection from '@/Components/Home/Inspiration-section';
+import RecentOffersSection from '@/Components/Home/RecentOffer-secction';
 
 export default function Home() {
   return (

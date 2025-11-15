@@ -4,7 +4,7 @@
 import { useRouter } from 'next/navigation';
 import { MapPin, Star } from 'lucide-react';
 import type { JobOffer } from '@/app/lib/mock-data';
-import { ImageCarousel } from '@/components/Shared/ImageCarousel';
+import { ImageCarousel } from '@/Components/Shared/ImageCarousel';
 import Image from 'next/image';
 
 interface JobOfferCardProps {

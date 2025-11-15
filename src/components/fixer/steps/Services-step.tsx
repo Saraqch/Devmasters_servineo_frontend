@@ -2,7 +2,7 @@
 
 import type React from 'react';
 
-import { Card } from '@/components/Card';
+import { Card } from '@/Components/Card';
 import { PillButton } from '../Pill-button';
 import { Plus, Edit2, Trash2, Wrench } from 'lucide-react';
 import { useState } from 'react';

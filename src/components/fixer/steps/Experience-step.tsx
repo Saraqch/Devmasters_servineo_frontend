@@ -3,7 +3,7 @@
 import type React from 'react';
 
 import { useState } from 'react';
-import { Card } from '@/components/Card';
+import { Card } from '@/Components/Card';
 import { Upload, ImageIcon, Video, Trash2, AlertCircle } from 'lucide-react';
 import Image from 'next/image';
 

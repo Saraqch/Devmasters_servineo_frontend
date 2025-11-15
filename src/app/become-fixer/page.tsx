@@ -1,9 +1,9 @@
 'use client';
 
 import { useState } from 'react';
-import FixerRegisterForm from '@/components/fixer/Fixer-register-form';
-import { FixerEnableWizard } from '@/components/fixer/Filter-eneable-wizard';
-import { Navbar } from '@/components/Shared/Navbar';
+import FixerRegisterForm from '@/Components/fixer/Fixer-register-form';
+import { FixerEnableWizard } from '@/Components/fixer/Filter-eneable-wizard';
+import { Navbar } from '@/Components/Shared/Navbar';
 
 const defaultFormValues = {
   name: 'Freddy Amin Zapata',

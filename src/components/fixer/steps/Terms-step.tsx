@@ -1,6 +1,6 @@
 'use client';
 
-import { Card } from '@/components/Card';
+import { Card } from '@/Components/Card';
 
 interface TermsStepProps {
   accepted: boolean;

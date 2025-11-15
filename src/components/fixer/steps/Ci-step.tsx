@@ -1,6 +1,6 @@
 'use client';
 
-import { Card } from '@/components/Card';
+import { Card } from '@/Components/Card';
 import { AlertCircle, CreditCard } from 'lucide-react';
 
 interface CIStepProps {

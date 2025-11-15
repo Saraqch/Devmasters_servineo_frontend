@@ -5,27 +5,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import Image from 'next/image';
 import { MapPin, Star, ChevronLeft, ChevronRight, MessageCircle } from 'lucide-react';
 import { useRouter } from 'next/navigation';
-// viejo
-interface OfferData {
-  _id: string;
-  fixerName: string;
-  title: string;
-  description: string;
-  category: string;
-  tags: string[];
-  price: number;
-  city: string;
-  contactPhone: string;
-  createdAt: string;
-  rating?: number;
-  fixerPhoto?: string;
-  completedJobs?: number;
-  imagenUrl?: string;
-  photos?: string[];
-  fixerId?: string;
-  allImages?: string[];
-  imagenAsignada?: string;
-}
+import type { OfferData } from '@/types/offers';
 
 interface RecentOfferCardProps {
   offer: OfferData;
@@ -224,7 +204,7 @@ export default function RecentOfferCard({ offer, onCardClick }: RecentOfferCardP
           </div>
           <div className="min-w-0 flex-1">
             <p className="text-sm font-medium text-gray-900 truncate text-left">
-              {offer.fixerName || 'Usuario'}
+              {offer.fixerName}
             </p>
             <div className="flex items-center gap-1 text-xs text-gray-500">
               {offer.rating && (

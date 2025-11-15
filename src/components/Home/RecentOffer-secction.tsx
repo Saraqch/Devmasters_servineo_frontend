@@ -8,9 +8,10 @@ import { categoryImages } from '@/app/jobOfert/lib/constants/img';
 import { mockFixers } from '@/app/lib/mock-data';
 import { JobOfferModal } from '@/components/Job-offers/Job-offer-modal';
 import { api } from '@/lib/api';
+import type { OfferData, AdaptedOffer } from '@/types/offers';
 
-// Type for the offer data from the backend
-interface OfferData {
+// Type for the raw backend response (antes de ser procesado)
+interface RawOfferData {
   _id: string;
   id?: string;
   fixerId?: string;
@@ -29,7 +30,6 @@ interface OfferData {
   city?: string;
   rating?: number;
   completedJobs?: number;
-  allImages?: string[];
   location?: {
     lat?: number;
     lng?: number;
@@ -37,35 +37,11 @@ interface OfferData {
   };
 }
 
-interface OfferResponse {
+interface RawOfferResponse {
   total: number;
   count: number;
-  data: OfferData[];
+  data: RawOfferData[];
   currentPage?: number;
-}
-
-// Type for the adapted offer format
-interface AdaptedOffer {
-  id: string;
-  fixerId: string;
-  fixerName: string;
-  fixerPhoto?: string;
-  title: string;
-  description: string;
-  tags: string[];
-  whatsapp: string;
-  photos: string[];
-  services: string[];
-  price: number;
-  createdAt: Date;
-  city: string;
-  rating?: number;
-  completedJobs: number;
-  location: {
-    lat: number;
-    lng: number;
-    address: string;
-  };
 }
 
 export default function RecentOffersSection() {
@@ -73,9 +49,6 @@ export default function RecentOffersSection() {
   const [trabajos, setTrabajos] = useState<OfferData[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [hoveredCard, setHoveredCard] = useState<string | null>(null);
-  const [currentImageIndex, setCurrentImageIndex] = useState<Record<string, number>>({});
-  const [intervals, setIntervals] = useState<Record<string, NodeJS.Timeout>>({});
   const [selectedOffer, setSelectedOffer] = useState<AdaptedOffer | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
 
@@ -96,7 +69,36 @@ export default function RecentOffersSection() {
     return selectedImages;
   };
 
-  // Función para adaptar datos de BD a formato mock
+  // Función para normalizar datos raw del backend a OfferData
+  const normalizeRawOffer = (rawOffer: RawOfferData): OfferData => {
+    const fixerIdToUse = rawOffer.fixerId || rawOffer.userId || 'fixer-001';
+    const fixer =
+      mockFixers.find((f) => f.id === fixerIdToUse) || mockFixers.find((f) => f.id === 'fixer-001');
+
+    return {
+      _id: rawOffer._id,
+      id: rawOffer.id,
+      fixerId: rawOffer.fixerId,
+      userId: rawOffer.userId,
+      fixerName: rawOffer.fixerName || fixer?.name || 'Usuario',
+      fixerPhoto: rawOffer.fixerPhoto || fixer?.photo,
+      title: rawOffer.title,
+      description: rawOffer.description,
+      tags: rawOffer.tags || [],
+      contactPhone: rawOffer.contactPhone || fixer?.whatsapp || '591-70000000',
+      photos: rawOffer.photos,
+      imagenUrl: rawOffer.imagenUrl,
+      category: rawOffer.category,
+      price: rawOffer.price,
+      createdAt: rawOffer.createdAt,
+      city: rawOffer.city || fixer?.city || 'Cochabamba',
+      rating: rawOffer.rating || fixer?.rating,
+      completedJobs: rawOffer.completedJobs || fixer?.completedJobs || 0,
+      location: rawOffer.location,
+    };
+  };
+
+  // Función para adaptar datos de BD a formato mock para el modal
   const adaptOfferToMockFormat = (offer: OfferData): AdaptedOffer | null => {
     if (!offer) return null;
 
@@ -118,23 +120,23 @@ export default function RecentOffersSection() {
     return {
       id: offer._id || offer.id || '',
       fixerId: fixerIdToUse,
-      fixerName: fixer?.name || offer.fixerName || 'Usuario',
+      fixerName: offer.fixerName,
       fixerPhoto: fixer?.photo || offer.fixerPhoto,
       title: offer.title,
       description: offer.description,
-      tags: offer.tags || [],
-      whatsapp: offer.contactPhone?.replace(/\D/g, '') || fixer?.whatsapp || '59170000000',
+      tags: offer.tags,
+      whatsapp: offer.contactPhone.replace(/\D/g, '') || fixer?.whatsapp || '59170000000',
       photos,
       services: offer.category ? [offer.category] : fixer?.services || [],
       price: offer.price,
       createdAt: new Date(offer.createdAt || Date.now()),
-      city: offer.city || fixer?.city || 'Cochabamba',
-      rating: fixer?.rating || offer.rating,
-      completedJobs: fixer?.completedJobs || offer.completedJobs || 0,
+      city: offer.city,
+      rating: offer.rating || fixer?.rating,
+      completedJobs: offer.completedJobs ?? 0,
       location: {
         lat: offer.location?.lat || -17.3935,
         lng: offer.location?.lng || -66.1468,
-        address: offer.location?.address || fixer?.city || `${offer.city || 'Cochabamba'}, Bolivia`,
+        address: offer.location?.address || fixer?.city || `${offer.city}, Bolivia`,
       },
     };
   };
@@ -152,10 +154,12 @@ export default function RecentOffersSection() {
         });
 
         const endpoint = `/api/devmaster/offers?${urlParams.toString()}`;
-        const response = await api.get<OfferResponse>(endpoint);
+        const response = await api.get<RawOfferResponse>(endpoint);
 
         if (response.success && response.data) {
-          setTrabajos(response.data.data || []);
+          // Normalizamos los datos raw a OfferData
+          const normalizedOffers = response.data.data.map(normalizeRawOffer);
+          setTrabajos(normalizedOffers);
           setError(null);
         } else {
           const errorMsg = response.error || 'Error al cargar ofertas';
@@ -171,15 +175,8 @@ export default function RecentOffersSection() {
     fetchOffers();
   }, []);
 
-  // Cleanup intervals
-  useEffect(() => {
-    return () => {
-      Object.values(intervals).forEach(clearInterval);
-    };
-  }, [intervals]);
-
   // Adaptar trabajos con imágenes
-  const trabajosConImagenes = trabajos.slice(0, 8).map((trabajo) => {
+  const trabajosConImagenes: OfferData[] = trabajos.slice(0, 8).map((trabajo) => {
     const allImages = getImagesForCategory(trabajo._id, trabajo.category);
 
     return {
@@ -189,93 +186,14 @@ export default function RecentOffersSection() {
     };
   });
 
-  // Handlers para navegación de imágenes
-  const handleMouseEnter = (cardId: string, totalImages: number) => {
-    setHoveredCard(cardId);
-    if (totalImages > 1) {
-      const interval = setInterval(() => {
-        setCurrentImageIndex((prev) => ({
-          ...prev,
-          [cardId]: ((prev[cardId] || 0) + 1) % totalImages,
-        }));
-      }, 2000);
-
-      setIntervals((prev) => ({
-        ...prev,
-        [cardId]: interval,
-      }));
-    }
-  };
-
-  const handleMouseLeave = (cardId: string) => {
-    setHoveredCard(null);
-
-    if (intervals[cardId]) {
-      clearInterval(intervals[cardId]);
-      setIntervals((prev) => {
-        const newIntervals = { ...prev };
-        delete newIntervals[cardId];
-        return newIntervals;
-      });
-    }
-
-    setCurrentImageIndex((prev) => ({
-      ...prev,
-      [cardId]: 0,
-    }));
-  };
-
-  const handlePrevImage = (cardId: string, totalImages: number) => (e: React.MouseEvent) => {
-    e.stopPropagation();
-    if (intervals[cardId]) {
-      clearInterval(intervals[cardId]);
-    }
-    setCurrentImageIndex((prev) => ({
-      ...prev,
-      [cardId]: ((prev[cardId] || 0) - 1 + totalImages) % totalImages,
-    }));
-
-    const interval = setInterval(() => {
-      setCurrentImageIndex((prev) => ({
-        ...prev,
-        [cardId]: ((prev[cardId] || 0) + 1) % totalImages,
-      }));
-    }, 2000);
-
-    setIntervals((prev) => ({
-      ...prev,
-      [cardId]: interval,
-    }));
-  };
-
-  const handleNextImage = (cardId: string, totalImages: number) => (e: React.MouseEvent) => {
-    e.stopPropagation();
-    if (intervals[cardId]) {
-      clearInterval(intervals[cardId]);
-    }
-    setCurrentImageIndex((prev) => ({
-      ...prev,
-      [cardId]: ((prev[cardId] || 0) + 1) % totalImages,
-    }));
-
-    const interval = setInterval(() => {
-      setCurrentImageIndex((prev) => ({
-        ...prev,
-        [cardId]: ((prev[cardId] || 0) + 1) % totalImages,
-      }));
-    }, 2000);
-
-    setIntervals((prev) => ({
-      ...prev,
-      [cardId]: interval,
-    }));
-  };
-
   // Handler para abrir modal
-  const handleCardClick = (offer: OfferData) => {
-    const adaptedOffer = adaptOfferToMockFormat(offer);
-    setSelectedOffer(adaptedOffer);
-    setIsModalOpen(true);
+  const handleCardClick = (offerId: string) => {
+    const offer = trabajosConImagenes.find((o) => o._id === offerId);
+    if (offer) {
+      const adaptedOffer = adaptOfferToMockFormat(offer);
+      setSelectedOffer(adaptedOffer);
+      setIsModalOpen(true);
+    }
   };
 
   const retryFetch = async () => {
@@ -290,10 +208,11 @@ export default function RecentOffersSection() {
       });
 
       const endpoint = `/api/devmaster/offers?${urlParams.toString()}`;
-      const response = await api.get<OfferResponse>(endpoint);
+      const response = await api.get<RawOfferResponse>(endpoint);
 
       if (response.success && response.data) {
-        setTrabajos(response.data.data || []);
+        const normalizedOffers = response.data.data.map(normalizeRawOffer);
+        setTrabajos(normalizedOffers);
       } else {
         setError(response.error || 'Error al cargar ofertas');
       }
@@ -348,17 +267,7 @@ export default function RecentOffersSection() {
         {!loading && !error && trabajosConImagenes.length > 0 && (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
             {trabajosConImagenes.map((offer) => (
-              <RecentOfferCard
-                key={offer._id}
-                offer={offer}
-                onCardClick={handleCardClick}
-                hoveredCard={hoveredCard}
-                currentImageIndex={currentImageIndex[offer._id] || 0}
-                onMouseEnter={() => handleMouseEnter(offer._id, offer.allImages?.length || 1)}
-                onMouseLeave={() => handleMouseLeave(offer._id)}
-                onPrevImage={handlePrevImage(offer._id, offer.allImages?.length || 1)}
-                onNextImage={handleNextImage(offer._id, offer.allImages?.length || 1)}
-              />
+              <RecentOfferCard key={offer._id} offer={offer} onCardClick={handleCardClick} />
             ))}
           </div>
         )}

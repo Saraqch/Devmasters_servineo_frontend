@@ -20,6 +20,7 @@ const DropdownList: React.FC<DropdownListProps> = ({
 }) => {
   const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
   const [categories, setCategories] = useState<string[]>([]);
+  const [everSelectedCategories, setEverSelectedCategories] = useState<string[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [hasRestoredFromUrl, setHasRestoredFromUrl] = useState(false);
@@ -50,6 +51,7 @@ const DropdownList: React.FC<DropdownListProps> = ({
 
     if (urlTags.length > 0) {
       setSelectedCategories(urlTags);
+      setEverSelectedCategories(urlTags);
       onFilterChange?.({ categories: urlTags });
     }
 
@@ -154,6 +156,7 @@ const DropdownList: React.FC<DropdownListProps> = ({
     if (clearSignal === previousClearSignal) return; // Only act if clearSignal actually changed
 
     setSelectedCategories([]);
+    setEverSelectedCategories([]);
     onFilterChange?.({ categories: [] });
     setPreviousClearSignal(clearSignal);
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -165,6 +168,12 @@ const DropdownList: React.FC<DropdownListProps> = ({
       : [...selectedCategories, categoryValue];
 
     setSelectedCategories(newSelectedCategories);
+
+    // Track all categories that have ever been selected
+    if (!everSelectedCategories.includes(categoryValue)) {
+      setEverSelectedCategories([...everSelectedCategories, categoryValue]);
+    }
+
     onFilterChange?.({ categories: newSelectedCategories });
   };
 
@@ -210,13 +219,13 @@ const DropdownList: React.FC<DropdownListProps> = ({
     );
   }
 
-  // Combine filtered categories with selected ones that are not in the filtered list
-  const selectedButNotInFilter = selectedCategories.filter(
+  // Combine filtered categories with ever-selected ones that are not in the filtered list
+  const everSelectedButNotInFilter = everSelectedCategories.filter(
     (selectedTag) => !categories.includes(selectedTag),
   );
 
-  // Create display list: filtered categories + selected ones that don't match current filter
-  const displayCategories = [...categories, ...selectedButNotInFilter];
+  // Create display list: filtered categories + ever-selected ones that don't match current filter
+  const displayCategories = [...categories, ...everSelectedButNotInFilter];
 
   if (displayCategories.length === 0) {
     return (

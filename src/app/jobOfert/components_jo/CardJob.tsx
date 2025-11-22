@@ -2,6 +2,7 @@
 
 import React, { useMemo, useCallback } from 'react';
 import Image from 'next/image';
+import { SearchHighlight } from '@/components/SearchHighlight';
 
 // Mapeo de imágenes por categoría (3 imágenes por cada una)
 const categoryImages: { [key: string]: string[] } = {
@@ -43,9 +44,10 @@ interface OfferData {
 
 interface CardJobProps {
   trabajos: OfferData[];
+  searchQuery?: string;
 }
 
-const CardJob = ({ trabajos }: CardJobProps) => {
+const CardJob = ({ trabajos, searchQuery = '' }: CardJobProps) => {
   const handleCardClick = (id: string) => {
     console.log('Card clicked:', id);
   };
@@ -105,8 +107,12 @@ const CardJob = ({ trabajos }: CardJobProps) => {
                 </div>
 
                 <div>
-                  <h3 className="text-base font-semibold text-gray-800 mb-2 pr-20">{t.title}</h3>
-                  <p className="text-sm text-gray-600 line-clamp-2 text-left">{t.description}</p>
+                  <h3 className="text-base font-semibold text-gray-800 mb-2 pr-20">
+                    <SearchHighlight text={t.title} searchQuery={searchQuery} />
+                  </h3>
+                  <p className="text-sm text-gray-600 line-clamp-2 text-left">
+                    <SearchHighlight text={t.description} searchQuery={searchQuery} />
+                  </p>
                 </div>
 
                 <div className="flex flex-col sm:flex-row items-start sm:items-end justify-between mt-3 gap-3">

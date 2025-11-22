@@ -271,7 +271,7 @@ export default function JobOffersPage() {
 
         <div className="w-full max-w-5xl mx-auto">
           {!loading && trabajos.length > 0 ? (
-            <CardJob trabajos={trabajos} />
+            <CardJob trabajos={trabajos} searchQuery={search} />
           ) : !loading ? (
             <NoResultsMessage search={search} />
           ) : null}

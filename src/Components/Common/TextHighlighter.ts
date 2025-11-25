@@ -16,7 +16,7 @@ export function createSearchPattern(searchText: string): RegExp | null {
 
   // Tratar separadores (espacios, guiones, guiones bajos) como opcionales
   // Esto permite que búsquedas como "pin to" o "pin_tor" encuentren "pintor"
-  normalized = normalized.replace(/[\s_\-]+/g, '[\\s_\\-]*');
+  normalized = normalized.replace(/[\s_\-\\.,]+/g, '[\\s_\\-\\.,]*');
 
   // Quitar tildes del texto de búsqueda
   normalized = normalized.replace(/[ÁáÀàÂâÄäÃãÅåĀāĂăǍǎȦȧ]/g, 'a');

@@ -1,0 +1,334 @@
+{
+  "HeroSection": {
+    "title": "Encuentra el profesional perfecto",
+    "subtitle": "Conectamos tu hogar con expertos verificados en tu ciudad",
+    "placeholder": "¿Que servicio necesitas?",
+    "search": "Buscar"
+  },
+  "Categories": {
+    "Todos": "Todos",
+    "Albañil": "Albañil",
+    "Carpintero": "Carpintero",
+    "Cerrajero": "Cerrajero",
+    "Decorador": "Decorador",
+    "Electricista": "Electricista",
+    "Fontanero": "Fontanero",
+    "Fumigador": "Fumigador",
+    "Instalador": "Instalador",
+    "Jardinero": "Jardinero",
+    "Limpiador": "Limpiador",
+    "Mecánico": "Mecánico",
+    "Montador": "Montador",
+    "Pintor": "Pintor",
+    "Pulidor": "Pulidor",
+    "Soldador": "Soldador",
+    "Techador": "Techador",
+    "Vidriero": "Vidriero",
+    "Yesero": "Yesero"
+  },
+  "jobOffers": {
+    "pageTitle": "Ofertas de Trabajo",
+    "available": "disponibles",
+    "backToHome": "Inicio",
+    "loading": "Cargando ofertas...",
+    "viewModes": {
+      "list": "Lista",
+      "map": "Mapa",
+      "grid": "Cuadrícula"
+    },
+    "emptyState": {
+      "title": "No se encontraron ofertas",
+      "description": "No hay ofertas que coincidan con tu búsqueda o filtros actuales."
+    },
+    "map": {
+      "loading": "Cargando mapa...",
+      "yourLocation": "Tu ubicación",
+      "jobOffers": "Ofertas de trabajo",
+      "radius": "Radio: ~1km",
+      "mapDetails": "Detalles del mapa",
+      "availableOffers": {
+        "singular": "oferta disponible",
+        "plural": "ofertas disponibles"
+      },
+      "distance": "de distancia"
+    }
+  },
+  "search": {
+    "placeholder": "¿Qué servicio necesitas?",
+    "buttonSearch": "Buscar",
+    "openFilters": "Abrir filtros",
+    "clearSearch": "Limpiar búsqueda",
+    "moreFilters": "Más filtros",
+    "recentSearches": "Búsquedas recientes",
+    "clear": "Borrar",
+    "clearHistory": "Borrar historial",
+    "noRecentSearches": "Aún no hay búsquedas recientes",
+    "deleteSearch": "Eliminar búsqueda",
+    "delete": "Eliminar",
+    "cancel": "Cancelar",
+    "preview": "Previsualizar",
+    "suggestions": "Sugerencias",
+    "noSuggestions": "No hay sugerencias",
+    "noResults": "No se encontraron resultados",
+    "advancedSearch": "Advanced search",
+    "goToAdvancedSearch": "Go to advanced search",
+    "searchPlaceholder": "Búsqueda:",
+    "for": "para",
+    "price": "Precio",
+    "moreThan": "Más de",
+    "lessThan": "Menos de",
+    "mostRecent": "Los más recientes",
+    "oldest": "Los más antiguos",
+    "titleOnly": "Buscar solo en el título de la Oferta de Trabajo",
+    "exactWords": "Palabras Exactas",
+    "date": "Fecha",
+    "modify": "Modificar",
+    "resultsCountLabel": "CANTIDAD DE RESULTADOS:"
+  },
+  "advancedSearch": {
+    "pageTitle": "Búsqueda Avanzada",
+    "resultsCounter": {
+      "loading": "Cargando...",
+      "results": "resultados",
+      "noResults": "No se encontraron resultados"
+    },
+    "searchInput": {
+      "placeholder": "¿Qué servicio necesitas?",
+      "buttonSearch": "Buscar"
+    },
+    "checkboxes": {
+      "titleOnly": "Buscar solo en el título de la Oferta de Trabajo",
+      "exactWords": "Palabras Exactas"
+    },
+    "selectableParams": "Parámetros Seleccionables:",
+    "fixerName": {
+      "label": "Nombre del fixer:",
+      "placeholder": "Seleccionar Rangos de Nombre",
+      "ranges": {
+        "ac": "De (A-C)",
+        "df": "De (D-F)",
+        "gi": "De (G-I)",
+        "jl": "De (J-L)",
+        "mn": "De (M-Ñ)",
+        "oq": "De (O-Q)",
+        "rt": "De (R-T)",
+        "uw": "De (U-W)",
+        "xz": "De (X-Z)"
+      }
+    },
+    "city": {
+      "label": "Ciudad:",
+      "placeholder": "Seleccionar Ciudad",
+      "options": {
+        "beni": "Beni",
+        "chuquisaca": "Chuquisaca",
+        "cochabamba": "Cochabamba",
+        "laPaz": "La Paz",
+        "oruro": "Oruro",
+        "pando": "Pando",
+        "potosi": "Potosí",
+        "santaCruz": "Santa Cruz",
+        "tarija": "Tarija"
+      }
+    },
+    "jobType": {
+      "label": "Tipo de Trabajo:",
+      "placeholder": "Seleccionar Tipo de Trabajo",
+      "options": {
+        "mason": "Albañil",
+        "carpenter": "Carpintero",
+        "locksmith": "Cerrajero",
+        "decorator": "Decorador",
+        "electrician": "Electricista",
+        "plumber": "Fontanero",
+        "fumigator": "Fumigador",
+        "installer": "Instalador",
+        "gardener": "Jardinero",
+        "cleaner": "Limpiador",
+        "mechanic": "Mecánico",
+        "assembler": "Montador",
+        "painter": "Pintor",
+        "polisher": "Pulidor",
+        "welder": "Soldador",
+        "roofer": "Techador",
+        "glazier": "Vidriero",
+        "plasterer": "Yesero"
+      }
+    },
+    "tags": {
+      "label": "Etiquetas:",
+      "placeholder": "Seleccionar etiquetas"
+    },
+    "price": {
+      "label": "Precio:",
+      "placeholder": "Seleccionar Rangos de Precio"
+    },
+    "date": {
+      "label": "Fecha:",
+      "filters": {
+        "specific": "Fecha específica",
+        "recent": "Los más recientes",
+        "oldest": "Los más antiguos"
+      },
+      "selectDate": "Seleccionar una fecha"
+    },
+    "rating": {
+      "label": "Calificación:",
+      "stars": "estrellas o más"
+    },
+    "buttons": {
+      "applySearch": "Aplicar Búsqueda",
+      "clearData": "Limpiar Datos",
+      "searching": "Buscando..."
+    },
+    "help": {
+      "buttonText": "Ayuda",
+      "tooltip": "Guía de Búsqueda Avanzada",
+      "step1": "Dirigirse a la barra de búsqueda y llenar en el campo el servicio que necesita buscar de manera personalizada.",
+      "step2": "Según el texto ingresado, puede buscar solo en el título de la oferta de trabajo o por palabra exacta en el título y la descripción.",
+      "step3": "Seleccionar el filtrado de nombre de fixer de acuerdo a lo que se requiera.",
+      "step4": "Seleccionar la ciudad de interés para filtrar los resultados.",
+      "step5": "Seleccionar el tipo de trabajo. Ejemplo: si selecciona \"Pintor\", se mostrarán resultados de pintores.",
+      "step6": "Hacer click en el componente de precio y seleccionar el rango deseado.",
+      "step7": "En la sección de tipo de trabajo, seleccionar y de acuerdo a su elección se mostrarán las respectivas etiquetas.",
+      "step8": "Seleccionar fecha de publicación: más recientes, más antiguos o fecha específica mediante el calendario.",
+      "step9": "Seleccionar rango de calificación (1-5 estrellas). Al hacer click en una estrella muestra subrangos (1-9).",
+      "step10": "Hacer click en \"Aplicar búsqueda\" para mostrar resultados con todos los filtros seleccionados.",
+      "step11": "Usar el botón \"Limpiar datos\" para borrar todos los filtros y volver al estado inicial."
+    }
+  },
+  "resultsAdvSearch": {
+    "pageTitle": "Resultados de Búsqueda Avanzada",
+    "noResults": "No se encontraron resultados",
+    "loading": "Cargando resultados...",
+    "loadingFallback": "Cargando resultados..."
+  },
+  "cardJob": {
+    "imageAlt": "Imagen {current} de {total}",
+    "fixerPhotoAlt": "Foto de perfil de {name}",
+    "fixerDefaultAlt": "Foto de perfil del usuario",
+    "prevImage": "Imagen anterior",
+    "nextImage": "Imagen siguiente",
+    "contactWhatsApp": "Contactar por WhatsApp",
+    "searchResults": "Resultados de la búsqueda",
+    "noResults": "No se encontraron resultados",
+    "defaultUserName": "Usuario"
+  },
+  "calendar": {
+    "months": {
+      "january": "enero",
+      "february": "febrero",
+      "march": "marzo",
+      "april": "abril",
+      "may": "mayo",
+      "june": "junio",
+      "july": "julio",
+      "august": "agosto",
+      "september": "septiembre",
+      "october": "octubre",
+      "november": "noviembre",
+      "december": "diciembre"
+    },
+    "daysShort": {
+      "monday": "L",
+      "tuesday": "M",
+      "wednesday": "X",
+      "thursday": "J",
+      "friday": "V",
+      "saturday": "S",
+      "sunday": "D"
+    },
+    "daysAbbrev": {
+      "sunday": "dom.",
+      "monday": "lun.",
+      "tuesday": "mar.",
+      "wednesday": "mié.",
+      "thursday": "jue.",
+      "friday": "vie.",
+      "saturday": "sáb."
+    },
+    "navigation": {
+      "previousMonth": "Mes anterior",
+      "nextMonth": "Mes siguiente",
+      "of": "de"
+    },
+    "buttons": {
+      "cancel": "Cancelar",
+      "accept": "Aceptar"
+    }
+  },
+  "filtersPanel": {
+    "filters": "Filtros",
+    "resetButton": {
+      "desktop": "Resetear",
+      "mobile": "Resetear Filtros"
+    },
+    "fixerName": "Nombre de Fixer",
+    "city": "Ciudad",
+    "jobCategory": "Tipo de Trabajo"
+  },
+  "pagination": {
+    "show": "Mostrar:",
+    "perPage": "por página",
+    "previous": "Anterior",
+    "next": "Siguiente",
+    "showingResults": "Mostrando {start} - {end} de {total} resultados"
+  },
+  "sortBy": {
+    "featured": "Destacados",
+    "mostRecent": "Los más recientes",
+    "oldest": "Los más antiguos",
+    "nameAZ": "Nombre A-Z",
+    "nameZA": "Nombre Z-A",
+    "contactAsc": "Num de contacto asc",
+    "contactDesc": "Num de contacto desc"
+  },
+  "navigation": {
+    "home": "Inicio",
+    "jobOffers": "Ofertas de trabajo",
+    "login": "Iniciar Sesión",
+    "register": "Regístrate",
+    "logo": "LOGO"
+  },
+
+  "cta": {
+    "footerTitle": "¿Listo para encontrar al profesional ideal?",
+    "footerSubtitle": "Únete a miles de personas que ya encontraron al profesional perfecto para sus necesidades",
+    "footerButton": "Registrarse gratis",
+    "footerButtonView": "Ver servicios"
+  },
+  "HowItWorks": {
+    "question": "¿Cómo funciona?",
+    "questionResponse": "Encuentra y contrata al profesional ideal en simples pasos",
+    "HowItWorksSearch": "Busca",
+    "HowItWorksSearchDescription": "Encuentra el servicio que necesitas",
+    "HowItWorksCompare": "Compara",
+    "HowItWorksCompareDescription": "Revisa perfiles y calificaciones",
+    "HowItWorksContact": "Contacta",
+    "HowItWorksContactDescription": "Habla directamente con los profesionales",
+    "HowItWorksRate": "Califica",
+    "HowItWorksRateDescription": "Comparte tu experiencia"
+  },
+  "Inspiration": {
+    "insTitle": "Inspiración para tu hogar",
+    "insDescription": "Descubre ideas y proyectos realizados por nuestros profesionales expertos"
+  },
+  "Map": {
+    "mapTitle": "Encuentra servicios cerca de ti",
+    "mapDescription": "Explora los profesionales disponibles en tu zona",
+    "mapInteractive": "Mapa interactivo aqui"
+  },
+  "RecentOffer": {
+  "recOfTitle": "Ofertas Recientes",
+  "recOfDescription": "Descubre las últimas ofertas publicadas",
+  "viewAll": "Ver todas",
+  "filterByCategory": "Filtrar por categoría",
+  "noOffersAvailable": "No hay ofertas disponibles",
+  "noOffersCategory": "No se encontraron ofertas para esta categoría",
+  "closeModal": "Cerrar"
+},
+  "Services": {
+    "serTitle": "Nuestros Servicios",
+    "serDescription": "Encuentra el servicio perfecto para tus necesidades"
+  }
+}

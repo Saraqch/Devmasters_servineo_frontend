@@ -8,12 +8,14 @@ import { MapPin, Star, MessageCircle, ChevronLeft, ChevronRight } from 'lucide-r
 import { useTranslations } from 'next-intl';
 import { useImageCarousel } from '@/app/redux/features/jobOffers/useImageCarousel';
 import type { JobOfferData } from '@/types/jobOffers';
+import { SearchHighlight } from '../SearchHighlight';
 
 interface JobOfferCardProps {
   offer: JobOfferData;
   viewMode?: 'grid' | 'list';
   onClick?: (offer: JobOfferData) => void;
   className?: string;
+  searchQuery?: string;
 }
 
 export const JobOfferCard: React.FC<JobOfferCardProps> = ({
@@ -21,6 +23,7 @@ export const JobOfferCard: React.FC<JobOfferCardProps> = ({
   viewMode = 'grid',
   onClick,
   className = '',
+  searchQuery = ''
 }) => {
   const router = useRouter();
   const t = useTranslations('cardJob');
@@ -164,16 +167,16 @@ export const JobOfferCard: React.FC<JobOfferCardProps> = ({
           {/* Información de la oferta */}
           <div className="p-4">
             <h3 className="text-base font-semibold text-gray-900 truncate group-hover:text-primary transition-colors">
-              {offer.title}
+              <SearchHighlight text={offer.title} searchQuery={searchQuery} />
             </h3>
             <p className="mt-1.5 text-sm text-gray-500 line-clamp-2 leading-relaxed">
-              {offer.description}
+              <SearchHighlight text={offer.description} searchQuery={searchQuery} />
             </p>
 
             <div className="mt-2 flex items-center justify-between">
               <div className="flex items-center gap-2 flex-wrap">
                 <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-primary/10 text-primary">
-                  {tCat(offer.category)}
+                  {offer.category ? tCat(offer.category) : ''}
                 </span>
                 {offer.tags && offer.tags.length > 0 && (
                   <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-gray-100 text-gray-600">
@@ -328,17 +331,17 @@ export const JobOfferCard: React.FC<JobOfferCardProps> = ({
 
         <div className="mb-2 pr-32">
           <h3 className="text-base font-semibold text-gray-900 text-left group-hover:text-primary transition-colors">
-            {offer.title}
+            <SearchHighlight text={offer.title} searchQuery={searchQuery} />
           </h3>
           <p className="mt-1.5 text-sm text-gray-500 line-clamp-2 text-left leading-relaxed">
-            {offer.description}
+            <SearchHighlight text={offer.description} searchQuery={searchQuery} />
           </p>
         </div>
 
         <div>
           <div className="flex items-center gap-2 flex-wrap">
             <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-primary/10 text-primary">
-              {tCat(offer.category)}
+              {offer.category ? tCat(offer.category) : ''}
             </span>
             {offer.tags && offer.tags.length > 0 && (
               <>

@@ -322,7 +322,7 @@ export default function JobOffersPage() {
 
         <div className="w-full max-w-5xl mx-auto">
           {!isLoading && Array.isArray(offers) && offers.length > 0 ? (
-            <JobOffersView offers={offers} viewMode={viewMode} onOfferClick={handleCardClick} />
+            <JobOffersView offers={offers} viewMode={viewMode} onOfferClick={handleCardClick} search={search} />
           ) : !isLoading ? (
             <NoResultsMessage search={search} />
           ) : null}

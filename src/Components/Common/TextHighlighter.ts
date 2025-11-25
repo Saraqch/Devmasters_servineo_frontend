@@ -11,6 +11,13 @@ export function createSearchPattern(searchText: string): RegExp | null {
   let normalized = searchText.trim().toLowerCase();
   normalized = normalized.replace(/\s+/g, ' ');
 
+  // Escapar caracteres especiales de RegExp para que búsquedas con símbolos no rompan el patrón
+  normalized = normalized.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+
+  // Tratar separadores (espacios, guiones, guiones bajos) como opcionales
+  // Esto permite que búsquedas como "pin to" o "pin_tor" encuentren "pintor"
+  normalized = normalized.replace(/[\s_\-]+/g, '[\\s_\\-]*');
+
   // Quitar tildes del texto de búsqueda
   normalized = normalized.replace(/[ÁáÀàÂâÄäÃãÅåĀāĂăǍǎȦȧ]/g, 'a');
   normalized = normalized.replace(/[ÉéÈèÊêËëĒēĔĕĚěĖė]/g, 'e');

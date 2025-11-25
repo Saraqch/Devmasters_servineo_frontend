@@ -16,6 +16,7 @@ interface JobOffersViewProps {
   onOfferClick?: (offer: JobOfferData) => void;
   className?: string;
   showTitle?: boolean;
+  search?: string;
 }
 
 export const JobOffersView: React.FC<JobOffersViewProps> = ({
@@ -24,6 +25,7 @@ export const JobOffersView: React.FC<JobOffersViewProps> = ({
   onOfferClick,
   className = '',
   showTitle = true,
+  search = '',
 }) => {
   const t = useTranslations('cardJob');
 
@@ -85,7 +87,7 @@ export const JobOffersView: React.FC<JobOffersViewProps> = ({
         )}
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-3 gap-4">
           {offers.map((offer) => (
-            <JobOfferCard key={offer._id} offer={offer} viewMode="grid" onClick={onOfferClick} />
+            <JobOfferCard key={offer._id} offer={offer} viewMode="grid" onClick={onOfferClick} searchQuery={search} />
           ))}
         </div>
       </div>
@@ -102,7 +104,7 @@ export const JobOffersView: React.FC<JobOffersViewProps> = ({
       )}
       <div className="flex flex-col gap-4">
         {offers.map((offer) => (
-          <JobOfferCard key={offer._id} offer={offer} viewMode="list" onClick={onOfferClick} />
+          <JobOfferCard key={offer._id} offer={offer} viewMode="list" onClick={onOfferClick} searchQuery={search} />
         ))}
       </div>
     </div>

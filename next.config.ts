@@ -10,6 +10,11 @@ const nextConfig: NextConfig = {
         hostname: 'drive.google.com',
         pathname: '/thumbnail**',
       },
+      {
+        protocol: 'https',
+        hostname: 'mi-cdn.com',
+        pathname: '/**',
+      },
     ],
   },
 };

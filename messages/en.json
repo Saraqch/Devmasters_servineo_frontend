@@ -1,0 +1,333 @@
+{
+  "HeroSection": {
+    "title": "Find the perfect professional ",
+    "subtitle": "We connect your home with verified experts in your city.",
+    "placeholder": "what service do you need?",
+    "search": "Search"
+  },
+  "Categories": {
+    "Todos": "All",
+    "Albañil": "Mason",
+    "Carpintero": "Carpenter",
+    "Cerrajero": "Locksmith",
+    "Decorador": "Decorator",
+    "Electricista": "Electrician",
+    "Fontanero": "Plumber",
+    "Fumigador": "Fumigator",
+    "Instalador": "Installer",
+    "Jardinero": "Gardener",
+    "Limpiador": "Cleaner",
+    "Mecánico": "Mechanic",
+    "Montador": "Assembler",
+    "Pintor": "Painter",
+    "Pulidor": "Polisher",
+    "Soldador": "Welder",
+    "Techador": "Roofer",
+    "Vidriero": "Glazier",
+    "Yesero": "Plasterer"
+  },
+  "jobOffers": {
+    "pageTitle": "Job Offers",
+    "available": "available",
+    "backToHome": "Home",
+    "loading": "Loading offers...",
+    "viewModes": {
+      "list": "List",
+      "map": "Map",
+      "grid": "Grid"
+    },
+    "emptyState": {
+      "title": "No offers found",
+      "description": "There are no offers matching your current search or filters."
+    },
+    "map": {
+      "loading": "Loading map...",
+      "yourLocation": "Your location",
+      "jobOffers": "Job offers",
+      "radius": "Radius: ~1km",
+      "mapDetails": "Map details",
+      "availableOffers": {
+        "singular": "available offer",
+        "plural": "available offers"
+      },
+      "distance": "away"
+    }
+  },
+  "search": {
+    "placeholder": "What service do you need?",
+    "buttonSearch": "Search",
+    "openFilters": "Open filters",
+    "clearSearch": "Clear search",
+    "moreFilters": "More filters",
+    "recentSearches": "Recent searches",
+    "clear": "Clear",
+    "clearHistory": "Clear history",
+    "noRecentSearches": "No recent searches yet",
+    "deleteSearch": "Delete search",
+    "delete": "Delete",
+    "cancel": "Cancel",
+    "preview": "Preview",
+    "suggestions": "Suggestions",
+    "noSuggestions": "No suggestions",
+    "noResults": "No results found",
+    "advancedSearch": "Advanced Search",
+    "goToAdvancedSearch": "Go to advanced search",
+    "searchPlaceholder": "Search:",
+    "for": "for",
+    "price": "Price",
+    "moreThan": "More than",
+    "lessThan": "Less than",
+    "mostRecent": "Most recent",
+    "oldest": "Oldest",
+    "titleOnly": "Search only in job title",
+    "exactWords": "Exact words",
+    "date": "Date",
+    "modify": "Modify",
+    "resultsCountLabel": "RESULTS COUNT:"
+  },
+  "advancedSearch": {
+    "pageTitle": "Advanced Search",
+    "resultsCounter": {
+      "loading": "Loading...",
+      "results": "results",
+      "noResults": "No results found"
+    },
+    "searchInput": {
+      "placeholder": "What service do you need?",
+      "buttonSearch": "Search"
+    },
+    "checkboxes": {
+      "titleOnly": "Search only in job title",
+      "exactWords": "Exact words"
+    },
+    "selectableParams": "Selectable Parameters:",
+    "fixerName": {
+      "label": "Fixer Name:",
+      "placeholder": "Select Name Ranges",
+      "ranges": {
+        "ac": "From (A-C)",
+        "df": "From (D-F)",
+        "gi": "From (G-I)",
+        "jl": "From (J-L)",
+        "mn": "From (M-Ñ)",
+        "oq": "From (O-Q)",
+        "rt": "From (R-T)",
+        "uw": "From (U-W)",
+        "xz": "From (X-Z)"
+      }
+    },
+    "city": {
+      "label": "City:",
+      "placeholder": "Select City",
+      "options": {
+        "beni": "Beni",
+        "chuquisaca": "Chuquisaca",
+        "cochabamba": "Cochabamba",
+        "laPaz": "La Paz",
+        "oruro": "Oruro",
+        "pando": "Pando",
+        "potosi": "Potosí",
+        "santaCruz": "Santa Cruz",
+        "tarija": "Tarija"
+      }
+    },
+    "jobType": {
+      "label": "Job Type:",
+      "placeholder": "Select Job Type",
+      "options": {
+        "mason": "Mason",
+        "carpenter": "Carpenter",
+        "locksmith": "Locksmith",
+        "decorator": "Decorator",
+        "electrician": "Electrician",
+        "plumber": "Plumber",
+        "fumigator": "Fumigator",
+        "installer": "Installer",
+        "gardener": "Gardener",
+        "cleaner": "Cleaner",
+        "mechanic": "Mechanic",
+        "assembler": "Assembler",
+        "painter": "Painter",
+        "polisher": "Polisher",
+        "welder": "Welder",
+        "roofer": "Roofer",
+        "glazier": "Glazier",
+        "plasterer": "Plasterer"
+      }
+    },
+    "tags": {
+      "label": "Tags:",
+      "placeholder": "Select tags"
+    },
+    "price": {
+      "label": "Price:",
+      "placeholder": "Select Price Ranges"
+    },
+    "date": {
+      "label": "Date:",
+      "filters": {
+        "specific": "Specific date",
+        "recent": "Most recent",
+        "oldest": "Oldest"
+      },
+      "selectDate": "Select a date"
+    },
+    "rating": {
+      "label": "Rating:",
+      "stars": "stars or more"
+    },
+    "buttons": {
+      "applySearch": "Apply Search",
+      "clearData": "Clear Data",
+      "searching": "Searching..."
+    },
+    "help": {
+      "buttonText": "Help",
+      "tooltip": "Advanced Search Guide",
+      "step1": "Go to the search bar and fill in the field with the service you need to search for in a personalized way.",
+      "step2": "Depending on the entered text, you can search only in the job offer title or by exact word in the title and description.",
+      "step3": "Select the fixer name filter according to your requirements.",
+      "step4": "Select the city of interest to filter the results.",
+      "step5": "Select the job type. Example: if you select \"Painter\", painter results will be displayed.",
+      "step6": "Click on the price component and select the desired range.",
+      "step7": "In the job type section, select and according to your choice the respective tags will be displayed.",
+      "step8": "Select publication date: most recent, oldest or specific date using the calendar.",
+      "step9": "Select rating range (1-5 stars). Clicking on a star shows subranges (1-9).",
+      "step10": "Click on \"Apply Search\" to display results with all selected filters.",
+      "step11": "Use the \"Clear Data\" button to clear all filters and return to the initial state."
+    }
+  },
+  "resultsAdvSearch": {
+    "pageTitle": "Advanced Search Results",
+    "noResults": "No results found",
+    "loading": "Loading results...",
+    "loadingFallback": "Loading results..."
+  },
+  "filtersPanel": {
+    "filters": "Filters",
+    "resetButton": {
+      "desktop": "Reset",
+      "mobile": "Reset Filters"
+    },
+    "fixerName": "Fixer Name",
+    "city": "City",
+    "jobCategory": "Job Type"
+  },
+  "pagination": {
+    "show": "Show:",
+    "perPage": "per page",
+    "previous": "Previous",
+    "next": "Next",
+    "showingResults": "Showing {start} - {end} of {total} results"
+  },
+  "cardJob": {
+    "imageAlt": "Image {current} of {total}",
+    "fixerPhotoAlt": "Profile photo of {name}",
+    "fixerDefaultAlt": "User profile photo",
+    "prevImage": "Previous image",
+    "nextImage": "Next image",
+    "contactWhatsApp": "Contact via WhatsApp",
+    "searchResults": "Search results",
+    "noResults": "No results found",
+    "defaultUserName": "User"
+  },
+  "calendar": {
+    "months": {
+      "january": "January",
+      "february": "February",
+      "march": "March",
+      "april": "April",
+      "may": "May",
+      "june": "June",
+      "july": "July",
+      "august": "August",
+      "september": "September",
+      "october": "October",
+      "november": "November",
+      "december": "December"
+    },
+    "daysShort": {
+      "monday": "M",
+      "tuesday": "T",
+      "wednesday": "W",
+      "thursday": "T",
+      "friday": "F",
+      "saturday": "S",
+      "sunday": "S"
+    },
+    "daysAbbrev": {
+      "sunday": "Sun.",
+      "monday": "Mon.",
+      "tuesday": "Tue.",
+      "wednesday": "Wed.",
+      "thursday": "Thu.",
+      "friday": "Fri.",
+      "saturday": "Sat."
+    },
+    "navigation": {
+      "previousMonth": "Previous month",
+      "nextMonth": "Next month",
+      "of": "of"
+    },
+    "buttons": {
+      "cancel": "Cancel",
+      "accept": "Accept"
+    }
+  },
+  "sortBy": {
+    "featured": "Featured",
+    "mostRecent": "Most Recent",
+    "oldest": "Oldest",
+    "nameAZ": "Name A-Z",
+    "nameZA": "Name Z-A",
+    "contactAsc": "Contact number asc",
+    "contactDesc": "Contact number desc"
+  },
+  "navigation": {
+    "home": "Home",
+    "jobOffers": "Job Offers",
+    "login": "Sign In",
+    "register": "Sign Up",
+    "logo": "LOGO"
+  },
+  "cta": {
+    "footerTitle": "Ready to find the ideal professional?",
+    "footerSubtitle": "Join thousands of people who have already found the perfect professional for their needs",
+    "footerButton": "Sign up for free",
+    "footerButtonView": "View services"
+  },
+  "HowItWorks": {
+    "question": "How does it work?",
+    "questionResponse": "Find and hire the ideal professional in simple steps",
+    "HowItWorksSearch": "Search",
+    "HowItWorksSearchDescription": "Find the service you need",
+    "HowItWorksCompare": "Compare",
+    "HowItWorksCompareDescription": "Review profiles and ratings",
+    "HowItWorksContact": "Contact",
+    "HowItWorksContactDescription": "Talk directly with professionals",
+    "HowItWorksRate": "Rate",
+    "HowItWorksRateDescription": "Share your experience"
+  },
+  "Inspiration": {
+    "insTitle": "Inspiration for your home",
+    "insDescription": "Discover ideas and projects carried out by our expert professionals"
+  },
+  "Map": {
+    "mapTitle": "Find services near you",
+    "mapDescription": "Explore available professionals in your area",
+    "mapInteractive": "Interactive map here"
+  },
+  "RecentOffer": {
+    "recOfTitle": "Recent Offers",
+    "recOfDescription": "Discover the latest published offers",
+    "viewAll": "View all",
+    "filterByCategory": "Filter by category",
+    "noOffersAvailable": "No offers available",
+    "noOffersCategory": "No offers found for this category",
+    "closeModal": "Close"
+  },
+  "Services": {
+    "serTitle": "Our Services",
+    "serDescription": "Find the perfect service for your needs"
+  }
+}

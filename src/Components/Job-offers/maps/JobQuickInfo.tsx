@@ -1,21 +1,23 @@
-"use client"
+'use client';
 
-import type React from "react"
-import { Phone, MessageCircle, ChevronRight, MapPin, Star, Navigation } from "lucide-react"
-import type { JobOffer } from "@/app/lib/mock-data"
+import type React from 'react';
+import { Phone, MessageCircle, ChevronRight, MapPin, Star, Navigation } from 'lucide-react';
+import type { JobOffer } from '@/app/lib/mock-data';
 
 interface JobQuickInfoProps {
-  offer: JobOffer
-  onShowMore: () => void
-  distance?: number
+  offer: JobOffer;
+  onShowMore: () => void;
+  distance?: number;
 }
 
 export function JobQuickInfo({ offer, onShowMore, distance }: JobQuickInfoProps) {
   const handleWhatsAppClick = (e: React.MouseEvent) => {
-    e.stopPropagation()
-    const message = encodeURIComponent(`Hola ${offer.fixerName}, vi tu oferta de trabajo y me interesa.`)
-    window.open(`https://wa.me/${offer.whatsapp.replace(/\s/g, "")}?text=${message}`, "_blank")
-  }
+    e.stopPropagation();
+    const message = encodeURIComponent(
+      `Hola ${offer.fixerName}, vi tu oferta de trabajo y me interesa.`,
+    );
+    window.open(`https://wa.me/${offer.whatsapp.replace(/\s/g, '')}?text=${message}`, '_blank');
+  };
 
   return (
     <div className="relative bg-white/90 backdrop-blur-md rounded-2xl shadow-xl border-2 border-primary/80 p-5 min-w-[300px] max-w-[calc(100vw-2rem)] sm:max-w-[380px] animate-in fade-in slide-in-from-left-8 duration-300 overflow-hidden z-[1000]">
@@ -46,7 +48,9 @@ export function JobQuickInfo({ offer, onShowMore, distance }: JobQuickInfoProps)
           </div>
         </div>
 
-        <p className="text-sm text-gray-700 line-clamp-2 mb-4 leading-relaxed">{offer.description}</p>
+        <p className="text-sm text-gray-700 line-clamp-2 mb-4 leading-relaxed">
+          {offer.description}
+        </p>
 
         <div className="flex flex-wrap gap-2 mb-4">
           {offer.tags.slice(0, 3).map((tag, index) => (
@@ -89,5 +93,5 @@ export function JobQuickInfo({ offer, onShowMore, distance }: JobQuickInfoProps)
         </div>
       </div>
     </div>
-  )
+  );
 }

@@ -1,17 +1,17 @@
-"use client"
+'use client';
 
-import { X, MessageCircle, Phone, Mail, Share2 } from "lucide-react"
-import { WhatsAppButton } from "./Whasapp-button"
+import { X, MessageCircle, Phone, Mail, Share2 } from 'lucide-react';
+import { WhatsAppButton } from './Whasapp-button';
 
 interface ContactModalProps {
-  isOpen: boolean
-  onClose: () => void
-  name: string
-  whatsapp: string
-  email?: string
-  phone?: string
-  city?: string
-  message?: string
+  isOpen: boolean;
+  onClose: () => void;
+  name: string;
+  whatsapp: string;
+  email?: string;
+  phone?: string;
+  city?: string;
+  message?: string;
 }
 
 export function ContactModal({
@@ -24,21 +24,21 @@ export function ContactModal({
   city,
   message = `Hola ${name}, encontré tu perfil en FIXER y me interesaría trabajar contigo.`,
 }: ContactModalProps) {
-  if (!isOpen) return null
+  if (!isOpen) return null;
 
   const handleShare = async () => {
     if (navigator.share) {
       try {
         await navigator.share({
           title: `Contactar con ${name}`,
-          text: `Contacta a ${name} - Profesional de servicios en ${city || "FIXER"}`,
+          text: `Contacta a ${name} - Profesional de servicios en ${city || 'FIXER'}`,
           url: window.location.href,
-        })
+        });
       } catch (error) {
-        console.log("Error sharing:", error)
+        console.log('Error sharing:', error);
       }
     }
-  }
+  };
 
   return (
     <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4 animate-fade-in">
@@ -60,12 +60,7 @@ export function ContactModal({
         {/* Content */}
         <div className="p-6 space-y-4">
           {/* Main WhatsApp CTA */}
-          <WhatsAppButton 
-            phone={whatsapp}
-            message={message}
-            className="w-full justify-center"
-            
-          />
+          <WhatsAppButton phone={whatsapp} message={message} className="w-full justify-center" />
 
           {/* Contact Options Grid */}
           <div className="grid grid-cols-2 gap-3">
@@ -121,5 +116,5 @@ export function ContactModal({
         </div>
       </div>
     </div>
-  )
+  );
 }

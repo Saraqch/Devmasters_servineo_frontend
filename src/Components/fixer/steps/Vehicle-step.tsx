@@ -1,18 +1,18 @@
-"use client"
+'use client';
 
-import { Card } from "@/Components/Card"
+import { Card } from '@/Components/Card';
 
 interface VehicleStepProps {
-  hasVehicle: boolean | null
-  vehicleType?: string
-  onHasVehicleChange: (hasVehicle: boolean) => void
-  onVehicleTypeChange: (type: string) => void
-  error?: string
+  hasVehicle: boolean | null;
+  vehicleType?: string;
+  onHasVehicleChange: (hasVehicle: boolean) => void;
+  onVehicleTypeChange: (type: string) => void;
+  error?: string;
 }
 
 export function VehicleStep({
   hasVehicle,
-  vehicleType = "",
+  vehicleType = '',
   onHasVehicleChange,
   onVehicleTypeChange,
   error,
@@ -20,7 +20,9 @@ export function VehicleStep({
   return (
     <Card title="Vehículo Propio">
       <div className="space-y-4">
-        <p className="text-sm text-gray-600">¿Cuenta con vehículo propio para realizar los trabajos?</p>
+        <p className="text-sm text-gray-600">
+          ¿Cuenta con vehículo propio para realizar los trabajos?
+        </p>
 
         <div className="space-y-3">
           <label className="flex items-center gap-3 rounded-lg border border-gray-200 p-4 cursor-pointer hover:bg-gray-50 transition-colors">
@@ -33,7 +35,9 @@ export function VehicleStep({
             />
             <div>
               <div className="font-medium text-gray-900">Sí, tengo vehículo</div>
-              <div className="text-xs text-gray-500">Puedo transportar herramientas y materiales</div>
+              <div className="text-xs text-gray-500">
+                Puedo transportar herramientas y materiales
+              </div>
             </div>
           </label>
 
@@ -75,5 +79,5 @@ export function VehicleStep({
         {error && <p className="text-xs text-red-600">{error}</p>}
       </div>
     </Card>
-  )
+  );
 }

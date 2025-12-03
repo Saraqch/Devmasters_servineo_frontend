@@ -1,7 +1,6 @@
 import { z } from 'zod';
 import ClientVerify from '@/Components/login/ClientVerify';
 
-
 const SearchParamsSchema = z.object({
   token: z.string().min(1, 'Token inválido').optional(),
 });

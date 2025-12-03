@@ -1,6 +1,6 @@
-import { ApiResponse, Fixer, Job, JobWithFixers } from "@/types/fixer"
+import { ApiResponse, Fixer, Job, JobWithFixers } from '@/types/fixer';
 
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000/api"
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000/api';
 
 export const fixerService = {
   /**
@@ -9,21 +9,21 @@ export const fixerService = {
   async getJobsWithFixers(): Promise<JobWithFixers[]> {
     try {
       const response = await fetch(`${API_BASE_URL}/jobs/with-fixers`, {
-        method: "GET",
+        method: 'GET',
         headers: {
-          "Content-Type": "application/json",
+          'Content-Type': 'application/json',
         },
-      })
+      });
 
       if (!response.ok) {
-        throw new Error(`Error: ${response.statusText}`)
+        throw new Error(`Error: ${response.statusText}`);
       }
 
-      const data: ApiResponse<JobWithFixers[]> = await response.json()
-      return data.data || []
+      const data: ApiResponse<JobWithFixers[]> = await response.json();
+      return data.data || [];
     } catch (error) {
-      console.error("Error fetching jobs with fixers:", error)
-      throw error
+      console.error('Error fetching jobs with fixers:', error);
+      throw error;
     }
   },
 
@@ -33,21 +33,21 @@ export const fixerService = {
   async getJobs(): Promise<Job[]> {
     try {
       const response = await fetch(`${API_BASE_URL}/jobs`, {
-        method: "GET",
+        method: 'GET',
         headers: {
-          "Content-Type": "application/json",
+          'Content-Type': 'application/json',
         },
-      })
+      });
 
       if (!response.ok) {
-        throw new Error(`Error: ${response.statusText}`)
+        throw new Error(`Error: ${response.statusText}`);
       }
 
-      const data: ApiResponse<Job[]> = await response.json()
-      return data.data || []
+      const data: ApiResponse<Job[]> = await response.json();
+      return data.data || [];
     } catch (error) {
-      console.error("Error fetching jobs:", error)
-      throw error
+      console.error('Error fetching jobs:', error);
+      throw error;
     }
   },
 
@@ -57,21 +57,21 @@ export const fixerService = {
   async getFixers(): Promise<Fixer[]> {
     try {
       const response = await fetch(`${API_BASE_URL}/fixers`, {
-        method: "GET",
+        method: 'GET',
         headers: {
-          "Content-Type": "application/json",
+          'Content-Type': 'application/json',
         },
-      })
+      });
 
       if (!response.ok) {
-        throw new Error(`Error: ${response.statusText}`)
+        throw new Error(`Error: ${response.statusText}`);
       }
 
-      const data: ApiResponse<Fixer[]> = await response.json()
-      return data.data || []
+      const data: ApiResponse<Fixer[]> = await response.json();
+      return data.data || [];
     } catch (error) {
-      console.error("Error fetching fixers:", error)
-      throw error
+      console.error('Error fetching fixers:', error);
+      throw error;
     }
   },
 
@@ -81,21 +81,21 @@ export const fixerService = {
   async getFixerById(id: string): Promise<Fixer> {
     try {
       const response = await fetch(`${API_BASE_URL}/fixers/${id}`, {
-        method: "GET",
+        method: 'GET',
         headers: {
-          "Content-Type": "application/json",
+          'Content-Type': 'application/json',
         },
-      })
+      });
 
       if (!response.ok) {
-        throw new Error(`Error: ${response.statusText}`)
+        throw new Error(`Error: ${response.statusText}`);
       }
 
-      const data: ApiResponse<Fixer> = await response.json()
-      return data.data
+      const data: ApiResponse<Fixer> = await response.json();
+      return data.data;
     } catch (error) {
-      console.error("Error fetching fixer:", error)
-      throw error
+      console.error('Error fetching fixer:', error);
+      throw error;
     }
   },
 
@@ -105,21 +105,21 @@ export const fixerService = {
   async getFixersByJobType(jobType: string): Promise<Fixer[]> {
     try {
       const response = await fetch(`${API_BASE_URL}/jobs/${jobType}/fixers`, {
-        method: "GET",
+        method: 'GET',
         headers: {
-          "Content-Type": "application/json",
+          'Content-Type': 'application/json',
         },
-      })
+      });
 
       if (!response.ok) {
-        throw new Error(`Error: ${response.statusText}`)
+        throw new Error(`Error: ${response.statusText}`);
       }
 
-      const data: ApiResponse<Fixer[]> = await response.json()
-      return data.data || []
+      const data: ApiResponse<Fixer[]> = await response.json();
+      return data.data || [];
     } catch (error) {
-      console.error("Error fetching fixers by job type:", error)
-      throw error
+      console.error('Error fetching fixers by job type:', error);
+      throw error;
     }
   },
-}
+};

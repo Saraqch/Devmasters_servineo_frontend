@@ -1,43 +1,58 @@
-import { baseApi } from "./baseApi"
-import type { IJob } from "@/types/job-offer"
+import { baseApi } from './baseApi';
+import { IJobOffer } from '@/types/fixer-profile';
+
+interface ApiResponse {
+  data: IJobOffer[];
+  count: number;
+  success?: boolean;
+}
 
 export const jobApi = baseApi.injectEndpoints({
   endpoints: (builder) => ({
-    getAllJobs: builder.query<IJob[], void>({
-      query: () => "/jobs",
-      providesTags: ["Job"],
+    getAllJobs: builder.query<IJobOffer[], void>({
+      query: () => '/job-offers',
+      providesTags: ['Job'],
     }),
-    getJobsByFixer: builder.query<IJob[], string>({
-      query: (fixerId) => `/jobs/fixer/${fixerId}`,
-      providesTags: ["Job"],
+
+    getJobsByFixer: builder.query<IJobOffer[], string>({
+      query: (fixerId) => `/job-offers/fixer/${fixerId}`,
+      transformResponse: (response: ApiResponse) => {
+        return response.data;
+      },
+      providesTags: ['Job'],
     }),
-    createJob: builder.mutation<IJob, Omit<IJob, "_id">>({
-      query: (body) => ({
-        url: "/jobs",
-        method: "POST",
-        body,
+
+    createJob: builder.mutation<IJobOffer, FormData>({
+      query: (formData) => ({
+        url: '/job-offers',
+        method: 'POST',
+        body: formData,
       }),
-      invalidatesTags: ["Job"],
+      invalidatesTags: ['Job'],
     }),
-    updateJob: builder.mutation<IJob, { jobId: string; data: Partial<IJob> & { fixerId: string } }>({
-      query: ({ jobId, data }) => ({
-        url: `/jobs/${jobId}`,
-        method: "PATCH",
-        body: data,
+    // ---------------------------
+
+    updateJob: builder.mutation<IJobOffer, { jobId: string; formData: Partial<FormData> }>({
+      query: ({ jobId, formData }) => ({
+        url: `/job-offers/${jobId}`,
+        method: 'PATCH',
+        body: formData,
       }),
-      invalidatesTags: ["Job"],
+      invalidatesTags: ['Job'],
     }),
+
+    // solo se necesita el id del la offerta
     deleteJob: builder.mutation<{ message: string }, { jobId: string; fixerId: string }>({
       query: ({ jobId, fixerId }) => ({
-        url: `/jobs/${jobId}`,
-        method: "DELETE",
+        url: `/job-offers/${jobId}`,
+        method: 'DELETE',
         body: { fixerId },
       }),
-      invalidatesTags: ["Job"],
+      invalidatesTags: ['Job'],
     }),
   }),
   overrideExisting: false,
-})
+});
 
 export const {
   useGetAllJobsQuery,
@@ -45,4 +60,4 @@ export const {
   useCreateJobMutation,
   useUpdateJobMutation,
   useDeleteJobMutation,
-} = jobApi
+} = jobApi;

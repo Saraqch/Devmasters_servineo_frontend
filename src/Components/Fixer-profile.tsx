@@ -1,75 +1,63 @@
-"use client"
+'use client';
 
-import { useState, useEffect, useRef } from "react"
-import {
-  MapPin,
-  Edit,
-  Save,
-  X,
-  Briefcase,
-  MessageSquare,
-  Star,
-  Phone,
-  Mail,
-} from "lucide-react"
-import Image from "next/image"
-import type { Fixer } from "@/app/lib/mock-data"
-import FixerGraficCard from "@/Components/fixer/Fixer-grafic-card"
+import { useState, useEffect, useRef } from 'react';
+import { MapPin, Edit, Save, X, Briefcase, MessageSquare, Star, Phone, Mail } from 'lucide-react';
+import Image from 'next/image';
+import type { Fixer } from '@/app/lib/mock-data';
+import FixerGraficCard from '@/Components/fixer/Fixer-grafic-card';
 
 interface FixerProfileProps {
-  fixer: Fixer
-  isOwner?: boolean
+  fixer: Fixer;
+  isOwner?: boolean;
 }
 
 interface FormData {
-  bio: string
-  phone: string
-  city: string
-  whatsapp: string
+  bio: string;
+  phone: string;
+  city: string;
+  whatsapp: string;
 }
 
 interface LocationMapProps {
-  lat: number
-  lng: number
+  lat: number;
+  lng: number;
 }
 
 export function FixerProfile({ fixer, isOwner = false }: FixerProfileProps) {
-  const [isEditing, setIsEditing] = useState(false)
+  const [isEditing, setIsEditing] = useState(false);
   const [formData, setFormData] = useState<FormData>({
-    bio: fixer.bio || "",
-    phone: fixer.phone || "",
-    city: fixer.city || "",
-    whatsapp: fixer.whatsapp || "",
-  })
+    bio: fixer.bio || '',
+    phone: fixer.phone || '',
+    city: fixer.city || '',
+    whatsapp: fixer.whatsapp || '',
+  });
 
-  const handleInputChange = (
-    e: React.ChangeEvent<HTMLTextAreaElement | HTMLInputElement>
-  ) => {
-    const { name, value } = e.target
-    setFormData((prev) => ({ ...prev, [name]: value }))
-  }
+  const handleInputChange = (e: React.ChangeEvent<HTMLTextAreaElement | HTMLInputElement>) => {
+    const { name, value } = e.target;
+    setFormData((prev) => ({ ...prev, [name]: value }));
+  };
 
   const handleSave = () => {
-    console.log("Saving profile:", formData)
-    setIsEditing(false)
-  }
+    console.log('Saving profile:', formData);
+    setIsEditing(false);
+  };
 
   const handleContact = () => {
     if (fixer.whatsapp) {
-      window.open(`https://wa.me/${fixer.whatsapp.replace(/\D/g, "")}`, "_blank")
+      window.open(`https://wa.me/${fixer.whatsapp.replace(/\D/g, '')}`, '_blank');
     }
-  }
+  };
 
   const formattedJoinDate = (() => {
-    if (!fixer.joinDate) return null
-    const date = new Date(fixer.joinDate)
-    if (Number.isNaN(date.getTime())) return null
+    if (!fixer.joinDate) return null;
+    const date = new Date(fixer.joinDate);
+    if (Number.isNaN(date.getTime())) return null;
 
-    return date.toLocaleDateString("es-ES", {
-      month: "long",
-      year: "numeric",
-    })
-  })()
+    return date.toLocaleDateString('es-ES', {
+      month: 'long',
+      year: 'numeric',
+    });
+  })();
 
   return (
     <div className="max-w-4xl mx-auto py-8 px-4 sm:px-6 lg:px-8">
@@ -79,7 +67,7 @@ export function FixerProfile({ fixer, isOwner = false }: FixerProfileProps) {
           <div className="flex flex-col md:flex-row items-center gap-6">
             <div className="relative">
               <div className="w-32 h-32 rounded-full border-4 border-white bg-white overflow-hidden">
-                {fixer.photo && fixer.photo.startsWith("http") ? (
+                {fixer.photo && fixer.photo.startsWith('http') ? (
                   <Image
                     src={fixer.photo}
                     alt={fixer.name}
@@ -111,7 +99,7 @@ export function FixerProfile({ fixer, isOwner = false }: FixerProfileProps) {
               <div className="flex items-center justify-center md:justify-start gap-4 mt-4">
                 <div className="flex items-center gap-1 bg-white/20 px-3 py-1 rounded-full">
                   <Star className="w-4 h-4 text-yellow-300 fill-yellow-300" />
-                  <span>{fixer.rating?.toFixed(1) || "Nuevo"}</span>
+                  <span>{fixer.rating?.toFixed(1) || 'Nuevo'}</span>
                 </div>
                 <span className="text-sm opacity-80">
                   {fixer.completedJobs} trabajos realizados
@@ -119,9 +107,7 @@ export function FixerProfile({ fixer, isOwner = false }: FixerProfileProps) {
               </div>
 
               {formattedJoinDate && (
-                <p className="mt-1 text-sm opacity-80">
-                  En la app desde {formattedJoinDate}
-                </p>
+                <p className="mt-1 text-sm opacity-80">En la app desde {formattedJoinDate}</p>
               )}
 
               {!isOwner && fixer.whatsapp && (
@@ -173,9 +159,7 @@ export function FixerProfile({ fixer, isOwner = false }: FixerProfileProps) {
 
           {/* Bio Section */}
           <div className="mb-8">
-            <h3 className="text-lg font-semibold text-gray-900 mb-3">
-              Acerca de mí
-            </h3>
+            <h3 className="text-lg font-semibold text-gray-900 mb-3">Acerca de mí</h3>
             {isEditing ? (
               <textarea
                 name="bio"
@@ -187,7 +171,7 @@ export function FixerProfile({ fixer, isOwner = false }: FixerProfileProps) {
               />
             ) : (
               <p className="text-gray-700 whitespace-pre-line leading-relaxed">
-                {fixer.bio || "Este profesional aún no ha agregado una descripción."}
+                {fixer.bio || 'Este profesional aún no ha agregado una descripción.'}
               </p>
             )}
           </div>
@@ -196,9 +180,7 @@ export function FixerProfile({ fixer, isOwner = false }: FixerProfileProps) {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-8">
             {/* Contact Info */}
             <div>
-              <h3 className="text-lg font-semibold text-gray-900 mb-4">
-                Información de contacto
-              </h3>
+              <h3 className="text-lg font-semibold text-gray-900 mb-4">Información de contacto</h3>
               <div className="space-y-3">
                 {fixer.email && (
                   <div className="flex items-center gap-3 p-3 bg-gray-50 rounded-lg">
@@ -218,7 +200,7 @@ export function FixerProfile({ fixer, isOwner = false }: FixerProfileProps) {
                       placeholder="Número de teléfono"
                     />
                   ) : (
-                    <span>{fixer.phone || "No especificado"}</span>
+                    <span>{fixer.phone || 'No especificado'}</span>
                   )}
                 </div>
                 {isEditing && (
@@ -240,13 +222,9 @@ export function FixerProfile({ fixer, isOwner = false }: FixerProfileProps) {
             {/* Services */}
             <div>
               <div className="flex justify-between items-center mb-4">
-                <h3 className="text-lg font-semibold text-gray-900">
-                  Mis Servicios
-                </h3>
+                <h3 className="text-lg font-semibold text-gray-900">Mis Servicios</h3>
                 {isOwner && (
-                  <button className="text-blue-600 text-sm hover:underline">
-                    Gestionar
-                  </button>
+                  <button className="text-blue-600 text-sm hover:underline">Gestionar</button>
                 )}
               </div>
               <div className="flex flex-wrap gap-2">
@@ -260,9 +238,7 @@ export function FixerProfile({ fixer, isOwner = false }: FixerProfileProps) {
                     </span>
                   ))
                 ) : (
-                  <p className="text-gray-500">
-                    Aún no se han agregado servicios
-                  </p>
+                  <p className="text-gray-500">Aún no se han agregado servicios</p>
                 )}
               </div>
 
@@ -303,52 +279,52 @@ export function FixerProfile({ fixer, isOwner = false }: FixerProfileProps) {
         </div>
       </div>
     </div>
-  )
+  );
 }
 
 // ========================================
 // Componente del mapa
 // ========================================
 function LocationMap({ lat, lng }: LocationMapProps) {
-  const mapRef = useRef<HTMLDivElement | null>(null)
-  const [mapLoaded, setMapLoaded] = useState(false)
+  const mapRef = useRef<HTMLDivElement | null>(null);
+  const [mapLoaded, setMapLoaded] = useState(false);
 
   useEffect(() => {
-    if (!document.getElementById("leaflet-css")) {
-      const link = document.createElement("link")
-      link.id = "leaflet-css"
-      link.rel = "stylesheet"
-      link.href = "https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
-      document.head.appendChild(link)
+    if (!document.getElementById('leaflet-css')) {
+      const link = document.createElement('link');
+      link.id = 'leaflet-css';
+      link.rel = 'stylesheet';
+      link.href = 'https://unpkg.com/leaflet@1.9.4/dist/leaflet.css';
+      document.head.appendChild(link);
     }
 
     if (!window.L) {
-      const script = document.createElement("script")
-      script.src = "https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
-      script.onload = () => setMapLoaded(true)
-      document.body.appendChild(script)
+      const script = document.createElement('script');
+      script.src = 'https://unpkg.com/leaflet@1.9.4/dist/leaflet.js';
+      script.onload = () => setMapLoaded(true);
+      document.body.appendChild(script);
     } else {
-      setMapLoaded(true)
+      setMapLoaded(true);
     }
-  }, [])
+  }, []);
 
   useEffect(() => {
-    if (!mapLoaded || !mapRef.current || !window.L) return
+    if (!mapLoaded || !mapRef.current || !window.L) return;
 
-    const L = window.L
-    const map = L.map(mapRef.current).setView([lat, lng], 14)
+    const L = window.L;
+    const map = L.map(mapRef.current).setView([lat, lng], 14);
 
-    L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
-      attribution: "© OpenStreetMap contributors",
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      attribution: '© OpenStreetMap contributors',
       maxZoom: 19,
-    }).addTo(map)
+    }).addTo(map);
 
-    L.marker([lat, lng]).addTo(map)
+    L.marker([lat, lng]).addTo(map);
 
     return () => {
-      map.remove()
-    }
-  }, [lat, lng, mapLoaded])
+      map.remove();
+    };
+  }, [lat, lng, mapLoaded]);
 
   if (!mapLoaded) {
     return (
@@ -358,7 +334,7 @@ function LocationMap({ lat, lng }: LocationMapProps) {
           Cargando mapa...
         </div>
       </div>
-    )
+    );
   }
 
   return (
@@ -366,5 +342,5 @@ function LocationMap({ lat, lng }: LocationMapProps) {
       <h3 className="text-lg font-semibold text-gray-900 mb-3">Ubicación</h3>
       <div ref={mapRef} className="h-64 w-full rounded-xl border border-gray-200" />
     </div>
-  )
+  );
 }

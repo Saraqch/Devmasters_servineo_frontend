@@ -6,8 +6,8 @@ import Link from 'next/link';
 
 const BASE_API = `${process.env.NEXT_PUBLIC_API_URL}/api/controlC`;
 
-const RESEND_COOLDOWN_MS = 60_000;     // 1 minuto
-const LINK_VALIDITY_SEC = 5 * 60;      // contador visible de 5 minutos
+const RESEND_COOLDOWN_MS = 60_000; // 1 minuto
+const LINK_VALIDITY_SEC = 5 * 60; // contador visible de 5 minutos
 
 // 🔹 Esquema Zod para la respuesta de la API
 const resendResponseSchema = z.object({
@@ -52,7 +52,6 @@ export default function ClientResend({ email: emailProp }: { email?: string; tok
     const raw = localStorage.getItem(lastKey);
     return raw ? Number(raw) : undefined;
   }, [lastKey]); // <--- quitar now
-
 
   const msFromLast = lastTs ? now - lastTs : Infinity;
   const canResend = msFromLast >= RESEND_COOLDOWN_MS;
@@ -149,9 +148,10 @@ export default function ClientResend({ email: emailProp }: { email?: string; tok
           onClick={handleResend}
           disabled={loading || !email}
           className={`rounded-xl p-3.5 font-semibold transition
-            ${loading || !email
-              ? 'bg-primary/30 text-primary-foreground/70 cursor-not-allowed shadow-none'
-              : 'bg-primary hover:bg-primary/90 text-primary-foreground shadow-sm hover:shadow'
+            ${
+              loading || !email
+                ? 'bg-primary/30 text-primary-foreground/70 cursor-not-allowed shadow-none'
+                : 'bg-primary hover:bg-primary/90 text-primary-foreground shadow-sm hover:shadow'
             }`}
           title={!canResend ? `Podrás reenviar en ${secondsToResend}s` : 'Reenviar enlace'}
         >
@@ -168,8 +168,14 @@ export default function ClientResend({ email: emailProp }: { email?: string; tok
       </div>
 
       <div className="mt-6 text-xs text-muted-foreground space-y-1">
-        <p>• Revisa la carpeta de <span className="font-medium">Spam</span> o <span className="font-medium">Promociones</span> si no ves el correo.</p>
-        <p>• Al generar un nuevo enlace, los anteriores quedan <span className="font-medium">inválidos</span>.</p>
+        <p>
+          • Revisa la carpeta de <span className="font-medium">Spam</span> o{' '}
+          <span className="font-medium">Promociones</span> si no ves el correo.
+        </p>
+        <p>
+          • Al generar un nuevo enlace, los anteriores quedan{' '}
+          <span className="font-medium">inválidos</span>.
+        </p>
       </div>
     </div>
   );

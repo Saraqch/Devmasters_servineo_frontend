@@ -1,26 +1,26 @@
-"use client"
+'use client';
 
-import type React from "react"
+import type React from 'react';
 
-import { Card } from "@/Components/Card"
-import { PillButton } from "../Pill-button"
-import { Plus, Edit2, Trash2, Wrench } from "lucide-react"
-import { useState } from "react"
+import { Card } from '@/Components/Card';
+import { PillButton } from '../Pill-button';
+import { Plus, Edit2, Trash2, Wrench } from 'lucide-react';
+import { useState } from 'react';
 
 export interface Service {
-  id: string
-  name: string
-  custom?: boolean
+  id: string;
+  name: string;
+  custom?: boolean;
 }
 
 interface ServicesStepProps {
-  services: Service[]
-  selectedServiceIds: string[]
-  onToggleService: (id: string) => void
-  onAddCustomService: (name: string) => void
-  onEditService: (id: string, name: string) => void
-  onDeleteService: (id: string) => void
-  error?: string
+  services: Service[];
+  selectedServiceIds: string[];
+  onToggleService: (id: string) => void;
+  onAddCustomService: (name: string) => void;
+  onEditService: (id: string, name: string) => void;
+  onDeleteService: (id: string) => void;
+  error?: string;
 }
 
 export function ServicesStep({
@@ -32,45 +32,45 @@ export function ServicesStep({
   onDeleteService,
   error,
 }: ServicesStepProps) {
-  const [newService, setNewService] = useState("")
+  const [newService, setNewService] = useState('');
 
   const handleServiceChange = (value: string) => {
-    const sanitized = value.replace(/[^a-zA-ZáéíóúÁÉÍÓÚñÑ\s]/g, "").slice(0, 20)
-    setNewService(sanitized)
-  }
+    const sanitized = value.replace(/[^a-zA-ZáéíóúÁÉÍÓÚñÑ\s]/g, '').slice(0, 20);
+    setNewService(sanitized);
+  };
 
   const handleAddService = () => {
     if (!newService.trim()) {
-      alert("Por favor ingresa un nombre para el servicio")
-      return
+      alert('Por favor ingresa un nombre para el servicio');
+      return;
     }
 
     if (newService.trim().length < 2) {
-      alert("El servicio debe tener al menos 2 caracteres")
-      return
+      alert('El servicio debe tener al menos 2 caracteres');
+      return;
     }
 
-    onAddCustomService(newService.trim())
-    setNewService("")
-  }
+    onAddCustomService(newService.trim());
+    setNewService('');
+  };
 
   const handleKeyPress = (e: React.KeyboardEvent) => {
-    if (e.key === "Enter") {
-      handleAddService()
+    if (e.key === 'Enter') {
+      handleAddService();
     }
-  }
+  };
 
   const handleEdit = (service: Service) => {
-    const newName = prompt("Editar servicio", service.name)
+    const newName = prompt('Editar servicio', service.name);
     if (newName) {
-      const sanitized = newName.replace(/[^a-zA-ZáéíóúÁÉÍÓÚñÑ\s]/g, "").slice(0, 20)
+      const sanitized = newName.replace(/[^a-zA-ZáéíóúÁÉÍÓÚñÑ\s]/g, '').slice(0, 20);
       if (sanitized.trim().length >= 2) {
-        onEditService(service.id, sanitized.trim())
+        onEditService(service.id, sanitized.trim());
       } else {
-        alert("El servicio debe tener al menos 2 caracteres y solo contener letras")
+        alert('El servicio debe tener al menos 2 caracteres y solo contener letras');
       }
     }
-  }
+  };
 
   return (
     <Card title="Selecciona tus servicios">
@@ -99,8 +99,8 @@ export function ServicesStep({
                     type="button"
                     className="text-blue-600 hover:text-blue-800 transition-colors"
                     onClick={(e) => {
-                      e.preventDefault()
-                      handleEdit(s)
+                      e.preventDefault();
+                      handleEdit(s);
                     }}
                     title="Editar servicio"
                   >
@@ -110,8 +110,8 @@ export function ServicesStep({
                     type="button"
                     className="text-red-600 hover:text-red-700 transition-colors"
                     onClick={(e) => {
-                      e.preventDefault()
-                      onDeleteService(s.id)
+                      e.preventDefault();
+                      onDeleteService(s.id);
                     }}
                     title="Eliminar servicio"
                   >
@@ -151,5 +151,5 @@ export function ServicesStep({
         {error && <p className="text-sm text-red-600">{error}</p>}
       </div>
     </Card>
-  )
+  );
 }

@@ -1,5 +1,5 @@
-"use client";
-import { useState, useEffect, useCallback } from "react";
+'use client';
+import { useState, useEffect, useCallback } from 'react';
 
 export interface Session {
   _id: string;
@@ -15,7 +15,7 @@ export function useDevices(userId?: string) {
   const [sessions, setSessions] = useState<Session[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [currentDeviceId, setCurrentDeviceId] = useState("");
+  const [currentDeviceId, setCurrentDeviceId] = useState('');
 
   const fetchSessions = useCallback(async () => {
     if (!userId) return;
@@ -26,25 +26,24 @@ export function useDevices(userId?: string) {
 
       if (res.ok) {
         setSessions(data.devices || []);
-        setCurrentDeviceId(data.currentDeviceId || "");
+        setCurrentDeviceId(data.currentDeviceId || '');
       } else {
-        setError(data.message || "Error al obtener las sesiones.");
+        setError(data.message || 'Error al obtener las sesiones.');
       }
     } catch {
-      setError("Error de conexión con el servidor.");
+      setError('Error de conexión con el servidor.');
     } finally {
       setLoading(false);
     }
   }, [userId]);
 
   const closeAllOtherSessions = useCallback(async () => {
-    if (!userId || !currentDeviceId)
-      return { success: false, message: "Datos insuficientes" };
+    if (!userId || !currentDeviceId) return { success: false, message: 'Datos insuficientes' };
 
     try {
       const res = await fetch(`http://localhost:8000/api/controlC/${userId}`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ currentDeviceId }),
       });
 
@@ -53,16 +52,16 @@ export function useDevices(userId?: string) {
         setSessions((prev) => prev.filter((s) => s.deviceId === currentDeviceId));
         return {
           success: true,
-          message: data.message || "Sesiones cerradas correctamente",
+          message: data.message || 'Sesiones cerradas correctamente',
         };
       } else {
         return {
           success: false,
-          message: data.message || "Error al cerrar sesiones",
+          message: data.message || 'Error al cerrar sesiones',
         };
       }
     } catch {
-      return { success: false, message: "Error al conectar con el servidor" };
+      return { success: false, message: 'Error al conectar con el servidor' };
     }
   }, [userId, currentDeviceId]);
 

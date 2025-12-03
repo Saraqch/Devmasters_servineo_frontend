@@ -1,5 +1,5 @@
 // src/Components/fixer/Fixer-grafic-card.tsx
-import { CheckCircle, XCircle, TrendingUp } from "lucide-react";
+import { CheckCircle, XCircle, TrendingUp } from 'lucide-react';
 
 interface FixerGraficCardProps {
   completedJobs: number;
@@ -13,16 +13,15 @@ interface FixerGraficCardProps {
 }
 
 export default function FixerGraficCard({ completedJobs, cancelledJobs }: FixerGraficCardProps) {
-
-  console.log("Completed Jobs:", completedJobs);
-  console.log("Cancelled Jobs:", cancelledJobs);
+  console.log('Completed Jobs:', completedJobs);
+  console.log('Cancelled Jobs:', cancelledJobs);
   const monthlyData = [
-    { month: "Ene", completados: 8, cancelados: 1 },
-    { month: "Feb", completados: 30, cancelados: 2 },
-    { month: "Mar", completados: 15, cancelados: 0 },
-    { month: "Abr", completados: 20, cancelados: 3 },
-    { month: "May", completados: 22, cancelados: 1 },
-    { month: "Jun", completados: 20, cancelados: 2 },
+    { month: 'Ene', completados: 8, cancelados: 1 },
+    { month: 'Feb', completados: 30, cancelados: 2 },
+    { month: 'Mar', completados: 15, cancelados: 0 },
+    { month: 'Abr', completados: 20, cancelados: 3 },
+    { month: 'May', completados: 22, cancelados: 1 },
+    { month: 'Jun', completados: 20, cancelados: 2 },
   ];
 
   // 🔥 Calcular totales del año desde monthlyData
@@ -32,8 +31,8 @@ export default function FixerGraficCard({ completedJobs, cancelledJobs }: FixerG
   const completionRate = totalJobs > 0 ? Math.round((yearlyCompleted / totalJobs) * 100) : 0;
 
   // 🔥 Escala lineal normal (sin logaritmo) para mejor visualización
-  const maxValue = Math.max(...monthlyData.map(m => Math.max(m.completados, m.cancelados)), 1);
-  
+  const maxValue = Math.max(...monthlyData.map((m) => Math.max(m.completados, m.cancelados)), 1);
+
   // Función para escalar valores linealmente
   const scaleValue = (value: number) => {
     if (value === 0) return 0;
@@ -81,7 +80,8 @@ export default function FixerGraficCard({ completedJobs, cancelledJobs }: FixerG
 
             // Calcular % de éxito del mes
             const monthTotal = data.completados + data.cancelados;
-            const successRate = monthTotal > 0 ? Math.round((data.completados / monthTotal) * 100) : 0;
+            const successRate =
+              monthTotal > 0 ? Math.round((data.completados / monthTotal) * 100) : 0;
 
             return (
               <div key={index} className="flex flex-col items-center space-y-3">
@@ -91,14 +91,13 @@ export default function FixerGraficCard({ completedJobs, cancelledJobs }: FixerG
                 </div>
 
                 <div className="flex items-end gap-2 h-64 w-full">
-                  
                   {/* ⭐ Barra Completados */}
                   <div className="flex-1 flex flex-col justify-end items-center gap-1">
                     <div
                       className="w-full bg-green-500 rounded-t-lg transition-all duration-700 ease-out shadow-lg"
                       style={{
                         height: `${completedHeight}%`,
-                        minHeight: data.completados > 0 ? "24px" : "0px",
+                        minHeight: data.completados > 0 ? '24px' : '0px',
                       }}
                     />
                     <span className="text-xs font-bold text-green-700">{data.completados}</span>
@@ -110,7 +109,7 @@ export default function FixerGraficCard({ completedJobs, cancelledJobs }: FixerG
                       className="w-full bg-red-500 rounded-t-lg transition-all duration-700 ease-out shadow-lg"
                       style={{
                         height: `${cancelledHeight}%`,
-                        minHeight: data.cancelados > 0 ? "20px" : "0px",
+                        minHeight: data.cancelados > 0 ? '20px' : '0px',
                         opacity: data.cancelados > 0 ? 1 : 0.35,
                       }}
                     />

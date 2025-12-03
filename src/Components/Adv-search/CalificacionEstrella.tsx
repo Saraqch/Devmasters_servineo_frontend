@@ -41,6 +41,10 @@ const CalificacionEstrella: React.FC<Props> = ({ value = null, onChange }) => {
   const totalStars = 5;
   const subScales = 9; // .1 - .9
 
+  // Limitar el valor entre 1 y 5
+  const clampedValue = value != null ? Math.min(5, Math.max(1, value)) : null;
+  const mainStarValue = clampedValue ? Math.floor(clampedValue) : null;
+
   const handleMainStarClick = (star: number) => {
     setSelectedMainStar(star);
     setShowModal(true);
@@ -55,8 +59,6 @@ const CalificacionEstrella: React.FC<Props> = ({ value = null, onChange }) => {
     setShowModal(false);
     setSelectedMainStar(null);
   };
-
-  const mainStarValue = value ? Math.floor(value) : null;
 
   return (
     <div className="relative">
@@ -88,9 +90,9 @@ const CalificacionEstrella: React.FC<Props> = ({ value = null, onChange }) => {
           })}
         </div>
 
-        {value && (
+        {clampedValue && (
           <div className="mt-2 text-sm text-gray-600 text-center">
-            {value.toFixed(1)} {t('stars')}
+            {clampedValue.toFixed(1)} {t('stars')}
           </div>
         )}
       </div>

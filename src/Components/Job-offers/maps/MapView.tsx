@@ -1,56 +1,119 @@
-"use client"
+'use client';
 
-import { useState, useEffect, useRef, useCallback } from "react"
-import { useTranslations } from 'next-intl'
-import type { JobOffer } from "@/app/lib/mock-data"
-import { userLocation } from "@/app/lib/mock-data"
-import { JobQuickInfo } from "./JobQuickInfo"
-import { ZoomIn, ZoomOut, Locate, MapPin } from "lucide-react"
-import type { Map, Marker } from 'leaflet';
+import { useState, useEffect, useRef, useCallback } from 'react';
+import type { JobOffer } from '@/app/lib/mock-data';
+import { userLocation } from '@/app/lib/mock-data';
+import { JobQuickInfo } from './JobQuickInfo';
+import { MapPin, Minus, Plus } from 'lucide-react';
+import type { Map, Marker, Circle } from 'leaflet';
 
 interface MapViewProps {
-  offers: JobOffer[]
-  onOfferClick: (offer: JobOffer) => void
+  offers: JobOffer[];
+  onOfferClick: (offer: JobOffer) => void;
 }
 
 export function MapView({ offers, onOfferClick }: MapViewProps) {
-  const t = useTranslations('jobOffers.map')
-  const [isClient, setIsClient] = useState(false)
-  const [hoveredOffer, setHoveredOffer] = useState<JobOffer | null>(null)
-  const mapRef = useRef<HTMLDivElement>(null)
-  const mapInstanceRef = useRef<Map | null>(null)
-  const markersRef = useRef<Marker[]>([])
-  const userMarkerRef = useRef<Marker | null>(null)
-  const hoverTimeoutRef = useRef<NodeJS.Timeout | null>(null)
+  const [isClient, setIsClient] = useState(false);
+  const [hoveredOffer, setHoveredOffer] = useState<JobOffer | null>(null);
+  const [radiusKm, setRadiusKm] = useState(1);
+  const [offersInRadius, setOffersInRadius] = useState(0);
+
+  const mapRef = useRef<HTMLDivElement>(null);
+  const mapInstanceRef = useRef<Map | null>(null);
+  const markersRef = useRef<Marker[]>([]);
+  const userMarkerRef = useRef<Marker | null>(null);
+  const circleRef = useRef<Circle | null>(null);
+  const hoverTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const isHoveringCardRef = useRef<boolean>(false);
+  const currentHoveredOfferIdRef = useRef<string | null>(null);
+  const pendingHoverRef = useRef<string | null>(null);
 
   const calculateDistance = (lat1: number, lng1: number, lat2: number, lng2: number) => {
-    const R = 6371
-    const dLat = ((lat2 - lat1) * Math.PI) / 180
-    const dLng = ((lng2 - lng1) * Math.PI) / 180
+    const R = 6371;
+    const dLat = ((lat2 - lat1) * Math.PI) / 180;
+    const dLng = ((lng2 - lng1) * Math.PI) / 180;
     const a =
       Math.sin(dLat / 2) * Math.sin(dLat / 2) +
-      Math.cos((lat1 * Math.PI) / 180) * Math.cos((lat2 * Math.PI) / 180) * Math.sin(dLng / 2) * Math.sin(dLng / 2)
-    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a))
-    return R * c
-  }
+      Math.cos((lat1 * Math.PI) / 180) *
+        Math.cos((lat2 * Math.PI) / 180) *
+        Math.sin(dLng / 2) *
+        Math.sin(dLng / 2);
+    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+    return R * c;
+  };
 
-  const updateMarkers = useCallback(async (L: typeof import('leaflet'), map: Map, offersToShow: JobOffer[]) => {
-    // Limpiar marcadores existentes
-    markersRef.current.forEach((marker) => map.removeLayer(marker))
-    markersRef.current = []
+  // Calcular ofertas dentro del radio actual
+  const calculateOffersInRadius = useCallback(
+    (currentRadius: number) => {
+      const count = offers.filter((offer) => {
+        const distance = calculateDistance(
+          userLocation.lat,
+          userLocation.lng,
+          offer.location.lat,
+          offer.location.lng,
+        );
+        return distance <= currentRadius;
+      }).length;
+      setOffersInRadius(count);
+    },
+    [offers],
+  );
 
-    // Agregar nuevos marcadores
-    offersToShow.forEach((offer, index) => {
-      const distance = calculateDistance(
-        userLocation.lat,
-        userLocation.lng,
-        offer.location.lat,
-        offer.location.lng,
-      ).toFixed(1)
+  // Actualizar radio del círculo
+  const updateCircleRadius = useCallback(
+    (newRadius: number) => {
+      if (circleRef.current) {
+        circleRef.current.setRadius(newRadius * 1000); // convertir a metros
+      }
+      calculateOffersInRadius(newRadius);
+    },
+    [calculateOffersInRadius],
+  );
 
-      const markerIcon = L.divIcon({
-        className: "custom-offer-marker",
-        html: `
+  // Handlers para ajustar el radio
+  const handleRadiusChange = useCallback(
+    (newRadius: number) => {
+      const clampedRadius = Math.max(0.5, Math.min(10, newRadius));
+      setRadiusKm(clampedRadius);
+      updateCircleRadius(clampedRadius);
+    },
+    [updateCircleRadius],
+  );
+
+  const increaseRadius = useCallback(() => {
+    handleRadiusChange(radiusKm + 0.5);
+  }, [radiusKm, handleRadiusChange]);
+
+  const decreaseRadius = useCallback(() => {
+    handleRadiusChange(radiusKm - 0.5);
+  }, [radiusKm, handleRadiusChange]);
+
+  const updateMarkers = useCallback(
+    async (L: typeof import('leaflet'), map: Map, offersToShow: JobOffer[]) => {
+      // Limpiar marcadores existentes de forma segura
+      markersRef.current.forEach((marker) => {
+        try {
+          map.removeLayer(marker);
+        } catch (error) {
+          console.error('Error removing marker:', error);
+        }
+      });
+      markersRef.current = [];
+
+      // ========================================================================
+      // 📍 MARCADORES OPTIMIZADOS CON MEJOR MANEJO DE HOVER
+      // ========================================================================
+      offersToShow.forEach((offer, index) => {
+        const distance = calculateDistance(
+          userLocation.lat,
+          userLocation.lng,
+          offer.location.lat,
+          offer.location.lng,
+        ).toFixed(1);
+
+        const markerIcon = L.divIcon({
+          className: 'custom-offer-marker',
+          html: `
           <div class="relative animate-in fade-in slide-in-from-bottom-4 duration-500" style="animation-delay: ${index * 100}ms">
             <div class="absolute -bottom-1 left-1/2 -translate-x-1/2 w-6 h-2 bg-black/20 rounded-full blur-sm"></div>
             <div class="relative group cursor-pointer">
@@ -66,72 +129,108 @@ export function MapView({ offers, onOfferClick }: MapViewProps) {
             </div>
           </div>
         `,
-        iconSize: [48, 48],
-        iconAnchor: [24, 48],
-      })
+          iconSize: [48, 48],
+          iconAnchor: [24, 48],
+        });
 
-      const marker = L.marker([offer.location.lat, offer.location.lng], {
-        icon: markerIcon,
-      }).addTo(map)
+        const marker = L.marker([offer.location.lat, offer.location.lng], {
+          icon: markerIcon,
+        }).addTo(map);
 
-      // Eventos hover
-      const markerElement = marker.getElement()
-      if (markerElement) {
-        markerElement.addEventListener("mouseenter", () => {
-          if (hoverTimeoutRef.current) {
-            clearTimeout(hoverTimeoutRef.current)
-          }
-          hoverTimeoutRef.current = setTimeout(() => {
-            setHoveredOffer(offer)
-          }, 200)
-        })
+        // ========================================================================
+        // 📍 EVENTOS HOVER OPTIMIZADOS - Mejor manejo de múltiples hover
+        // ========================================================================
+        const markerElement = marker.getElement();
+        if (markerElement) {
+          markerElement.addEventListener('mouseenter', () => {
+            // Limpiar cualquier timeout pendiente
+            if (hoverTimeoutRef.current) {
+              clearTimeout(hoverTimeoutRef.current);
+              hoverTimeoutRef.current = null;
+            }
 
-        markerElement.addEventListener("mouseleave", () => {
-          if (hoverTimeoutRef.current) {
-            clearTimeout(hoverTimeoutRef.current)
-          }
-          hoverTimeoutRef.current = setTimeout(() => {
-            setHoveredOffer(null)
-          }, 300)
-        })
-      }
+            // Si ya estamos mostrando esta oferta, no hacer nada
+            if (currentHoveredOfferIdRef.current === offer.id) {
+              return;
+            }
 
-      // Popup al hacer click - NO traducir fixerName ni description (son datos)
-      marker.bindPopup(
-        `<div class="text-center p-3">
+            // Marcar como pendiente
+            pendingHoverRef.current = offer.id;
+
+            // Delay más corto para mejor responsividad
+            hoverTimeoutRef.current = setTimeout(() => {
+              // Verificar que sigue siendo la pendiente (no se canceló)
+              if (pendingHoverRef.current === offer.id && !isHoveringCardRef.current) {
+                currentHoveredOfferIdRef.current = offer.id;
+                setHoveredOffer(offer);
+              }
+              pendingHoverRef.current = null;
+            }, 100);
+          });
+
+          markerElement.addEventListener('mouseleave', () => {
+            // Si este marcador era el pendiente, cancelarlo
+            if (pendingHoverRef.current === offer.id) {
+              pendingHoverRef.current = null;
+            }
+
+            // Limpiar timeout de entrada
+            if (hoverTimeoutRef.current) {
+              clearTimeout(hoverTimeoutRef.current);
+              hoverTimeoutRef.current = null;
+            }
+
+            // Solo ocultar si es el marcador actualmente mostrado
+            if (currentHoveredOfferIdRef.current === offer.id) {
+              // Delay antes de ocultar para permitir mover el mouse a la tarjeta
+              hoverTimeoutRef.current = setTimeout(() => {
+                if (!isHoveringCardRef.current && currentHoveredOfferIdRef.current === offer.id) {
+                  currentHoveredOfferIdRef.current = null;
+                  setHoveredOffer(null);
+                }
+              }, 150);
+            }
+          });
+        }
+
+        // Popup al hacer click
+        marker.bindPopup(
+          `<div class="text-center p-3">
           <p class="font-bold text-sm text-gray-800 mb-1">${offer.fixerName}</p>
           <p class="text-xs text-gray-600 mb-2">${offer.description}</p>
-          <p class="text-xs text-primary font-semibold">${distance} km ${t('distance')}</p>
+          <p class="text-xs text-primary font-semibold">${distance} km de distancia</p>
         </div>`,
-        { className: "custom-popup" },
-      )
+          { className: 'custom-popup' },
+        );
 
-      markersRef.current.push(marker)
-    })
-  }, [t])
-
-  useEffect(() => {
-    setIsClient(true)
-  }, [])
+        markersRef.current.push(marker);
+      });
+    },
+    [],
+  ); // Dependencias: calculateDistance y userLocation son estables, pero si no, se pueden incluir
 
   useEffect(() => {
-    if (!isClient || !mapRef.current) return
+    setIsClient(true);
+  }, []);
+
+  useEffect(() => {
+    if (!isClient || !mapRef.current) return;
 
     const initializeMap = async () => {
-      const L = await import("leaflet")
+      const L = await import('leaflet');
 
       const map = L.map(mapRef.current!, {
         zoomControl: false,
-      }).setView([userLocation.lat, userLocation.lng], 14)
+      }).setView([userLocation.lat, userLocation.lng], 14);
 
-      L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
-        attribution: "© OpenStreetMap contributors",
+      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        attribution: '© OpenStreetMap contributors',
         maxZoom: 19,
-      }).addTo(map)
+      }).addTo(map);
 
-      // Crear icono de usuario
+      // Marcador de usuario
       const userIcon = L.divIcon({
-        className: "custom-user-marker",
+        className: 'custom-user-marker',
         html: `
           <div class="relative">
             <div class="absolute inset-0 w-10 h-10 -left-1 -top-1 bg-primary/30 rounded-full animate-ping"></div>
@@ -144,174 +243,265 @@ export function MapView({ offers, onOfferClick }: MapViewProps) {
         `,
         iconSize: [40, 40],
         iconAnchor: [20, 20],
-      })
+      });
 
-      // Marcador de usuario
       const userMarker = L.marker([userLocation.lat, userLocation.lng], {
         icon: userIcon,
-      }).addTo(map)
+      }).addTo(map);
+
       userMarker.bindPopup(
         `<div class="text-center p-3">
-          <p class="font-bold text-sm text-blue-400 mb-1">${t('yourLocation')}</p>
+          <p class="font-bold text-sm text-blue-400 mb-1">Tu ubicación</p>
           <p class="text-xs text-gray-600">${userLocation.address}</p>
         </div>`,
-        { className: "custom-popup" },
-      )
+        { className: 'custom-popup' },
+      );
 
-      userMarkerRef.current = userMarker
+      userMarkerRef.current = userMarker;
 
-      // Círculo alrededor del usuario
-      L.circle([userLocation.lat, userLocation.lng], {
-        color: "#3b82f6",
-        fillColor: "#3b82f6",
+      // Círculo dinámico con radio inicial
+      const circle = L.circle([userLocation.lat, userLocation.lng], {
+        color: '#3b82f6',
+        fillColor: '#3b82f6',
         fillOpacity: 0.15,
-        radius: 1000,
+        radius: radiusKm * 1000,
         weight: 2,
         opacity: 0.6,
-      }).addTo(map)
+      }).addTo(map);
 
-      mapInstanceRef.current = map
+      circleRef.current = circle;
 
-      // Agregar marcadores de ofertas
-      updateMarkers(L, map, offers)
-    }
+      mapInstanceRef.current = map;
+      updateMarkers(L, map, offers);
+      calculateOffersInRadius(radiusKm);
+    };
 
-    initializeMap()
+    initializeMap();
 
     return () => {
       if (mapInstanceRef.current) {
-        mapInstanceRef.current.remove()
-        mapInstanceRef.current = null
+        mapInstanceRef.current.remove();
+        mapInstanceRef.current = null;
       }
-    }
-  }, [isClient, offers, updateMarkers, t])
+    };
+  }, [isClient, offers, updateMarkers, radiusKm, calculateOffersInRadius]);
 
   // Efecto para actualizar marcadores cuando las ofertas cambian
   useEffect(() => {
-    if (!isClient || !mapInstanceRef.current) return
+    if (!isClient || !mapInstanceRef.current) return;
 
     const updateMarkersOnChange = async () => {
-      const L = await import("leaflet")
-      updateMarkers(L, mapInstanceRef.current!, offers)
-    }
+      const L = await import('leaflet');
+      updateMarkers(L, mapInstanceRef.current!, offers);
+    };
 
-    updateMarkersOnChange()
-  }, [offers, isClient, updateMarkers])
+    updateMarkersOnChange();
+  }, [offers, isClient, updateMarkers]);
 
-  const handleShowMore = (offer: JobOffer) => {
-    onOfferClick(offer)
-    setHoveredOffer(null)
-  }
+  const handleShowMore = useCallback(
+    (offer: JobOffer) => {
+      // Limpiar todos los estados y timeouts
+      if (hoverTimeoutRef.current) {
+        clearTimeout(hoverTimeoutRef.current);
+        hoverTimeoutRef.current = null;
+      }
+
+      // Resetear todas las refs
+      isHoveringCardRef.current = false;
+      currentHoveredOfferIdRef.current = null;
+      pendingHoverRef.current = null;
+
+      onOfferClick(offer);
+      setHoveredOffer(null);
+    },
+    [onOfferClick],
+  );
+
+  // Cleanup al desmontar componente
+  useEffect(() => {
+    return () => {
+      if (hoverTimeoutRef.current) {
+        clearTimeout(hoverTimeoutRef.current);
+      }
+    };
+  }, []);
 
   const handleZoomIn = () => {
     if (mapInstanceRef.current) {
-      mapInstanceRef.current.zoomIn()
+      mapInstanceRef.current.zoomIn();
     }
-  }
+  };
 
   const handleZoomOut = () => {
     if (mapInstanceRef.current) {
-      mapInstanceRef.current.zoomOut()
+      mapInstanceRef.current.zoomOut();
     }
-  }
+  };
 
-  const handleRecenter = () => {
-    if (mapInstanceRef.current) {
-      mapInstanceRef.current.setView([userLocation.lat, userLocation.lng], 14)
-    }
-  }
+  // const handleRecenter = () => {
+  //   if (mapInstanceRef.current) {
+  //     mapInstanceRef.current.setView([userLocation.lat, userLocation.lng], 14)
+  //   }
+  // }
 
   // Si no estamos en el cliente, mostrar un placeholder
   if (!isClient) {
     return (
       <div className="w-full h-full rounded-2xl overflow-hidden shadow-lg border border-blue-200 bg-gray-200 flex items-center justify-center">
-        <p>{t('loading')}</p>
+        <p>Cargando mapa...</p>
       </div>
-    )
+    );
   }
 
   return (
     <div className="relative w-full h-full rounded-2xl overflow-hidden shadow-lg border border-blue-200">
-      <div ref={mapRef} className="w-full h-full relative z-0" />
+      <div ref={mapRef} className="w-full h-full relative" />
 
+      {/* ======================================================================
+          📍 PANEL "DETALLES DE LA OFERTA" (JobQuickInfo) - OPTIMIZADO
+          ====================================================================== */}
       {hoveredOffer && (
         <div
-          className="absolute top-4 right-2 sm:top-20 sm:left-4 z-[1000] animate-in fade-in slide-in-from-right-8 sm:slide-in-from-left-8 duration-300"
+          className="absolute top-4 left-1/4 -translate-x-1/2 z-[400] animate-in fade-in slide-in-from-top-4 duration-200 w-full max-w-sm px-4"
           onMouseEnter={() => {
+            // Marcar que estamos sobre la tarjeta
+            isHoveringCardRef.current = true;
+
+            // Limpiar cualquier timeout de cierre
             if (hoverTimeoutRef.current) {
-              clearTimeout(hoverTimeoutRef.current)
+              clearTimeout(hoverTimeoutRef.current);
+              hoverTimeoutRef.current = null;
             }
           }}
           onMouseLeave={() => {
+            // Marcar que salimos de la tarjeta
+            isHoveringCardRef.current = false;
+
+            // Limpiar timeout anterior
+            if (hoverTimeoutRef.current) {
+              clearTimeout(hoverTimeoutRef.current);
+            }
+
+            // Delay corto para ocultar la tarjeta
             hoverTimeoutRef.current = setTimeout(() => {
-              setHoveredOffer(null)
-            }, 300)
+              if (!isHoveringCardRef.current) {
+                currentHoveredOfferIdRef.current = null;
+                pendingHoverRef.current = null;
+                setHoveredOffer(null);
+              }
+            }, 150);
           }}
         >
           <JobQuickInfo
             offer={hoveredOffer}
             onShowMore={() => handleShowMore(hoveredOffer)}
-            distance={Number(calculateDistance(
-              userLocation.lat,
-              userLocation.lng,
-              hoveredOffer.location.lat,
-              hoveredOffer.location.lng,
-            ).toFixed(1))}
+            distance={Number(
+              calculateDistance(
+                userLocation.lat,
+                userLocation.lng,
+                hoveredOffer.location.lat,
+                hoveredOffer.location.lng,
+              ).toFixed(1),
+            )}
           />
         </div>
       )}
 
-      <div className="absolute top-4 right-4 flex flex-col gap-2 z-[1000]">
+      {/* Botones de zoom */}
+      <div className="absolute top-4 left-4 flex flex-col gap-0 z-[450] bg-white rounded-lg shadow-md border border-gray-300 overflow-hidden">
         <button
           onClick={handleZoomIn}
-          className="p-3 bg-white/20 backdrop-blur-xl border border-blue-500/30 rounded-xl text-primary hover:text-blue-400 hover:border-blue-400/50 transition-all duration-300 shadow-lg shadow-blue-500/10 hover:shadow-blue-500/30 hover:scale-110"
+          className="w-10 h-10 flex items-center justify-center text-gray-700 hover:bg-gray-100 transition-colors border-b border-gray-300"
+          aria-label="Zoom in"
         >
-          <ZoomIn className="w-5 h-5" />
+          <span className="text-xl font-semibold leading-none">+</span>
         </button>
         <button
           onClick={handleZoomOut}
-          className="p-3 bg-white/20 backdrop-blur-xl border border-blue-500/30 rounded-xl text-primary hover:text-blue-400 hover:border-blue-400/50 transition-all duration-300 shadow-lg shadow-blue-500/10 hover:shadow-blue-500/30 hover:scale-110"
+          className="w-10 h-10 flex items-center justify-center text-gray-700 hover:bg-gray-100 transition-colors"
+          aria-label="Zoom out"
         >
-          <ZoomOut className="w-5 h-5" />
-        </button>
-        <button
-          onClick={handleRecenter}
-          className="p-3 bg-white/20 backdrop-blur-xl border border-blue-500/30 rounded-xl text-primary hover:text-blue-400 hover:border-blue-400/50 transition-all duration-300 shadow-lg shadow-blue-500/10 hover:shadow-blue-500/30 hover:scale-110"
-        >
-          <Locate className="w-5 h-5" />
+          <span className="text-xl font-semibold leading-none">−</span>
         </button>
       </div>
 
-      <div className="absolute bottom-4 left-4 bg-white/20 backdrop-blur-xl border-1 border-primary rounded-2xl p-4 shadow-2xl shadow-blue-500/20 z-[1000] animate-in fade-in slide-in-from-left duration-500 max-w-xs">
+      {/* ======================================================================
+          📍 PANEL DINÁMICO "DETALLES DEL MAPA" CON CONTROL DE RADIO
+          ====================================================================== */}
+      <div className="absolute bottom-4 right-4 bg-white/95 backdrop-blur-xl border border-blue-300 rounded-2xl p-4 shadow-2xl shadow-blue-500/20 z-[450] animate-in fade-in slide-in-from-right duration-500 max-w-xs">
         <h4 className="font-bold text-sm text-primary mb-3 flex items-center gap-2">
           <MapPin className="w-4 h-4" />
-          {t('mapDetails')}
+          Detalles del mapa
         </h4>
         <div className="space-y-2.5 text-sm">
           <div className="flex items-center gap-3 group cursor-default">
             <div className="relative">
-              <div className="w-5 h-5 rounded-full bg-primary border-2 border-white/50 shadow-lg transition-transform duration-300 group-hover:scale-110" />
+              <div className="w-5 h-5 rounded-full bg-primary border-2 border-white shadow-lg transition-transform duration-300 group-hover:scale-110" />
             </div>
-            <span className="font-medium">{t('yourLocation')}</span>
+            <span className="font-medium">Tu ubicación</span>
           </div>
           <div className="flex items-center gap-3 group cursor-default">
             <div className="relative">
-              <div className="w-5 h-5 rounded-full bg-black/20 border-2 border-white/50 shadow-lg transition-transform duration-300 group-hover:scale-110" />
+              <div className="w-5 h-5 rounded-full bg-black/20 border-2 border-white shadow-lg transition-transform duration-300 group-hover:scale-110" />
             </div>
-            <span className="font-medium">{t('jobOffers')}</span>
+            <span className="font-medium">Ofertas de trabajo</span>
           </div>
-          <div className="flex items-center gap-3 pt-2 border-t border-blue-500/30">
-            <div className="w-5 h-5 rounded-full border-2 border-blue-500/60 bg-blue-500/10" />
-            <span className="text-gray-600 text-xs">{t('radius')}</span>
+
+          {/* Control de Radio */}
+          <div className="pt-3 border-t border-blue-500/30 space-y-3">
+            <div className="flex items-center justify-between">
+              <span className="text-gray-700 text-xs font-medium">Radio de búsqueda</span>
+              <span className="text-primary text-sm font-bold">{radiusKm.toFixed(1)} km</span>
+            </div>
+
+            {/* Slider */}
+            <div className="relative">
+              <input
+                type="range"
+                min="0.5"
+                max="10"
+                step="0.5"
+                value={radiusKm}
+                onChange={(e) => handleRadiusChange(parseFloat(e.target.value))}
+                className="w-full h-2 bg-blue-100 rounded-lg appearance-none cursor-pointer accent-blue-600 hover:accent-blue-700 transition-all"
+              />
+              <div className="flex justify-between text-xs text-gray-400 mt-1">
+                <span>0.5km</span>
+                <span>10km</span>
+              </div>
+            </div>
+
+            {/* Botones +/- */}
+            <div className="flex items-center justify-center gap-2">
+              <button
+                onClick={decreaseRadius}
+                disabled={radiusKm <= 0.5}
+                className="w-8 h-8 flex items-center justify-center rounded-full bg-blue-100 text-blue-600 hover:bg-blue-200 disabled:opacity-40 disabled:cursor-not-allowed transition-all hover:scale-110"
+                aria-label="Disminuir radio"
+              >
+                <Minus className="w-4 h-4" />
+              </button>
+              <span className="text-xs text-gray-500 min-w-[60px] text-center">Ajustar radio</span>
+              <button
+                onClick={increaseRadius}
+                disabled={radiusKm >= 10}
+                className="w-8 h-8 flex items-center justify-center rounded-full bg-blue-100 text-blue-600 hover:bg-blue-200 disabled:opacity-40 disabled:cursor-not-allowed transition-all hover:scale-110"
+                aria-label="Aumentar radio"
+              >
+                <Plus className="w-4 h-4" />
+              </button>
+            </div>
           </div>
         </div>
 
+        {/* Contador de ofertas */}
         <div className="mt-3 pt-3 border-t border-blue-500/30">
           <p className="text-xs font-semibold text-primary">
-            {offers.length} {offers.length === 1 ? t('availableOffers.singular') : t('availableOffers.plural')}
+            {offersInRadius} {offersInRadius === 1 ? 'oferta' : 'ofertas'} en el radio
           </p>
+          <p className="text-xs text-gray-500 mt-1">{offers.length} total disponibles</p>
         </div>
       </div>
     </div>
-  )
+  );
 }

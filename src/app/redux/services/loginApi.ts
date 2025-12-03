@@ -16,10 +16,7 @@ class ApiClient {
     this.timeout = timeout;
   }
 
-  private async request<T>(
-    url: string,
-    options: RequestInit
-  ): Promise<ApiResponse<T>> {
+  private async request<T>(url: string, options: RequestInit): Promise<ApiResponse<T>> {
     const controller = new AbortController();
     const id = setTimeout(() => controller.abort(), this.timeout);
 
@@ -35,14 +32,12 @@ class ApiClient {
 
       const data = await response.json();
       return { success: response.ok, data, message: data.message };
-    } 
-    catch (error: unknown) {
-  if (error instanceof Error) {
-    return { success: false, error: error.message };
-  }
-  return { success: false, error: 'Error desconocido' };
-}
-  finally {
+    } catch (error: unknown) {
+      if (error instanceof Error) {
+        return { success: false, error: error.message };
+      }
+      return { success: false, error: 'Error desconocido' };
+    } finally {
       clearTimeout(id);
     }
   }

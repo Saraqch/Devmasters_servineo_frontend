@@ -18,6 +18,7 @@ import { useSearchTouch } from '@/app/redux/features/searchHistory/useSearchTouc
 import { SearchDropdown } from '@/Components/Shared/SearchDropdown';
 import { useJobTypeAutoMatch } from '@/lib/useJobTypeAutoMatch';
 import { setFilters } from '@/app/redux/slice/jobOfert';
+import { useEffect } from 'react';
 
 interface SearchBarProps {
   onSearch: (query: string) => void;
@@ -41,6 +42,13 @@ export const SearchBar = ({ onSearch, onFilter }: SearchBarProps) => {
 
   const containerRef = React.useRef<HTMLDivElement | null>(null);
   const inputRef = React.useRef<HTMLInputElement | null>(null);
+
+  useEffect(() => {
+    if (value !== '') {
+      const { isValid, error } = validateSearch(value);
+      setError(isValid ? undefined : error);
+    }
+  }, [value]);
 
   const prevSearchFromStore = React.useRef(searchFromStore);
 
@@ -74,8 +82,18 @@ export const SearchBar = ({ onSearch, onFilter }: SearchBarProps) => {
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const newValue = e.target.value;
+    if (newValue.length >= 100) {
+      // asegura que no pase de 100
+      const trimmed = newValue.slice(0, 100);
+      setPreviewValue(null);
+      setValue(trimmed);
+      setError('Límite máximo de 100 caracteres.');
+      return;
+    }
     setValue(newValue);
     setPreviewValue(null);
+    // Abrir el dropdown al escribir para que las sugerencias vuelvan a mostrarse
+    setIsOpen(true);
     const { isValid, error } = validateSearch(newValue);
     setError(isValid ? undefined : error);
     setHighlighted(-1);
@@ -87,13 +105,15 @@ export const SearchBar = ({ onSearch, onFilter }: SearchBarProps) => {
     onSearch('');
     // Limpia el automarcado del filtro cuando se borra la búsqueda
     if (filtersFromStore.isAutoSelectedCategory || filtersFromStore.isAutoSelectedCity) {
-      dispatch(setFilters({
-        ...filtersFromStore,
-        category: filtersFromStore.isAutoSelectedCategory ? [] : filtersFromStore.category,
-        city: filtersFromStore.isAutoSelectedCity ? [] : filtersFromStore.city,
-        isAutoSelectedCategory: false,
-        isAutoSelectedCity: false,
-      }));
+      dispatch(
+        setFilters({
+          ...filtersFromStore,
+          category: filtersFromStore.isAutoSelectedCategory ? [] : filtersFromStore.category,
+          city: filtersFromStore.isAutoSelectedCity ? [] : filtersFromStore.city,
+          isAutoSelectedCategory: false,
+          isAutoSelectedCity: false,
+        }),
+      );
     }
   };
 
@@ -104,14 +124,19 @@ export const SearchBar = ({ onSearch, onFilter }: SearchBarProps) => {
   const applyAutoFilterIfMatch = (searchQuery: string) => {
     const matchedJobType = findMatchingJobType(searchQuery);
     const matchedCity = findMatchingCity(searchQuery);
-    
+
     const newFilters = { ...filtersFromStore };
 
     if (matchedJobType) {
       newFilters.category = [matchedJobType];
       newFilters.isAutoSelectedCategory = true;
     } else {
-      if (filtersFromStore.isAutoSelectedCategory && filtersFromStore.category.length === 1 && filtersFromStore.range.length === 0 && filtersFromStore.city.length === 0) {
+      if (
+        filtersFromStore.isAutoSelectedCategory &&
+        filtersFromStore.category.length === 1 &&
+        filtersFromStore.range.length === 0 &&
+        filtersFromStore.city.length === 0
+      ) {
         newFilters.category = [];
         newFilters.isAutoSelectedCategory = false;
       }
@@ -233,6 +258,7 @@ export const SearchBar = ({ onSearch, onFilter }: SearchBarProps) => {
             className={inputClasses}
             value={previewValue ?? value}
             onChange={handleChange}
+            maxLength={100}
             ref={(el) => {
               inputRef.current = el as HTMLInputElement | null;
             }}
@@ -276,7 +302,9 @@ export const SearchBar = ({ onSearch, onFilter }: SearchBarProps) => {
           {onFilter && <FilterButton onClick={onFilter} />}
         </div>
       </div>
-      <div className="h-2 mt-1">{hasError && <p className="text-red-500 text-sm">{error}</p>}</div>
+      <div className="min-h-5 mt-1">
+        {hasError && <p className="text-red-500 text-sm leading-4">{error}</p>}
+      </div>
     </div>
   );
 };

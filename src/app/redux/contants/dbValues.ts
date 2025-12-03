@@ -72,7 +72,7 @@ export const DB_VALUES = {
 } as const;
 
 // Tipos derivados para TypeScript
-export type RangeValue = typeof DB_VALUES.ranges[number];
-export type CityValue = typeof DB_VALUES.cities[number];
-export type JobTypeValue = typeof DB_VALUES.jobTypes[number];
-export type CategoryValue = typeof DB_VALUES.categories[number];
+export type RangeValue = (typeof DB_VALUES.ranges)[number];
+export type CityValue = (typeof DB_VALUES.cities)[number];
+export type JobTypeValue = (typeof DB_VALUES.jobTypes)[number];
+export type CategoryValue = (typeof DB_VALUES.categories)[number];

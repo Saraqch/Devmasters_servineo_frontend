@@ -47,10 +47,7 @@ export default function RecuperacionCorreoPage() {
     setServerError(null);
     setLoading(true);
 
-    const fallback = setTimeout(
-      () => setServerError('Estamos tardando más de lo normal…'),
-      3000
-    );
+    const fallback = setTimeout(() => setServerError('Estamos tardando más de lo normal…'), 3000);
 
     try {
       const res = await fetch(`${BASE_API}/auth/forgot-password`, {
@@ -68,9 +65,7 @@ export default function RecuperacionCorreoPage() {
       } else if (res.status === 404) {
         setServerError('El correo no está asociado a ninguna cuenta.');
       } else if (res.status === 429) {
-        setServerError(
-          'Ya existe una solicitud en curso. Intenta nuevamente en 1 minuto.'
-        );
+        setServerError('Ya existe una solicitud en curso. Intenta nuevamente en 1 minuto.');
       } else {
         setServerError(responseData.message || 'Error al solicitar el enlace.');
       }
@@ -149,19 +144,18 @@ export default function RecuperacionCorreoPage() {
             type="submit"
             disabled={!emailValid || loading}
             className={`w-full font-semibold rounded-xl p-3.5 mt-2 transition-all duration-300
-              ${(!emailValid || loading)
-                ? 'bg-primary/30 text-primary-foreground/70 cursor-not-allowed shadow-none'
-                : 'bg-primary hover:bg-primary/90 text-primary-foreground shadow-sm hover:shadow'}`}
+              ${
+                !emailValid || loading
+                  ? 'bg-primary/30 text-primary-foreground/70 cursor-not-allowed shadow-none'
+                  : 'bg-primary hover:bg-primary/90 text-primary-foreground shadow-sm hover:shadow'
+              }`}
           >
             {loading ? 'Enviando...' : 'Enviar correo electrónico'}
           </button>
         </form>
 
         <div className="mt-6 text-center text-sm text-muted-foreground">
-          <Link
-            href="/login"
-            className="text-primary hover:underline font-medium"
-          >
+          <Link href="/login" className="text-primary hover:underline font-medium">
             Volver al inicio de sesión
           </Link>
         </div>

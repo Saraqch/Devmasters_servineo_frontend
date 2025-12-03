@@ -29,7 +29,6 @@ export const NoResultsMessage: React.FC<NoResultsMessageProps> = ({ search }) =>
   );
 };
 
-
 interface InputOnlySearchProps {
   onSearch: (query: string) => void;
   onValueChange?: (value: string) => void;

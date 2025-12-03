@@ -43,6 +43,7 @@ export function HelpButton() {
     { icon: Star, key: 'step9' },
     { icon: CheckCircle, key: 'step10' },
     { icon: RotateCcw, key: 'step11' },
+    { icon: X, key: 'step12' },
   ];
 
   return (

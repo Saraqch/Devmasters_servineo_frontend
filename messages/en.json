@@ -24,7 +24,8 @@
     "Soldador": "Welder",
     "Techador": "Roofer",
     "Vidriero": "Glazier",
-    "Yesero": "Plasterer"
+    "Yesero": "Plasterer",
+    "Plomería": "Plumber"
   },
   "jobOffers": {
     "pageTitle": "Job Offers",
@@ -194,7 +195,8 @@
       "step8": "Select publication date: most recent, oldest or specific date using the calendar.",
       "step9": "Select rating range (1-5 stars). Clicking on a star shows subranges (1-9).",
       "step10": "Click on \"Apply Search\" to display results with all selected filters.",
-      "step11": "Use the \"Clear Data\" button to clear all filters and return to the initial state."
+      "step11": "Use the \"Clear Data\" button to clear all filters and return to the initial state.",
+      "step12": "You can exit advanced search at any time by pressing the \"ESC\" key."
     }
   },
   "resultsAdvSearch": {

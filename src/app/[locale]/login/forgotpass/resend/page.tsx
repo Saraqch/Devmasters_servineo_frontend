@@ -9,11 +9,7 @@ const SearchParamsSchema = z.object({
 
 type SearchParams = Record<string, string | string[] | undefined>;
 
-export default async function Page({
-  searchParams,
-}: {
-  searchParams: Promise<SearchParams>;
-}) {
+export default async function Page({ searchParams }: { searchParams: Promise<SearchParams> }) {
   const sp = await searchParams;
 
   // ✅ Validación segura con Zod
@@ -56,9 +52,13 @@ export default async function Page({
             <div>
               <h1 className="text-xl font-semibold leading-6">¡Enlace enviado!</h1>
               <p className="text-primary-foreground/90 text-sm">
-                {email
-                  ? <>Revisa <span className="font-medium">{maskEmail(email)}</span> para continuar.</>
-                  : 'Revisa tu correo registrado para continuar.'}
+                {email ? (
+                  <>
+                    Revisa <span className="font-medium">{maskEmail(email)}</span> para continuar.
+                  </>
+                ) : (
+                  'Revisa tu correo registrado para continuar.'
+                )}
               </p>
             </div>
           </div>

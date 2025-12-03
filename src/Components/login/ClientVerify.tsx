@@ -2,8 +2,7 @@
 
 import { useEffect, useState } from 'react';
 
-const BASE_API =
-  `${process.env.NEXT_PUBLIC_API_URL}/api/controlC`;
+const BASE_API = `${process.env.NEXT_PUBLIC_API_URL}/api/controlC`;
 
 export default function ClientVerify({ token }: { token?: string }) {
   const [msg, setMsg] = useState('Verificando enlace de acceso...');
@@ -18,9 +17,7 @@ export default function ClientVerify({ token }: { token?: string }) {
 
     const verifyLink = async () => {
       try {
-        const res = await fetch(
-          `${BASE_API}/auth/magic-login?token=${encodeURIComponent(token)}`
-        );
+        const res = await fetch(`${BASE_API}/auth/magic-login?token=${encodeURIComponent(token)}`);
         const data = await res.json();
         if (cancelled) return;
 
@@ -46,7 +43,9 @@ export default function ClientVerify({ token }: { token?: string }) {
     };
 
     verifyLink();
-    return () => { cancelled = true; };
+    return () => {
+      cancelled = true;
+    };
   }, [token]);
 
   return (

@@ -1,40 +1,40 @@
-"use client"
+'use client';
 
-import { Fixer } from "@/hooks/useFixersByJob"
-import { useAppDispatch, useAppSelector } from "@/app/redux/hooks"
-import { toggleJobExpanded, selectExpandedJobs } from "@/app/redux/slice/fixersByJobSlice"
-import { ChevronDown } from "lucide-react"
-import { FixerCard } from "./FixerCard"
+import { Fixer } from '@/hooks/useFixersByJob';
+import { useAppDispatch, useAppSelector } from '@/app/redux/hooks';
+import { toggleJobExpanded, selectExpandedJobs } from '@/app/redux/slice/fixersByJobSlice';
+import { ChevronDown } from 'lucide-react';
+import { FixerCard } from './FixerCard';
 //import { useTranslations } from "next-intl"
 
 interface JobFixerSectionProps {
-  jobType: string
-  fixers: Fixer[]
-  matchCount: number
+  jobType: string;
+  fixers: Fixer[];
+  matchCount: number;
 }
 
 export function JobFixerSection({ jobType, fixers, matchCount }: JobFixerSectionProps) {
   //const t = useTranslations("Fixers Por Trabajo")
-  const dispatch = useAppDispatch()
-  const expandedJobs = useAppSelector(selectExpandedJobs)
-  const isExpanded = expandedJobs.includes(jobType)
+  const dispatch = useAppDispatch();
+  const expandedJobs = useAppSelector(selectExpandedJobs);
+  const isExpanded = expandedJobs.includes(jobType);
 
   const formatJobType = (type: string) => {
     const customLabels: Record<string, string> = {
-      "svc-plumbing": "Plomería",
-      "svc-electricity": "Electricidad",
-      "svc-carpentry": "Carpintería",
-      "svc-painting": "Pintura",
-      "svc-masonry": "Albañilería",
-      "svc-gardening": "Jardinería",
-      "svc-cleaning": "Limpieza",
-    }
+      'svc-plumbing': 'Plomería',
+      'svc-electricity': 'Electricidad',
+      'svc-carpentry': 'Carpintería',
+      'svc-painting': 'Pintura',
+      'svc-masonry': 'Albañilería',
+      'svc-gardening': 'Jardinería',
+      'svc-cleaning': 'Limpieza',
+    };
 
-    if (customLabels[type]) return customLabels[type]
+    if (customLabels[type]) return customLabels[type];
 
-    const normalized = type.replace(/^svc-/, "").replace(/-/g, " ")
-    return normalized.charAt(0).toUpperCase() + normalized.slice(1)
-  }
+    const normalized = type.replace(/^svc-/, '').replace(/-/g, ' ');
+    return normalized.charAt(0).toUpperCase() + normalized.slice(1);
+  };
 
   return (
     <div className="border border-gray-200 rounded-lg overflow-hidden bg-white">
@@ -50,7 +50,7 @@ export function JobFixerSection({ jobType, fixers, matchCount }: JobFixerSection
         </div>
         <ChevronDown
           className={`w-5 h-5 text-gray-600 transition-transform duration-300 ${
-            isExpanded ? "rotate-180" : ""
+            isExpanded ? 'rotate-180' : ''
           }`}
         />
       </button>
@@ -65,5 +65,5 @@ export function JobFixerSection({ jobType, fixers, matchCount }: JobFixerSection
         </div>
       )}
     </div>
-  )
+  );
 }

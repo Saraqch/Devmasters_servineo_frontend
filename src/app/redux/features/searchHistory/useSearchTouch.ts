@@ -15,7 +15,7 @@ interface UseSearchTouchReturn {
  */
 export function useSearchTouch(
   onLongPress: (item: string) => void,
-  longPressDelay: number = 600
+  longPressDelay: number = 600,
 ): UseSearchTouchReturn {
   const touchTimerRef = useRef<number | null>(null);
 
@@ -33,7 +33,7 @@ export function useSearchTouch(
         onLongPress(item);
       }, longPressDelay);
     },
-    [onLongPress, longPressDelay, clearTouchTimer]
+    [onLongPress, longPressDelay, clearTouchTimer],
   );
 
   const handleTouchEnd = useCallback(() => {
@@ -44,13 +44,13 @@ export function useSearchTouch(
     (item: string) => (e: React.PointerEvent) => {
       // Solo activar en eventos no-mouse (touch, pen)
       if (e.pointerType === 'mouse') return;
-      
+
       clearTouchTimer();
       touchTimerRef.current = window.setTimeout(() => {
         onLongPress(item);
       }, longPressDelay);
     },
-    [onLongPress, longPressDelay, clearTouchTimer]
+    [onLongPress, longPressDelay, clearTouchTimer],
   );
 
   const handlePointerUp = useCallback(() => {

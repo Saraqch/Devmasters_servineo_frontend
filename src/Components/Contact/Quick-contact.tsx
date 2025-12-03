@@ -1,19 +1,24 @@
-"use client"
+'use client';
 
-import { MessageCircle, Phone, Mail, X } from "lucide-react"
-import { useState } from "react"
+import { MessageCircle, Phone, Mail, X } from 'lucide-react';
+import { useState } from 'react';
 
 interface QuickContactProps {
-  whatsapp: string
-  phone?: string
-  email?: string
-  position?: "bottom-right" | "bottom-left"
+  whatsapp: string;
+  phone?: string;
+  email?: string;
+  position?: 'bottom-right' | 'bottom-left';
 }
 
-export function QuickContact({ whatsapp, phone, email, position = "bottom-right" }: QuickContactProps) {
-  const [isOpen, setIsOpen] = useState(false)
+export function QuickContact({
+  whatsapp,
+  phone,
+  email,
+  position = 'bottom-right',
+}: QuickContactProps) {
+  const [isOpen, setIsOpen] = useState(false);
 
-  const positionClass = position === "bottom-right" ? "bottom-6 right-6" : "bottom-6 left-6"
+  const positionClass = position === 'bottom-right' ? 'bottom-6 right-6' : 'bottom-6 left-6';
 
   return (
     <div className={`fixed ${positionClass} z-40`}>
@@ -23,7 +28,7 @@ export function QuickContact({ whatsapp, phone, email, position = "bottom-right"
           <p className="text-sm font-semibold text-foreground mb-3 px-2">Nuestros Contactos</p>
 
           <a
-            href={`https://wa.me/${whatsapp.replace(/\D/g, "")}`}
+            href={`https://wa.me/${whatsapp.replace(/\D/g, '')}`}
             target="_blank"
             rel="noopener noreferrer"
             className="flex items-center gap-3 w-full p-3 bg-green-50 hover:bg-green-100 border-2 border-green-200 rounded-lg text-green-700 font-medium transition-all text-sm"
@@ -62,5 +67,5 @@ export function QuickContact({ whatsapp, phone, email, position = "bottom-right"
         {isOpen ? <X className="w-6 h-6" /> : <MessageCircle className="w-6 h-6" />}
       </button>
     </div>
-  )
+  );
 }

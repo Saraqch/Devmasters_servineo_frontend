@@ -1,10 +1,10 @@
 {
-    "folders": [
-        {
-            "path": "../../servineo-back/UserManagment-backend-"
-        },
-        {
-            "path": "."
-        }
-    ]
+  "folders": [
+    {
+      "path": "../../servineo-back/UserManagment-backend-",
+    },
+    {
+      "path": ".",
+    },
+  ],
 }

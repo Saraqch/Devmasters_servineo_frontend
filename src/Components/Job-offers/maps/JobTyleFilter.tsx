@@ -1,12 +1,12 @@
-"use client"
+'use client';
 
-import { availableServices } from "@/app/lib/mock-data"
-import { Check, Filter, X } from "lucide-react"
+import { availableServices } from '@/app/lib/mock-data';
+import { Check, Filter, X } from 'lucide-react';
 
 interface JobTypeFilterProps {
-  selectedTypes: string[]
-  onTypeToggle: (type: string) => void
-  onClearAll: () => void
+  selectedTypes: string[];
+  onTypeToggle: (type: string) => void;
+  onClearAll: () => void;
 }
 
 export function JobTypeFilter({ selectedTypes, onTypeToggle, onClearAll }: JobTypeFilterProps) {
@@ -36,7 +36,7 @@ export function JobTypeFilter({ selectedTypes, onTypeToggle, onClearAll }: JobTy
 
       <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-3">
         {availableServices.map((service, index) => {
-          const isSelected = selectedTypes.includes(service)
+          const isSelected = selectedTypes.includes(service);
           return (
             <button
               key={service}
@@ -46,8 +46,8 @@ export function JobTypeFilter({ selectedTypes, onTypeToggle, onClearAll }: JobTy
                 hover:shadow-lg hover:-translate-y-0.5
                 ${
                   isSelected
-                    ? "bg-gradient-to-br from-primary to-blue-600 text-white shadow-lg shadow-primary/30 scale-105"
-                    : "bg-muted/50 text-muted-foreground hover:bg-muted border-2 border-transparent hover:border-primary/20"
+                    ? 'bg-gradient-to-br from-primary to-blue-600 text-white shadow-lg shadow-primary/30 scale-105'
+                    : 'bg-muted/50 text-muted-foreground hover:bg-muted border-2 border-transparent hover:border-primary/20'
                 }
               `}
               style={{
@@ -62,7 +62,7 @@ export function JobTypeFilter({ selectedTypes, onTypeToggle, onClearAll }: JobTy
               {/* Efecto de brillo en hover */}
               <div className="absolute inset-0 rounded-xl bg-gradient-to-r from-transparent via-white/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none" />
             </button>
-          )
+          );
         })}
       </div>
 
@@ -70,7 +70,8 @@ export function JobTypeFilter({ selectedTypes, onTypeToggle, onClearAll }: JobTy
         <div className="mt-5 pt-4 border-t border-border animate-in fade-in slide-in-from-bottom duration-300">
           <div className="flex items-center justify-between">
             <p className="text-sm text-muted-foreground">
-              {selectedTypes.length} {selectedTypes.length === 1 ? "tipo seleccionado" : "tipos seleccionados"}
+              {selectedTypes.length}{' '}
+              {selectedTypes.length === 1 ? 'tipo seleccionado' : 'tipos seleccionados'}
             </p>
             <div className="flex flex-wrap gap-2">
               {selectedTypes.slice(0, 3).map((type) => (
@@ -91,5 +92,5 @@ export function JobTypeFilter({ selectedTypes, onTypeToggle, onClearAll }: JobTy
         </div>
       )}
     </div>
-  )
+  );
 }

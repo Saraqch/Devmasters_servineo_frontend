@@ -1,57 +1,54 @@
+'use client';
 
-"use client"
-
-import { useTranslations } from "next-intl";
-import { ChevronLeft, ChevronRight } from "lucide-react"
-import { useState } from "react"
+import { useTranslations } from 'next-intl';
+import { ChevronLeft, ChevronRight } from 'lucide-react';
+import { useState } from 'react';
 
 const inspirationProjects = [
   {
     id: 1,
-    title: "Soluciones expertas para tus tuberías",
-    description: "Reparación e instalación de plomería",
-    category: "PLOMERÍA",
-    image: "/plomeria-profesional.jpg",
+    title: 'Soluciones expertas para tus tuberías',
+    description: 'Reparación e instalación de plomería',
+    category: 'PLOMERÍA',
+    image: '/plomeria-profesional.jpg',
   },
   {
     id: 2,
-    title: "Transformación de espacios",
-    description: "Pintura interior y exterior de calidad",
-    category: "PINTURA",
-    image: "/pintura-interior-moderna.jpg",
+    title: 'Transformación de espacios',
+    description: 'Pintura interior y exterior de calidad',
+    category: 'PINTURA',
+    image: '/pintura-interior-moderna.jpg',
   },
   {
     id: 3,
-    title: "Muebles y carpintería a medida",
-    description: "Diseños personalizados para tu hogar",
-    category: "CARPINTERÍA",
-    image: "/muebles-carpinteria.jpg",
+    title: 'Muebles y carpintería a medida',
+    description: 'Diseños personalizados para tu hogar',
+    category: 'CARPINTERÍA',
+    image: '/muebles-carpinteria.jpg',
   },
-]
+];
 
 export default function InspirationSection() {
-  const t=useTranslations("Inspiration");
-  const [currentSlide, setCurrentSlide] = useState(0)
+  const t = useTranslations('Inspiration');
+  const [currentSlide, setCurrentSlide] = useState(0);
 
   const nextSlide = () => {
-    setCurrentSlide((prev) => (prev + 1) % inspirationProjects.length)
-  }
+    setCurrentSlide((prev) => (prev + 1) % inspirationProjects.length);
+  };
 
   const prevSlide = () => {
-    setCurrentSlide((prev) => (prev - 1 + inspirationProjects.length) % inspirationProjects.length)
-  }
+    setCurrentSlide((prev) => (prev - 1 + inspirationProjects.length) % inspirationProjects.length);
+  };
 
-  const project = inspirationProjects[currentSlide]
+  const project = inspirationProjects[currentSlide];
 
   return (
     <section className="py-16 px-4 bg-white">
       <div className="max-w-5xl mx-auto">
         {/* Header */}
         <div className="text-center mb-12">
-          <h2 className="text-3xl md:text-4xl font-bold text-gray-800 mb-4">{t("insTitle")}</h2>
-          <p className="text-lg text-gray-600 max-w-2xl mx-auto">
-            {t("insDescription")}
-          </p>
+          <h2 className="text-3xl md:text-4xl font-bold text-gray-800 mb-4">{t('insTitle')}</h2>
+          <p className="text-lg text-gray-600 max-w-2xl mx-auto">{t('insDescription')}</p>
         </div>
 
         {/* Carousel */}
@@ -100,7 +97,7 @@ export default function InspirationSection() {
                 key={index}
                 onClick={() => setCurrentSlide(index)}
                 className={`h-2 rounded-full transition-all ${
-                  index === currentSlide ? "bg-primary w-8" : "bg-white/50 w-2"
+                  index === currentSlide ? 'bg-primary w-8' : 'bg-white/50 w-2'
                 }`}
                 aria-label={`Ir a proyecto ${index + 1}`}
               />
@@ -109,5 +106,5 @@ export default function InspirationSection() {
         </div>
       </div>
     </section>
-  )
+  );
 }

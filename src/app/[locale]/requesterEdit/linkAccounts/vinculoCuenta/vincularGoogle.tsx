@@ -1,11 +1,11 @@
-"use client";
+'use client';
 
-import { useState } from "react";
-import { FcGoogle } from "react-icons/fc";
-import { CredentialResponse, GoogleLogin } from "@react-oauth/google";
-import { toast } from "sonner";
-import { Loader2 } from "lucide-react";
-import { vincularGoogle,Client } from "@/app/redux/services/services/api";
+import { useState } from 'react';
+import { FcGoogle } from 'react-icons/fc';
+import { CredentialResponse, GoogleLogin } from '@react-oauth/google';
+import { toast } from 'sonner';
+import { Loader2 } from 'lucide-react';
+import { vincularGoogle, Client } from '@/app/redux/services/services/api';
 
 interface VincularGoogleProps {
   onLinked?: (client?: Client) => void;
@@ -17,10 +17,10 @@ export default function VincularGoogle({ onLinked, tokenUsuario }: VincularGoogl
 
   const handleLoginSuccess = async (credentialResponse: CredentialResponse) => {
     const tokenGoogle = credentialResponse?.credential;
-    if (!tokenGoogle) return console.error("Token de Google vacío");
+    if (!tokenGoogle) return console.error('Token de Google vacío');
 
     if (!tokenUsuario) {
-      toast.error("No hay sesión activa para vincular cuenta");
+      toast.error('No hay sesión activa para vincular cuenta');
       return;
     }
 
@@ -58,14 +58,14 @@ export default function VincularGoogle({ onLinked, tokenUsuario }: VincularGoogl
               <Loader2 className="w-4 h-4 animate-spin" /> Vinculando...
             </>
           ) : (
-            "Vincular"
+            'Vincular'
           )}
         </button>
 
         <div className="absolute inset-0 opacity-0 cursor-pointer">
           <GoogleLogin
             onSuccess={handleLoginSuccess}
-            onError={() => toast.error("Error al iniciar sesión con Google")}
+            onError={() => toast.error('Error al iniciar sesión con Google')}
           />
         </div>
       </div>

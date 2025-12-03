@@ -24,22 +24,16 @@ interface UseSearchHistoryReturn {
   error: string | null;
 }
 
-export function useSearchHistory(
-  options: UseSearchHistoryOptions = {}
-): UseSearchHistoryReturn {
-  const {
-    useBackend = false,
-    maxItems = MAX_HISTORY_ITEMS,
-    storageKey = HISTORY_KEY,
-  } = options;
+export function useSearchHistory(options: UseSearchHistoryOptions = {}): UseSearchHistoryReturn {
+  const { useBackend = false, maxItems = MAX_HISTORY_ITEMS, storageKey = HISTORY_KEY } = options;
 
   const [history, setHistory] = useState<string[]>([]);
   const [localError, setLocalError] = useState<string | null>(null);
   const hasInitialized = useRef(false);
   const lastBackendData = useRef<string[] | undefined>(undefined);
 
-  const { 
-    data: backendHistory, 
+  const {
+    data: backendHistory,
     isLoading: isLoadingHistory,
     error: historyError,
     refetch: refetchHistory,
@@ -66,36 +60,49 @@ export function useSearchHistory(
     }
   }, [storageKey]);
 
-  const persistToLocalStorage = useCallback((items: string[]) => {
-    try {
-      localStorage.setItem(storageKey, JSON.stringify(items));
-    } catch (error) {
-      console.error('Error saving search history to localStorage:', error);
-    }
-  }, [storageKey]);
+  const persistToLocalStorage = useCallback(
+    (items: string[]) => {
+      try {
+        localStorage.setItem(storageKey, JSON.stringify(items));
+      } catch (error) {
+        console.error('Error saving search history to localStorage:', error);
+      }
+    },
+    [storageKey],
+  );
 
   // ===== INITIALIZE =====
   useEffect(() => {
     if (hasInitialized.current) return;
 
+    // SIEMPRE cargar desde localStorage primero
     const localHistory = loadFromLocalStorage();
-    
+
     if (localHistory.length > 0) {
       setHistory(localHistory);
     }
-    
+
     hasInitialized.current = true;
   }, [loadFromLocalStorage]);
 
   // ===== SYNC BACKEND =====
   useEffect(() => {
     if (!useBackend) return;
+
+    // No hacer nada si aún no hemos inicializado
     if (!hasInitialized.current) return;
+
+    // No hacer nada si el backend no ha devuelto datos aún
     if (backendHistory === undefined) return;
-    
-    if (lastBackendData.current === backendHistory) return;
+
+    // Evitar re-procesar los mismos datos del backend
+    if (lastBackendData.current === backendHistory) {
+      return;
+    }
+
     lastBackendData.current = backendHistory;
-    
+
+    // Si el backend tiene datos, usarlos
     if (backendHistory.length > 0) {
       setHistory(backendHistory);
       persistToLocalStorage(backendHistory);
@@ -121,7 +128,7 @@ export function useSearchHistory(
         }, 500);
       }
     },
-    [maxItems, persistToLocalStorage, useBackend, refetchHistory]
+    [maxItems, persistToLocalStorage, useBackend, refetchHistory],
   );
 
   // ===== REMOVE (CORREGIDO) =====
@@ -146,7 +153,7 @@ export function useSearchHistory(
             throw new Error('Backend deletion failed');
           }
 
-          const shouldContain = previousHistory.filter(h => h !== item);
+          const shouldContain = previousHistory.filter((h) => h !== item);
           const backendReturned = result.updatedHistory;
 
           if (backendReturned.length === 0 && shouldContain.length > 0) {
@@ -163,11 +170,13 @@ export function useSearchHistory(
       } catch (err) {
         console.error('Remove from history error:', err);
         setLocalError('Error al eliminar del historial');
+
+        // Rollback: restaurar estado anterior
         setHistory(previousHistory);
         persistToLocalStorage(previousHistory);
       }
     },
-    [useBackend, deleteHistoryItem, persistToLocalStorage]
+    [useBackend, deleteHistoryItem, persistToLocalStorage],
   );
 
   // ===== CLEAR (CORREGIDO) =====
@@ -185,11 +194,10 @@ export function useSearchHistory(
 
       if (useBackend) {
         const result = await clearHistoryMutation().unwrap();
-        
+
         if (!result.success) {
           throw new Error('Backend clear failed');
         }
-        
         lastBackendData.current = result.updatedHistory;
         setHistory(result.updatedHistory);
         persistToLocalStorage(result.updatedHistory);
@@ -197,6 +205,8 @@ export function useSearchHistory(
     } catch (err) {
       console.error('Clear history error:', err);
       setLocalError('Error al limpiar historial');
+
+      // Rollback: restaurar estado anterior
       setHistory(previousHistory);
       persistToLocalStorage(previousHistory);
     }

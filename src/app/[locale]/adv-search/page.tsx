@@ -39,7 +39,9 @@ function AdvancedSearchPage() {
 
   const CITIES = DB_VALUES.cities.map((dbValue, index) => ({
     dbValue,
-    label: t(`city.options.${['beni', 'chuquisaca', 'cochabamba', 'laPaz', 'oruro', 'pando', 'potosi', 'santaCruz', 'tarija'][index]}`),
+    label: t(
+      `city.options.${['beni', 'chuquisaca', 'cochabamba', 'laPaz', 'oruro', 'pando', 'potosi', 'santaCruz', 'tarija'][index]}`,
+    ),
   }));
 
   const JOBS = DB_VALUES.jobTypes.map((dbValue, index) => ({
@@ -61,7 +63,7 @@ function AdvancedSearchPage() {
     selectedTags,
     selectedPriceKey,
     loading,
-    totalRegistros,
+    resultsCount,
     storeLoading,
     clearSignal,
     skipSyncRef,
@@ -158,7 +160,7 @@ function AdvancedSearchPage() {
         <div className="max-w-7xl mx-auto">
           <div className="w-full sm:w-[700px] mx-auto">
             <div className="mb-3">
-              <ResultsCounter total={totalRegistros ?? 0} loading={storeLoading ?? loading} />
+              <ResultsCounter total={resultsCount ?? 0} loading={storeLoading ?? loading} />
             </div>
 
             <div className="mb-4">

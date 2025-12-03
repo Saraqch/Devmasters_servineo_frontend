@@ -1,28 +1,26 @@
-"use client";
+'use client';
 
-import { useState } from "react";
-import { Mail, Eye, EyeOff } from "lucide-react";
-import { toast } from "sonner";
-import { vincularCorreoContrasena, Client } from "@/app/redux/services/services/api";
-import { z } from "zod";
+import { useState } from 'react';
+import { Mail, Eye, EyeOff } from 'lucide-react';
+import { toast } from 'sonner';
+import { vincularCorreoContrasena, Client } from '@/app/redux/services/services/api';
+import { z } from 'zod';
 
 const schema = z
   .object({
-    email: z
-      .string()
-      .email("Debe ser un correo electrónico válido."),
+    email: z.string().email('Debe ser un correo electrónico válido.'),
     password: z
       .string()
-      .min(8, "La contraseña debe tener al menos 8 caracteres.")
-      .regex(/[A-Z]/, "Debe contener al menos una letra mayúscula.")
-      .regex(/[a-z]/, "Debe contener al menos una letra minúscula.")
-      .regex(/[0-9]/, "Debe contener al menos un número.")
-      .regex(/[^A-Za-z0-9]/, "Debe contener al menos un símbolo."),
+      .min(8, 'La contraseña debe tener al menos 8 caracteres.')
+      .regex(/[A-Z]/, 'Debe contener al menos una letra mayúscula.')
+      .regex(/[a-z]/, 'Debe contener al menos una letra minúscula.')
+      .regex(/[0-9]/, 'Debe contener al menos un número.')
+      .regex(/[^A-Za-z0-9]/, 'Debe contener al menos un símbolo.'),
     repeatPassword: z.string(),
   })
   .refine((data) => data.password === data.repeatPassword, {
-    message: "Las contraseñas no coinciden.",
-    path: ["repeatPassword"],
+    message: 'Las contraseñas no coinciden.',
+    path: ['repeatPassword'],
   });
 
 interface VincularCorreoProps {
@@ -32,9 +30,9 @@ interface VincularCorreoProps {
 
 export default function VincularCorreo({ token, onLinked }: VincularCorreoProps) {
   const [mostrarFormulario, setMostrarFormulario] = useState(false);
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [repeatPassword, setRepeatPassword] = useState("");
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [repeatPassword, setRepeatPassword] = useState('');
   const [mostrarPassword, setMostrarPassword] = useState(false);
   const [mostrarRepeatPassword, setMostrarRepeatPassword] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -71,7 +69,7 @@ export default function VincularCorreo({ token, onLinked }: VincularCorreoProps)
         formattedErrors[issue.path[0] as string] = issue.message;
       });
       setErrors(formattedErrors);
-      toast.error("Por favor, corrige los errores del formulario.");
+      toast.error('Por favor, corrige los errores del formulario.');
       return;
     }
 
@@ -83,9 +81,9 @@ export default function VincularCorreo({ token, onLinked }: VincularCorreoProps)
       toast.success(response.message);
       onLinked?.(response.client);
       setMostrarFormulario(false);
-      setEmail("");
-      setPassword("");
-      setRepeatPassword("");
+      setEmail('');
+      setPassword('');
+      setRepeatPassword('');
       setErrors({});
     } else {
       toast.error(response.message);
@@ -100,12 +98,8 @@ export default function VincularCorreo({ token, onLinked }: VincularCorreoProps)
         <div className="flex items-center gap-3 align-middle">
           <Mail size={28} className="text-gray-800" />
           <div className="flex flex-col">
-            <span className="text-sm font-semibold text-gray-800">
-              Correo y contraseña
-            </span>
-            <span className="text-xs text-gray-500">
-              Vincula tu cuenta con credenciales
-            </span>
+            <span className="text-sm font-semibold text-gray-800">Correo y contraseña</span>
+            <span className="text-xs text-gray-500">Vincula tu cuenta con credenciales</span>
           </div>
         </div>
 
@@ -113,7 +107,7 @@ export default function VincularCorreo({ token, onLinked }: VincularCorreoProps)
           onClick={() => setMostrarFormulario((prev) => !prev)}
           className="flex items-center justify-center gap-2 bg-blue-600 text-white text-sm px-4 py-2 rounded-xl hover:bg-blue-700 transition disabled:opacity-60"
         >
-          {mostrarFormulario ? "Cancelar" : "Vincular"}
+          {mostrarFormulario ? 'Cancelar' : 'Vincular'}
         </button>
       </div>
 
@@ -127,29 +121,27 @@ export default function VincularCorreo({ token, onLinked }: VincularCorreoProps)
               value={email}
               onChange={(e) => {
                 setEmail(e.target.value);
-                validarCampo("email", e.target.value);
+                validarCampo('email', e.target.value);
               }}
               className={`border rounded-lg px-3 py-2 w-full text-gray-900 focus:ring-2 focus:ring-blue-500 outline-none ${
-                errors.email ? "border-red-500" : ""
+                errors.email ? 'border-red-500' : ''
               }`}
             />
-            {errors.email && (
-              <p className="text-red-600 text-xs mt-1">{errors.email}</p>
-            )}
+            {errors.email && <p className="text-red-600 text-xs mt-1">{errors.email}</p>}
           </div>
 
           {/* Contraseña */}
           <div className="relative mb-3">
             <input
-              type={mostrarPassword ? "text" : "password"}
+              type={mostrarPassword ? 'text' : 'password'}
               placeholder="Contraseña"
               value={password}
               onChange={(e) => {
                 setPassword(e.target.value);
-                validarCampo("password", e.target.value);
+                validarCampo('password', e.target.value);
               }}
               className={`border rounded-lg px-3 py-2 w-full text-gray-900 focus:ring-2 focus:ring-blue-500 outline-none pr-10 ${
-                errors.password ? "border-red-500" : ""
+                errors.password ? 'border-red-500' : ''
               }`}
             />
             <button
@@ -159,38 +151,32 @@ export default function VincularCorreo({ token, onLinked }: VincularCorreoProps)
             >
               {mostrarPassword ? <EyeOff size={18} /> : <Eye size={18} />}
             </button>
-            {errors.password && (
-              <p className="text-red-600 text-xs mt-1">{errors.password}</p>
-            )}
+            {errors.password && <p className="text-red-600 text-xs mt-1">{errors.password}</p>}
           </div>
 
           {/* Repetir contraseña */}
           <div className="relative mb-3">
             <input
-              type={mostrarRepeatPassword ? "text" : "password"}
+              type={mostrarRepeatPassword ? 'text' : 'password'}
               placeholder="Repetir contraseña"
               value={repeatPassword}
               onChange={(e) => {
                 setRepeatPassword(e.target.value);
-                validarCampo("repeatPassword", e.target.value);
+                validarCampo('repeatPassword', e.target.value);
               }}
               className={`border rounded-lg px-3 py-2 w-full text-gray-900 focus:ring-2 focus:ring-blue-500 outline-none pr-10 ${
-                errors.repeatPassword ? "border-red-500" : ""
+                errors.repeatPassword ? 'border-red-500' : ''
               }`}
             />
             <button
               type="button"
-              onClick={() =>
-                setMostrarRepeatPassword(!mostrarRepeatPassword)
-              }
+              onClick={() => setMostrarRepeatPassword(!mostrarRepeatPassword)}
               className="absolute right-3 top-2.5 text-gray-500 hover:text-gray-700"
             >
               {mostrarRepeatPassword ? <EyeOff size={18} /> : <Eye size={18} />}
             </button>
             {errors.repeatPassword && (
-              <p className="text-red-600 text-xs mt-1">
-                {errors.repeatPassword}
-              </p>
+              <p className="text-red-600 text-xs mt-1">{errors.repeatPassword}</p>
             )}
           </div>
 
@@ -200,13 +186,11 @@ export default function VincularCorreo({ token, onLinked }: VincularCorreoProps)
             disabled={loading}
             className="w-full flex items-center justify-center gap-2 bg-blue-600 text-white text-sm px-4 py-2 rounded-xl hover:bg-blue-700 transition disabled:opacity-60"
           >
-            {loading ? "Vinculando..." : "Confirmar Vinculación"}
+            {loading ? 'Vinculando...' : 'Confirmar Vinculación'}
           </button>
 
           {success && (
-            <p className="mt-3 text-sm text-green-600 font-medium">
-              Vinculación exitosa.
-            </p>
+            <p className="mt-3 text-sm text-green-600 font-medium">Vinculación exitosa.</p>
           )}
         </div>
       )}

@@ -22,12 +22,12 @@ export const jobOffersSlice = createSlice({
       state.offers = [action.payload, ...state.offers];
     },
     updateOffer: (state, action: PayloadAction<JobOffer>) => {
-      state.offers = state.offers.map(offer =>
-        offer.id === action.payload.id ? action.payload : offer
+      state.offers = state.offers.map((offer) =>
+        offer.id === action.payload.id ? action.payload : offer,
       );
     },
     deleteOffer: (state, action: PayloadAction<string>) => {
-      state.offers = state.offers.filter(offer => offer.id !== action.payload);
+      state.offers = state.offers.filter((offer) => offer.id !== action.payload);
     },
     setLoading: (state, action: PayloadAction<boolean>) => {
       state.loading = action.payload;

@@ -5,7 +5,7 @@ import React from 'react';
 import { useTranslations } from 'next-intl';
 
 export function SearchButton(props: React.ButtonHTMLAttributes<HTMLButtonElement>) {
-  const t = useTranslations('search'); 
+  const t = useTranslations('search');
   const { disabled, ...rest } = props;
 
   return (
@@ -26,7 +26,7 @@ export function SearchButton(props: React.ButtonHTMLAttributes<HTMLButtonElement
       disabled={disabled}
       {...rest}
     >
-      {t('buttonSearch')} 
+      {t('buttonSearch')}
     </Button>
   );
 }

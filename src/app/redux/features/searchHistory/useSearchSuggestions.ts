@@ -17,14 +17,9 @@ interface UseSearchSuggestionsReturn {
 
 export function useSearchSuggestions(
   query: string,
-  options: UseSearchSuggestionsOptions = {}
+  options: UseSearchSuggestionsOptions = {},
 ): UseSearchSuggestionsReturn {
-  const {
-    enabled = true,
-    minLength = 1,
-    debounceMs = 300,
-    maxResults = 6,
-  } = options;
+  const { enabled = true, minLength = 1, debounceMs = 300, maxResults = 6 } = options;
 
   const [suggestions, setSuggestions] = useState<string[]>([]);
   const [localError, setLocalError] = useState<string | null>(null);

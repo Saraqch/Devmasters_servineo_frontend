@@ -27,13 +27,9 @@ export function JobOfferModal({ offer, isOpen, onClose }: Props) {
   const tags = offer.tags || [];
   const createdAt = offer.createdAt;
 
-  const category = isAdapted(offer)
-    ? (offer.services?.[0] || 'General')
-    : offer.category;
+  const category = isAdapted(offer) ? offer.services?.[0] || 'General' : offer.category;
 
-  const phone = isAdapted(offer)
-    ? offer.phone
-    : offer.contactPhone;
+  const phone = isAdapted(offer) ? offer.phone : offer.contactPhone;
 
   // Prepare images
   const images = (() => {
@@ -54,19 +50,16 @@ export function JobOfferModal({ offer, isOpen, onClose }: Props) {
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-      <div className="absolute inset-0 bg-black/60 backdrop-blur-sm transition-opacity" onClick={onClose} />
+      <div
+        className="absolute inset-0 bg-black/60 backdrop-blur-sm transition-opacity"
+        onClick={onClose}
+      />
 
       <div className="relative bg-white w-full max-w-2xl rounded-2xl shadow-2xl overflow-hidden flex flex-col max-h-[90vh] animate-in fade-in zoom-in-95 duration-200">
-
         {/* Header Image Area */}
         <div className="relative h-48 sm:h-64 bg-gray-100 shrink-0">
           {images.length > 0 ? (
-            <Image
-              src={images[0]}
-              alt={title}
-              fill
-              className="object-cover"
-            />
+            <Image src={images[0]} alt={title} fill className="object-cover" />
           ) : (
             <div className="w-full h-full flex items-center justify-center text-gray-400">
               <span className="text-lg font-medium">No image available</span>
@@ -100,16 +93,13 @@ export function JobOfferModal({ offer, isOpen, onClose }: Props) {
 
         {/* Content */}
         <div className="flex-1 overflow-y-auto p-6 space-y-6">
-
           {/* Price & Date */}
           <div className="flex items-center justify-between pb-4 border-b border-gray-100">
             <div className="flex items-center gap-2 text-gray-500 text-sm">
               <Calendar className="w-4 h-4" />
               <span>{new Date(createdAt).toLocaleDateString()}</span>
             </div>
-            <div className="text-xl font-bold text-primary">
-              {price?.toLocaleString()} Bs
-            </div>
+            <div className="text-xl font-bold text-primary">{price?.toLocaleString()} Bs</div>
           </div>
 
           {/* Description */}
@@ -118,9 +108,7 @@ export function JobOfferModal({ offer, isOpen, onClose }: Props) {
               <Sparkles className="w-4 h-4 text-amber-500" />
               <h3>Descripción del Trabajo</h3>
             </div>
-            <p className="text-gray-600 leading-relaxed text-sm sm:text-base">
-              {description}
-            </p>
+            <p className="text-gray-600 leading-relaxed text-sm sm:text-base">{description}</p>
           </div>
 
           {/* Tags */}
@@ -149,7 +137,10 @@ export function JobOfferModal({ offer, isOpen, onClose }: Props) {
               <h3 className="font-semibold text-gray-900">Galería</h3>
               <div className="grid grid-cols-2 gap-2">
                 {images.slice(1).map((img, idx) => (
-                  <div key={idx} className="relative aspect-video rounded-lg overflow-hidden bg-gray-100">
+                  <div
+                    key={idx}
+                    className="relative aspect-video rounded-lg overflow-hidden bg-gray-100"
+                  >
                     <Image
                       src={img}
                       alt={`Gallery ${idx}`}

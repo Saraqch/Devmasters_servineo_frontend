@@ -11,30 +11,31 @@ import { Eye, EyeOff, Loader2 } from 'lucide-react';
 import { obtenerUltimoCambio } from '../../../app/redux/services/getLastChange';
 
 // 🎯 ESQUEMA DE VALIDACIÓN CON ZOD
-const changePasswordSchema = z.object({
-  currentPassword: z
-    .string()
-    .min(1, "Ingresa tu contraseña actual")
-    .refine(val => !val.includes(' '), "No puede contener espacios"),
+const changePasswordSchema = z
+  .object({
+    currentPassword: z
+      .string()
+      .min(1, 'Ingresa tu contraseña actual')
+      .refine((val) => !val.includes(' '), 'No puede contener espacios'),
 
-  newPassword: z
-    .string()
-    .min(8, "Mínimo 8 caracteres")
-    .regex(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)/, {
-      message: "Debe tener mayúscula, minúscula y número"
-    })
-    .refine(val => !val.includes(' '), "No puede contener espacios"),
+    newPassword: z
+      .string()
+      .min(8, 'Mínimo 8 caracteres')
+      .regex(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)/, {
+        message: 'Debe tener mayúscula, minúscula y número',
+      })
+      .refine((val) => !val.includes(' '), 'No puede contener espacios'),
 
-  confirmPassword: z
-    .string()
-    .min(1, "Confirma tu nueva contraseña")
-}).refine(data => data.newPassword === data.confirmPassword, {
-  message: "Las contraseñas no coinciden",
-  path: ["confirmPassword"]
-}).refine(data => data.currentPassword !== data.newPassword, {
-  message: "La nueva contraseña debe ser diferente a la actual",
-  path: ["newPassword"]
-});
+    confirmPassword: z.string().min(1, 'Confirma tu nueva contraseña'),
+  })
+  .refine((data) => data.newPassword === data.confirmPassword, {
+    message: 'Las contraseñas no coinciden',
+    path: ['confirmPassword'],
+  })
+  .refine((data) => data.currentPassword !== data.newPassword, {
+    message: 'La nueva contraseña debe ser diferente a la actual',
+    path: ['newPassword'],
+  });
 
 type ChangePasswordFormData = z.infer<typeof changePasswordSchema>;
 
@@ -43,7 +44,7 @@ type Props = {
   onSaved?: () => void;
 };
 
-export default function ChangePasswordForm({ onCancel}: Props) {
+export default function ChangePasswordForm({ onCancel }: Props) {
   const router = useRouter();
 
   // 🎯 REACT HOOK FORM + ZOD
@@ -52,10 +53,10 @@ export default function ChangePasswordForm({ onCancel}: Props) {
     handleSubmit,
     reset,
     formState: { errors, isSubmitting },
-    clearErrors
+    clearErrors,
   } = useForm<ChangePasswordFormData>({
     resolver: zodResolver(changePasswordSchema),
-    mode: 'onChange' // Validación en tiempo real
+    mode: 'onChange', // Validación en tiempo real
   });
 
   // Estados para UI
@@ -104,7 +105,7 @@ export default function ChangePasswordForm({ onCancel}: Props) {
     setApiError(null);
     setSuccess(null);
 
-    const token = localStorage.getItem("servineo_token");
+    const token = localStorage.getItem('servineo_token');
     if (!token) {
       setApiError('No hay sesión activa. Por favor, inicia sesión.');
       return;
@@ -155,7 +156,10 @@ export default function ChangePasswordForm({ onCancel}: Props) {
       <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-4">
         {/* Contraseña actual */}
         <div>
-          <label htmlFor="currentPassword" className="block text-sm font-semibold text-[#1A223F] mb-2 text-left">
+          <label
+            htmlFor="currentPassword"
+            className="block text-sm font-semibold text-[#1A223F] mb-2 text-left"
+          >
             Contraseña actual
           </label>
           <div className="relative">
@@ -164,10 +168,11 @@ export default function ChangePasswordForm({ onCancel}: Props) {
               type={showCurrentPassword ? 'text' : 'password'}
               {...register('currentPassword')}
               placeholder="Ingresa tu contraseña actual"
-              className={`w-full rounded-md border px-3 py-2 text-[#1A223F] placeholder-gray-400 focus:outline-none focus:ring-1 ${errors.currentPassword
+              className={`w-full rounded-md border px-3 py-2 text-[#1A223F] placeholder-gray-400 focus:outline-none focus:ring-1 ${
+                errors.currentPassword
                   ? 'border-red-500 focus:border-red-500 focus:ring-red-500'
                   : 'border-[#E5F4FB] bg-[#F5FAFE] focus:border-[#2BDDE0] focus:ring-[#2BDDE0]'
-                }`}
+              }`}
               disabled={isSubmitting}
               onPaste={handlePaste}
               onChange={() => {
@@ -190,7 +195,10 @@ export default function ChangePasswordForm({ onCancel}: Props) {
 
         {/* Nueva contraseña */}
         <div>
-          <label htmlFor="newPassword" className="block text-sm font-semibold text-[#1A223F] mb-2 text-left">
+          <label
+            htmlFor="newPassword"
+            className="block text-sm font-semibold text-[#1A223F] mb-2 text-left"
+          >
             Nueva contraseña
           </label>
           <div className="relative">
@@ -199,10 +207,11 @@ export default function ChangePasswordForm({ onCancel}: Props) {
               type={showNewPassword ? 'text' : 'password'}
               {...register('newPassword')}
               placeholder="Mínimo 8 caracteres, mayúscula, minúscula, número"
-              className={`w-full rounded-md border px-3 py-2 text-[#1A223F] placeholder-gray-400 focus:outline-none focus:ring-1 ${errors.newPassword
+              className={`w-full rounded-md border px-3 py-2 text-[#1A223F] placeholder-gray-400 focus:outline-none focus:ring-1 ${
+                errors.newPassword
                   ? 'border-red-500 focus:border-red-500 focus:ring-red-500'
                   : 'border-[#E5F4FB] bg-[#F5FAFE] focus:border-[#2BDDE0] focus:ring-[#2BDDE0]'
-                }`}
+              }`}
               disabled={isSubmitting}
               onPaste={handlePaste}
               onChange={() => {
@@ -225,7 +234,10 @@ export default function ChangePasswordForm({ onCancel}: Props) {
 
         {/* Confirmar contraseña */}
         <div>
-          <label htmlFor="confirmPassword" className="block text-sm font-semibold text-[#1A223F] mb-2 text-left">
+          <label
+            htmlFor="confirmPassword"
+            className="block text-sm font-semibold text-[#1A223F] mb-2 text-left"
+          >
             Confirmar nueva contraseña
           </label>
           <div className="relative">
@@ -234,10 +246,11 @@ export default function ChangePasswordForm({ onCancel}: Props) {
               type={showConfirmPassword ? 'text' : 'password'}
               {...register('confirmPassword')}
               placeholder="Repita su nueva contraseña"
-              className={`w-full rounded-md border px-3 py-2 text-[#1A223F] placeholder-gray-400 focus:outline-none focus:ring-1 ${errors.confirmPassword
+              className={`w-full rounded-md border px-3 py-2 text-[#1A223F] placeholder-gray-400 focus:outline-none focus:ring-1 ${
+                errors.confirmPassword
                   ? 'border-red-500 focus:border-red-500 focus:ring-red-500'
                   : 'border-[#E5F4FB] bg-[#F5FAFE] focus:border-[#2BDDE0] focus:ring-[#2BDDE0]'
-                }`}
+              }`}
               disabled={isSubmitting}
               onPaste={handlePaste}
               onChange={() => {
@@ -260,10 +273,15 @@ export default function ChangePasswordForm({ onCancel}: Props) {
 
         {/* Mensajes de API */}
         {apiError && (
-          <div className={`rounded-md p-3 text-sm transition-opacity duration-1000 ease-out ${apiError.includes('bloqueada') || apiError.includes('Demasiados intentos') || apiError.includes('restantes')
-              ? 'bg-red-100 border border-red-300 text-red-800'
-              : 'bg-red-50 text-red-700'
-            }`}>
+          <div
+            className={`rounded-md p-3 text-sm transition-opacity duration-1000 ease-out ${
+              apiError.includes('bloqueada') ||
+              apiError.includes('Demasiados intentos') ||
+              apiError.includes('restantes')
+                ? 'bg-red-100 border border-red-300 text-red-800'
+                : 'bg-red-50 text-red-700'
+            }`}
+          >
             {(apiError.includes('bloqueada') || apiError.includes('Demasiados intentos')) && (
               <div className="flex items-center gap-2 mb-2">
                 <span className="text-lg">🔒</span>
@@ -290,9 +308,7 @@ export default function ChangePasswordForm({ onCancel}: Props) {
         {/* Resto del componente igual... */}
         <div className="mt-2 p-4 bg-gray-50 rounded-lg border border-gray-200">
           <div className="flex items-center gap-2">
-            <span className="text-sm font-medium text-gray-700">
-              Última modificación:
-            </span>
+            <span className="text-sm font-medium text-gray-700">Última modificación:</span>
             {cargandoFecha ? (
               <div className="flex items-center gap-1">
                 <Loader2 size={14} className="animate-spin" />
@@ -336,7 +352,9 @@ export default function ChangePasswordForm({ onCancel}: Props) {
           <div className="bg-white w-[520px] rounded-lg shadow-lg overflow-hidden">
             <div
               className="text-center text-white font-semibold py-4 text-lg"
-              style={{ background: 'linear-gradient(135deg, #2B31E0 0%, #1AA7ED 50%, #5E2BE0 100%)' }}
+              style={{
+                background: 'linear-gradient(135deg, #2B31E0 0%, #1AA7ED 50%, #5E2BE0 100%)',
+              }}
             >
               Sugerencia
             </div>
@@ -354,13 +372,13 @@ export default function ChangePasswordForm({ onCancel}: Props) {
                 onClick={async () => {
                   try {
                     const result = await cerrarTodasSesiones();
-                    console.log("✅ Resultado:", result.message);
-                    localStorage.removeItem("servineo_token");
-                    localStorage.removeItem("servineo_user");
-                    window.location.href = "/";
+                    console.log('✅ Resultado:', result.message);
+                    localStorage.removeItem('servineo_token');
+                    localStorage.removeItem('servineo_user');
+                    window.location.href = '/';
                   } catch (error) {
-                    console.error("❌ Error al cerrar sesiones:", error);
-                    alert("No se pudo cerrar todas las sesiones. Intenta nuevamente.");
+                    console.error('❌ Error al cerrar sesiones:', error);
+                    alert('No se pudo cerrar todas las sesiones. Intenta nuevamente.');
                   }
                 }}
                 className="flex-1 rounded-md bg-[#1A223F] px-4 py-2 text-white font-semibold hover:bg-[#2B31E0]"

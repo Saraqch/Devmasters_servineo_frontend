@@ -1,29 +1,36 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import FixerRegisterForm from '@/Components/fixer/Fixer-register-form';
 import { FixerEnableWizard } from '@/Components/fixer/Filter-eneable-wizard';
-import { useAppSelector } from '@/app/redux/hooks';
+import { useSelector } from 'react-redux';
+import { RootState } from '@/app/redux/store';
 import { IUser } from '@/types/user';
+import { useRouter } from 'next/navigation';
 
 export default function BecomeFixerPage() {
-  const { user: reduxUser } = useAppSelector((state) => state.user);
+  const router = useRouter();
+  const user = useSelector((state: RootState) => state.user.user);
+
   const [requester, setRequester] = useState<IUser | null>(null);
 
-  // If user is already logged in, we can potentially skip the first step or pre-fill it.
-  // For now, we'll pre-fill it and let them confirm/add phone.
+  useEffect(() => {
+    if (user?.role === 'fixer') {
+      router.push('/fixer/dashboard');
+    }
+  }, [user, router]);
 
   const defaultValues = {
-    name: reduxUser?.name || '',
-    email: reduxUser?.email || '',
-    phone: '', // Phone might not be in redux user yet
+    name: user?.name || '',
+    email: user?.email || '',
+    phone: user?.telefono || '',
   };
 
   return (
     <div>
       <div className="container mx-auto max-w-4xl p-4">
         <header className="mb-6 text-center">
-          <h1 className="text-2xl font-bold">Conviertete en un Fixer</h1>
+          <h1 className="text-2xl font-bold">Conviértete en un Fixer</h1>
           <p className="text-sm text-gray-500">
             Completa tu registro y habilita tu cuenta como FIXER
           </p>
@@ -33,26 +40,20 @@ export default function BecomeFixerPage() {
           {!requester ? (
             <div className="neon-border glass-panel rounded-2xl border border-gray-200 p-4 shadow-sm animate-slide-up">
               <h2 className="mb-3 text-center text-lg font-semibold">Datos iniciales</h2>
+
               <FixerRegisterForm
                 defaultValues={defaultValues}
                 onSubmit={(data) => {
-                  const { name, email, phone } = data;
-                  // Use redux ID if available, else mock or generate
-                  const _id = reduxUser?._id || 'req-guest';
-                  const url_photo = 'https://picsum.photos/80'; // Placeholder or from redux if available
-
-                  // Construct a partial IUser object for the wizard
-                  const user: IUser = {
-                    _id,
-                    name,
-                    email,
-                    telefono: phone,
-                    url_photo,
-                    role: 'requester',
-                    // Initialize other fields as undefined or empty if needed by the type
+                  const finalUser: IUser = {
+                    _id: user?._id || '',
+                    name: data.name || user?.name || '',
+                    email: data.email || user?.email || '',
+                    telefono: data.phone,
+                    url_photo: user?.url_photo || 'https://picsum.photos/80',
+                    role: user?.role || 'requester',
                   };
 
-                  setRequester(user);
+                  setRequester(finalUser);
                 }}
                 submitButtonText="Continuar"
               />

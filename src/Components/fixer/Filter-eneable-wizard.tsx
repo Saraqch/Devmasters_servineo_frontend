@@ -1,62 +1,86 @@
-"use client"
+'use client';
 
-import { useState } from "react"
-import { useForm, FormProvider, SubmitHandler } from "react-hook-form"
-import { zodResolver } from "@hookform/resolvers/zod"
-import { StepIndicator } from "./Step-indicator"
-import { Card } from "../Card"
-import { PillButton } from "./Pill-button"
-import { CIStep } from "./steps/Ci-step"
-import { LocationStep } from "./steps/Location-step"
-import { ServicesStep, type Service } from "./steps/Services-step"
-import { PaymentStep } from "./steps/Payment-step"
-import { VehicleStep } from "./steps/Vehicle-step"
-import { TermsStep } from "./steps/Terms-step"
-import { CheckCircle2, ArrowLeft, ArrowRight } from "lucide-react"
-import { ProfilePhotoStep } from "./steps/Profile-photo-step"
-// import { useCreateUserProfileMutation } from "@/app/redux/services/userApi"
-import { IUser } from "@/types/user"
-import { fixerProfileSchema, type FixerProfileData } from "@/app/lib/validations/fixer-schemas"
+import { useState } from 'react';
+import { useForm, FormProvider, SubmitHandler } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { StepIndicator } from './Step-indicator';
+import { Card } from '../Card';
+import { PillButton } from './Pill-button';
+import { CIStep } from './steps/Ci-step';
+import { LocationStep } from './steps/Location-step';
+import { ServicesStep, type Service } from './steps/Services-step';
+import { PaymentStep } from './steps/Payment-step';
+import { VehicleStep } from './steps/Vehicle-step';
+import { TermsStep } from './steps/Terms-step';
+import { CheckCircle2, ArrowLeft, ArrowRight } from 'lucide-react';
+import { ProfilePhotoStep } from './steps/Profile-photo-step';
+import { useConvertToFixerMutation } from '@/app/redux/services/become';
+import { IUser } from '@/types/user';
+import { fixerProfileSchema, type FixerProfileData } from '@/app/lib/validations/fixer-schemas';
+import { FetchBaseQueryError } from '@reduxjs/toolkit/query';
+import { SerializedError } from '@reduxjs/toolkit';
 
 const DEFAULT_SERVICES: Service[] = [
-  { id: "svc-plumbing", name: "Plomería" },
-  { id: "svc-electric", name: "Electricidad" },
-  { id: "svc-carpentry", name: "Carpintería" },
-  { id: "svc-paint", name: "Pintura" },
-]
+  { id: 'svc-plumbing', name: 'Plomería' },
+  { id: 'svc-electric', name: 'Electricidad' },
+  { id: 'svc-carpentry', name: 'Carpintería' },
+  { id: 'svc-paint', name: 'Pintura' },
+];
 
 interface FixerEnableWizardProps {
-  user: IUser
+  user: IUser;
+}
+
+// Type guards para manejar errores
+function isFetchBaseQueryError(error: unknown): error is FetchBaseQueryError {
+  return typeof error === 'object' && error != null && 'status' in error;
+}
+
+function isErrorWithData(error: unknown): error is { data: { message?: string; error?: string } } {
+  return (
+    typeof error === 'object' &&
+    error != null &&
+    'data' in error &&
+    typeof (error as { data: unknown }).data === 'object'
+  );
+}
+
+function isSerializedError(error: unknown): error is SerializedError {
+  return (
+    typeof error === 'object' &&
+    error != null &&
+    ('name' in error || 'message' in error || 'code' in error)
+  );
 }
 
 export function FixerEnableWizard({ user }: FixerEnableWizardProps) {
-  //const [registerFixer] = useCreateUserProfileMutation()
-  const [step, setStep] = useState(0)
-  const total = 7 // 0 to 6
-  const [success, setSuccess] = useState(false)
+  const [convertToFixer] = useConvertToFixerMutation();
+  const [step, setStep] = useState(0);
+  const total = 7; // 0 to 6
+  const [success, setSuccess] = useState(false);
 
   const methods = useForm<FixerProfileData>({
     resolver: zodResolver(fixerProfileSchema),
     defaultValues: {
-      ci: "",
+      ci: '',
       workLocation: { lat: -16.5, lng: -68.15 }, // Default location (La Paz approx)
       servicios: [],
       metodoPago: {
         hasEfectivo: false,
         qr: false,
-        tarjetaCredito: false
+        tarjetaCredito: false,
       },
-      accountInfo: "",
-      experience: { descripcion: "" },
+      accountInfo: '',
+      experience: { descripcion: '' },
       vehiculo: {
         hasVehiculo: false,
-        tipoVehiculo: undefined
+        tipoVehiculo: undefined,
       },
       acceptTerms: false,
-      url_photo: user.url_photo || "",
+      url_photo: user.url_photo || '',
     },
-    mode: "onChange",
-  })
+    mode: 'onChange',
+  });
 
   const {
     handleSubmit,
@@ -65,153 +89,181 @@ export function FixerEnableWizard({ user }: FixerEnableWizardProps) {
     setValue,
     //control,
     formState: { isSubmitting, errors },
-  } = methods
+  } = methods;
 
   // Watch values for conditional rendering or passing to steps
-  const url_photo = watch("url_photo")
-  const ci = watch("ci")
-  const workLocation = watch("workLocation")
-  const servicios = watch("servicios")
-  const metodoPago = watch("metodoPago")
-  const accountInfo = watch("accountInfo")
-  const vehiculo = watch("vehiculo")
-  const acceptTerms = watch("acceptTerms")
+  const url_photo = watch('url_photo');
+  const ci = watch('ci');
+  const workLocation = watch('workLocation');
+  const servicios = watch('servicios');
+  const metodoPago = watch('metodoPago');
+  const accountInfo = watch('accountInfo');
+  const vehiculo = watch('vehiculo');
+  const acceptTerms = watch('acceptTerms');
 
   // Helper to manage services state which is a bit complex for simple watch
   // We'll keep the list of available services in local state if they can be added/removed dynamically
   // But the selected IDs are in the form.
   const [availableServices, setAvailableServices] = useState<Service[]>(
-    DEFAULT_SERVICES.map((s) => ({ id: s.id, name: s.name }))
-  )
+    DEFAULT_SERVICES.map((s) => ({ id: s.id, name: s.name })),
+  );
 
   const validateStep = async () => {
-    let fieldsToValidate: (keyof FixerProfileData)[] = []
+    let fieldsToValidate: (keyof FixerProfileData)[] = [];
 
     switch (step) {
       case 0:
-        fieldsToValidate = ["url_photo"]
-        break
+        fieldsToValidate = ['url_photo'];
+        break;
       case 1:
-        fieldsToValidate = ["ci"]
-        break
+        fieldsToValidate = ['ci'];
+        break;
       case 2:
-        fieldsToValidate = ["workLocation"]
-        break
+        fieldsToValidate = ['workLocation'];
+        break;
       case 3:
-        fieldsToValidate = ["servicios"]
-        break
+        fieldsToValidate = ['servicios'];
+        break;
       case 4:
-        fieldsToValidate = ["metodoPago", "accountInfo"]
-        break
+        fieldsToValidate = ['metodoPago', 'accountInfo'];
+        break;
       case 5:
-        fieldsToValidate = ["vehiculo"]
-        break
+        fieldsToValidate = ['vehiculo'];
+        break;
       case 6:
-        fieldsToValidate = ["acceptTerms"]
-        break
+        fieldsToValidate = ['acceptTerms'];
+        break;
     }
 
-    const isValid = await trigger(fieldsToValidate)
-    return isValid
-  }
+    const isValid = await trigger(fieldsToValidate);
+    return isValid;
+  };
 
   const goNext = async () => {
-    const isValid = await validateStep()
+    const isValid = await validateStep();
     if (isValid) {
-      setStep((s) => Math.min(total - 1, s + 1))
+      setStep((s) => Math.min(total - 1, s + 1));
     }
-  }
+  };
 
   const goPrev = () => {
-    setStep((s) => Math.max(0, s - 1))
-  }
+    setStep((s) => Math.max(0, s - 1));
+  };
 
   // Service handlers
   const handleToggleService = (id: string) => {
-    const current = servicios || []
-    const updated = current.includes(id)
-      ? current.filter((x) => x !== id)
-      : [...current, id]
-    setValue("servicios", updated, { shouldValidate: true })
-  }
+    const current = servicios || [];
+    const updated = current.includes(id) ? current.filter((x) => x !== id) : [...current, id];
+    setValue('servicios', updated, { shouldValidate: true });
+  };
 
   const handleAddCustomService = (name: string) => {
-    const trimmed = name.trim()
-    if (!trimmed) return
-    const id = `custom-${Date.now()}`
-    setAvailableServices((prev) => [...prev, { id, name: trimmed, custom: true }])
-    setValue("servicios", [...(servicios || []), id], { shouldValidate: true })
-  }
+    const trimmed = name.trim();
+    if (!trimmed) return;
+    const id = `custom-${Date.now()}`;
+    setAvailableServices((prev) => [...prev, { id, name: trimmed, custom: true }]);
+    setValue('servicios', [...(servicios || []), id], { shouldValidate: true });
+  };
 
   const handleEditService = (id: string, name: string) => {
-    setAvailableServices((prev) => prev.map((s) => (s.id === id ? { ...s, name } : s)))
-  }
+    setAvailableServices((prev) => prev.map((s) => (s.id === id ? { ...s, name } : s)));
+  };
 
   const handleDeleteService = (id: string) => {
-    setAvailableServices((prev) => prev.filter((s) => s.id !== id))
+    setAvailableServices((prev) => prev.filter((s) => s.id !== id));
     setValue(
-      "servicios",
+      'servicios',
       (servicios || []).filter((x) => x !== id),
-      { shouldValidate: true }
-    )
-  }
+      { shouldValidate: true },
+    );
+  };
 
   // Payment handlers
-  const handleTogglePayment = (method: "cash" | "qr" | "card") => {
-    const current = { ...metodoPago }
-    if (method === "cash") current.hasEfectivo = !current.hasEfectivo
-    if (method === "qr") current.qr = !current.qr
-    if (method === "card") current.tarjetaCredito = !current.tarjetaCredito
+  const handleTogglePayment = (method: 'cash' | 'qr' | 'card') => {
+    const current = { ...metodoPago };
+    if (method === 'cash') current.hasEfectivo = !current.hasEfectivo;
+    if (method === 'qr') current.qr = !current.qr;
+    if (method === 'card') current.tarjetaCredito = !current.tarjetaCredito;
 
-    setValue("metodoPago", current, { shouldValidate: true })
-  }
+    setValue('metodoPago', current, { shouldValidate: true });
+  };
 
   // Helper to convert object to array for the step component
   const getPaymentArray = () => {
-    const arr: ("cash" | "qr" | "card")[] = []
-    if (metodoPago?.hasEfectivo) arr.push("cash")
-    if (metodoPago?.qr) arr.push("qr")
-    if (metodoPago?.tarjetaCredito) arr.push("card")
-    return arr
-  }
+    const arr: ('cash' | 'qr' | 'card')[] = [];
+    if (metodoPago?.hasEfectivo) arr.push('cash');
+    if (metodoPago?.qr) arr.push('qr');
+    if (metodoPago?.tarjetaCredito) arr.push('card');
+    return arr;
+  };
 
   const onSubmit: SubmitHandler<FixerProfileData> = async (data) => {
     try {
-      // Construct the payload matching IUser structure
-      // We are updating the existing user, so we send the fields to update
-      const payload = {
-        ...user, // Keep existing user data
-        role: "fixer" as const,
-        ci: data.ci,
-        url_photo: data.url_photo,
-        workLocation: {
-          lat: data.workLocation.lat,
-          lng: data.workLocation.lng,
-          direccion: data.workLocation.direccion || "",
-          departamento: data.workLocation.departamento || "Cochabamba", // Default or derived
-          pais: "Bolivia"
-        },
-        servicios: availableServices
-          .filter((s) => data.servicios.includes(s.id))
-          .map((s) => s.name), // The backend expects string array of names? Or IDs? 
-        // User schema says: servicios: [{ type: String }]
-        // Assuming names for now based on schema type String.
-        metodoPago: data.metodoPago,
-        vehiculo: data.vehiculo,
-        acceptTerms: data.acceptTerms,
-        experience: data.experience,
-        // accountInfo is not in IUser, so we don't send it directly unless we add it to a field
-        // Maybe it goes into experience or a new field? 
-        // For now, ignoring accountInfo in payload as it's not in IUser schema provided.
+      if (!user._id) {
+        console.error('User ID is missing');
+        return;
       }
 
-      console.log("Submitting user profile data:", payload)
-      //await registerFixer(payload).unwrap()
-      setSuccess(true)
+      const payload = {
+        id: user._id?.toString(), // ← por si acaso es ObjectId
+        profile: {
+          telefono: user.telefono,
+          ci: data.ci.trim(),
+
+          // Solo servicios oficiales (los que empiezan con "svc-")
+          services: data.servicios
+            .filter((id): id is string => id.startsWith('svc-'))
+            .map((id) => {
+              const service = DEFAULT_SERVICES.find((s) => s.id === id);
+              return { name: service?.name ?? 'Servicio desconocido' };
+            }),
+
+          vehicle: data.vehiculo.hasVehiculo
+            ? {
+                hasVehiculo: true,
+                tipoVehiculo: data.vehiculo.tipoVehiculo || undefined,
+              }
+            : { hasVehiculo: false },
+
+          paymentMethods: (() => {
+            const methods: { type: string }[] = [];
+            if (data.metodoPago.hasEfectivo) methods.push({ type: 'efectivo' });
+            if (data.metodoPago.qr) methods.push({ type: 'qr' });
+            if (data.metodoPago.tarjetaCredito) methods.push({ type: 'tarjeta' });
+            return methods;
+          })(),
+
+          location: {
+            lat: Number(data.workLocation.lat),
+            lng: Number(data.workLocation.lng),
+            direccion: data.workLocation.direccion?.trim() || '',
+            // NO enviamos departamento ni pais → rompe el backend
+          },
+
+          terms: {
+            accepted: data.acceptTerms,
+          },
+        },
+      };
+
+      console.log('Submitting user profile data:', payload);
+      await convertToFixer(payload).unwrap();
+      setSuccess(true);
     } catch (error) {
-      console.error("Error registering fixer:", error)
+      console.error('Error registering fixer:', error);
+
+      // Manejo tipado de errores
+      if (isErrorWithData(error)) {
+        console.error('API Error Data:', error.data);
+      } else if (isFetchBaseQueryError(error)) {
+        console.error('Fetch Error:', error);
+      } else if (isSerializedError(error)) {
+        console.error('Serialized Error:', error.message);
+      } else {
+        console.error('Unknown error type');
+      }
     }
-  }
+  };
 
   return (
     <FormProvider {...methods}>
@@ -232,13 +284,9 @@ export function FixerEnableWizard({ user }: FixerEnableWizardProps) {
                   Ubicación: {workLocation?.lat.toFixed(5)}, {workLocation?.lng.toFixed(5)}
                 </p>
                 <p>Servicios: {servicios?.length}</p>
-                <p>Métodos de pago: {getPaymentArray().join(", ")}</p>
-                <p>
-                  Vehículo: {vehiculo?.hasVehiculo ? `Sí (${vehiculo.tipoVehiculo})` : "No"}
-                </p>
-                <p className="text-xs text-gray-500 mt-4">
-                  Estado: En revisión (pending)
-                </p>
+                <p>Métodos de pago: {getPaymentArray().join(', ')}</p>
+                <p>Vehículo: {vehiculo?.hasVehiculo ? `Sí (${vehiculo.tipoVehiculo})` : 'No'}</p>
+                <p className="text-xs text-gray-500 mt-4">Estado: En revisión (pending)</p>
               </div>
             </div>
           </Card>
@@ -247,7 +295,7 @@ export function FixerEnableWizard({ user }: FixerEnableWizardProps) {
             {step === 0 && (
               <ProfilePhotoStep
                 photoUrl={url_photo}
-                onPhotoChange={(url) => setValue("url_photo", url, { shouldValidate: true })}
+                onPhotoChange={(url) => setValue('url_photo', url, { shouldValidate: true })}
                 error={errors.url_photo?.message}
               />
             )}
@@ -255,7 +303,7 @@ export function FixerEnableWizard({ user }: FixerEnableWizardProps) {
             {step === 1 && (
               <CIStep
                 ci={ci}
-                onCIChange={(val) => setValue("ci", val, { shouldValidate: true })}
+                onCIChange={(val) => setValue('ci', val, { shouldValidate: true })}
                 error={errors.ci?.message}
               />
             )}
@@ -263,7 +311,7 @@ export function FixerEnableWizard({ user }: FixerEnableWizardProps) {
             {step === 2 && (
               <LocationStep
                 location={workLocation}
-                onLocationChange={(val) => setValue("workLocation", val, { shouldValidate: true })}
+                onLocationChange={(val) => setValue('workLocation', val, { shouldValidate: true })}
                 error={errors.workLocation?.message || errors.workLocation?.lat?.message}
               />
             )}
@@ -283,9 +331,11 @@ export function FixerEnableWizard({ user }: FixerEnableWizardProps) {
             {step === 4 && (
               <PaymentStep
                 payments={getPaymentArray()}
-                accountInfo={accountInfo || ""}
+                accountInfo={accountInfo || ''}
                 onTogglePayment={handleTogglePayment}
-                onAccountInfoChange={(val) => setValue("accountInfo", val, { shouldValidate: true })}
+                onAccountInfoChange={(val) =>
+                  setValue('accountInfo', val, { shouldValidate: true })
+                }
                 paymentsError={errors.metodoPago?.root?.message} // Check where error lands
                 accountError={errors.accountInfo?.message}
               />
@@ -296,18 +346,22 @@ export function FixerEnableWizard({ user }: FixerEnableWizardProps) {
                 hasVehicle={vehiculo?.hasVehiculo}
                 vehicleType={vehiculo?.tipoVehiculo}
                 onHasVehicleChange={(val) => {
-                  setValue("vehiculo.hasVehiculo", val, { shouldValidate: true })
-                  if (!val) setValue("vehiculo.tipoVehiculo", undefined)
+                  setValue('vehiculo.hasVehiculo', val, { shouldValidate: true });
+                  if (!val) setValue('vehiculo.tipoVehiculo', undefined);
                 }}
-                onVehicleTypeChange={(val) => setValue("vehiculo.tipoVehiculo", val, { shouldValidate: true })}
-                error={errors.vehiculo?.hasVehiculo?.message || errors.vehiculo?.tipoVehiculo?.message}
+                onVehicleTypeChange={(val) =>
+                  setValue('vehiculo.tipoVehiculo', val, { shouldValidate: true })
+                }
+                error={
+                  errors.vehiculo?.hasVehiculo?.message || errors.vehiculo?.tipoVehiculo?.message
+                }
               />
             )}
 
             {step === 6 && (
               <TermsStep
                 accepted={acceptTerms}
-                onAcceptChange={(val) => setValue("acceptTerms", val, { shouldValidate: true })}
+                onAcceptChange={(val) => setValue('acceptTerms', val, { shouldValidate: true })}
                 error={errors.acceptTerms?.message}
               />
             )}
@@ -343,7 +397,7 @@ export function FixerEnableWizard({ user }: FixerEnableWizardProps) {
                   disabled={isSubmitting || !acceptTerms}
                   className="bg-primary text-white hover:bg-blue-800 disabled:opacity-50 flex items-center gap-2"
                 >
-                  {isSubmitting ? "Registrando..." : "Registrar"}
+                  {isSubmitting ? 'Registrando...' : 'Registrar'}
                   <CheckCircle2 className="h-4 w-4" />
                 </PillButton>
               )}
@@ -352,5 +406,5 @@ export function FixerEnableWizard({ user }: FixerEnableWizardProps) {
         )}
       </div>
     </FormProvider>
-  )
+  );
 }

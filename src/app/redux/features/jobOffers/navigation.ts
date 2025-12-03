@@ -30,7 +30,7 @@ export function navigateToResults(params: {
 
   // Marcar que viene de búsqueda avanzada
   markFromAdvSearch();
-  
+
   // Agregar flag a URL
   urlParams.set('fromAdv', 'true');
 
@@ -100,11 +100,7 @@ export function updateUrlParams(params: {
   // Solo actualizar si es diferente
   if (window.location.search !== targetSearch) {
     try {
-      window.history.replaceState(
-        null, 
-        '', 
-        window.location.pathname + targetSearch
-      );
+      window.history.replaceState(null, '', window.location.pathname + targetSearch);
     } catch (error) {
       console.error('Error updating URL:', error);
     }

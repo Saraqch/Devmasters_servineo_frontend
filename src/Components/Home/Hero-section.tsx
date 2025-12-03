@@ -1,14 +1,14 @@
-"use client";
+'use client';
 import { SearchBar } from './Searchbar-section';
-import { useState } from "react";
+import { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import StatCard from "../Common/StatCard";
-import { useTranslations } from "next-intl";
+import StatCard from '../Common/StatCard';
+import { useTranslations } from 'next-intl';
 
 export default function HeroSection() {
-  const t= useTranslations("HeroSection");
+  const t = useTranslations('HeroSection');
   const router = useRouter();
-  const [searchText, setSearchText] = useState("");
+  const [searchText, setSearchText] = useState('');
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
@@ -21,9 +21,9 @@ export default function HeroSection() {
     }
   };
 
-    const handleTagClick = (tag: string) => {
-      router.push(`/job-offer-list?search=${encodeURIComponent(tag)}`);
-    };
+  const handleTagClick = (tag: string) => {
+    router.push(`/job-offer-list?search=${encodeURIComponent(tag)}`);
+  };
 
   return (
     <section className="relative w-full pt-28 pb-16 px-4 md:px-12 text-center bg-gradient-to-br from-primary/5 via-white to-primary/10">

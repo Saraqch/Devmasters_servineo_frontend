@@ -71,5 +71,5 @@ export const selectSearchParams = createSelector(
     limit,
     titleOnly,
     exact,
-  })
+  }),
 );

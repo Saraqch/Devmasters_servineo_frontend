@@ -35,14 +35,14 @@ export function useSearchKeyboard(options: UseSearchKeyboardOptions) {
       // ENTER
       if (e.key === 'Enter') {
         e.preventDefault();
-        
+
         // Si hay un item resaltado, seleccionarlo
         if (isOpen && highlighted >= 0 && highlighted < combinedItems.length) {
           const item = combinedItems[highlighted];
           onSelect(item);
           return;
         }
-        
+
         // Si no, hacer búsqueda normal
         onSearch();
         return;
@@ -51,16 +51,16 @@ export function useSearchKeyboard(options: UseSearchKeyboardOptions) {
       // ARROW DOWN
       if (e.key === 'ArrowDown') {
         e.preventDefault();
-        
+
         setHighlighted((prev) => {
           const max = combinedItems.length - 1;
           const next = prev < max ? prev + 1 : 0;
-          
+
           // Preview en desktop
           if (enablePreview && setPreviewValue && combinedItems[next]) {
             setPreviewValue(combinedItems[next]);
           }
-          
+
           return next;
         });
         return;
@@ -69,16 +69,16 @@ export function useSearchKeyboard(options: UseSearchKeyboardOptions) {
       // ARROW UP
       if (e.key === 'ArrowUp') {
         e.preventDefault();
-        
+
         setHighlighted((prev) => {
           const max = combinedItems.length - 1;
           const next = prev > 0 ? prev - 1 : Math.max(0, max);
-          
+
           // Preview en desktop
           if (enablePreview && setPreviewValue && combinedItems[next]) {
             setPreviewValue(combinedItems[next]);
           }
-          
+
           return next;
         });
         return;
@@ -104,7 +104,7 @@ export function useSearchKeyboard(options: UseSearchKeyboardOptions) {
       setHighlighted,
       setPreviewValue,
       enablePreview,
-    ]
+    ],
   );
 
   return { handleKeyDown };

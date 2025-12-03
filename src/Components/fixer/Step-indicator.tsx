@@ -1,6 +1,6 @@
 interface StepIndicatorProps {
-  step: number
-  total: number
+  step: number;
+  total: number;
 }
 
 export function StepIndicator({ step, total }: StepIndicatorProps) {
@@ -10,11 +10,11 @@ export function StepIndicator({ step, total }: StepIndicatorProps) {
         <span
           key={i}
           className={
-            "h-1.5 w-10 rounded-full transition-all " +
-            (i < step ? "bg-primary" : i === step ? "bg-blue-500" : "bg-gray-300")
+            'h-1.5 w-10 rounded-full transition-all ' +
+            (i < step ? 'bg-primary' : i === step ? 'bg-blue-500' : 'bg-gray-300')
           }
         />
       ))}
     </div>
-  )
+  );
 }

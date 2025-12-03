@@ -1,24 +1,24 @@
-"use client"
+'use client';
 
-import { MessageCircle, Phone, Copy, Mail } from "lucide-react"
-import { useState } from "react"
+import { MessageCircle, Phone, Copy, Mail } from 'lucide-react';
+import { useState } from 'react';
 
 interface ContactCardProps {
-  name: string
-  whatsapp: string
-  email?: string
-  phone?: string
-  city?: string
+  name: string;
+  whatsapp: string;
+  email?: string;
+  phone?: string;
+  city?: string;
 }
 
 export function ContactCard({ name, whatsapp, email, phone, city }: ContactCardProps) {
-  const [copiedField, setCopiedField] = useState<string | null>(null)
+  const [copiedField, setCopiedField] = useState<string | null>(null);
 
   const handleCopy = (text: string, field: string) => {
-    navigator.clipboard.writeText(text)
-    setCopiedField(field)
-    setTimeout(() => setCopiedField(null), 2000)
-  }
+    navigator.clipboard.writeText(text);
+    setCopiedField(field);
+    setTimeout(() => setCopiedField(null), 2000);
+  };
 
   return (
     <div className="bg-gradient-to-br from-card via-card to-green-50/20 border-2 border-border rounded-2xl p-6 space-y-4 shadow-lg hover:shadow-xl transition-all">
@@ -41,9 +41,11 @@ export function ContactCard({ name, whatsapp, email, phone, city }: ContactCardP
           </div>
         </div>
         <button
-          onClick={() => handleCopy(whatsapp, "whatsapp")}
+          onClick={() => handleCopy(whatsapp, 'whatsapp')}
           className={`p-2 rounded-lg transition-all ${
-            copiedField === "whatsapp" ? "bg-green-300 text-green-800" : "hover:bg-green-200 text-green-700"
+            copiedField === 'whatsapp'
+              ? 'bg-green-300 text-green-800'
+              : 'hover:bg-green-200 text-green-700'
           }`}
           title="Copiar"
         >
@@ -64,9 +66,11 @@ export function ContactCard({ name, whatsapp, email, phone, city }: ContactCardP
             </div>
           </div>
           <button
-            onClick={() => handleCopy(phone, "phone")}
+            onClick={() => handleCopy(phone, 'phone')}
             className={`p-2 rounded-lg transition-all ${
-              copiedField === "phone" ? "bg-blue-300 text-blue-800" : "hover:bg-blue-200 text-blue-700"
+              copiedField === 'phone'
+                ? 'bg-blue-300 text-blue-800'
+                : 'hover:bg-blue-200 text-blue-700'
             }`}
             title="Copiar"
           >
@@ -88,9 +92,11 @@ export function ContactCard({ name, whatsapp, email, phone, city }: ContactCardP
             </div>
           </div>
           <button
-            onClick={() => handleCopy(email, "email")}
+            onClick={() => handleCopy(email, 'email')}
             className={`p-2 rounded-lg transition-all ${
-              copiedField === "email" ? "bg-purple-300 text-purple-800" : "hover:bg-purple-200 text-purple-700"
+              copiedField === 'email'
+                ? 'bg-purple-300 text-purple-800'
+                : 'hover:bg-purple-200 text-purple-700'
             }`}
             title="Copiar"
           >
@@ -99,5 +105,5 @@ export function ContactCard({ name, whatsapp, email, phone, city }: ContactCardP
         </div>
       )}
     </div>
-  )
+  );
 }

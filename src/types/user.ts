@@ -1,55 +1,56 @@
 export interface IUser {
-    _id?: string;
-    name: string;
-    email: string;
-    url_photo?: string;
-    role: "requester" | "fixer" | "admin";
+  _id?: string;
+  id?: string;
+  name: string;
+  email: string;
+  url_photo?: string;
+  role: 'requester' | 'fixer' | 'admin';
 
-    authProviders?: Array<{
-        provider: string;
-        providerId: string;
-        password?: string;
-    }>;
+  authProviders?: Array<{
+    provider: string;
+    providerId: string;
+    password?: string;
+  }>;
 
-    telefono?: string;
+  telefono?: string;
 
-    ubicacion?: {
-        lat?: number;
-        lng?: number;
-        direccion?: string;
-        departamento?: string;
-        pais?: string;
-    };
+  ubicacion?: {
+    lat?: number;
+    lng?: number;
+    direccion?: string;
+    departamento?: string;
+    pais?: string;
+  };
 
-    ci?: string;
-    servicios?: string[];
+  ci?: string;
+  servicios?: string[];
 
-    vehiculo?: {
-        hasVehiculo?: boolean;
-        tipoVehiculo?: string;
-    };
+  vehiculo?: {
+    hasVehiculo?: boolean;
+    tipoVehiculo?: string;
+  };
 
-    fixerProfile?: string;
-    acceptTerms?: boolean;
+  fixerProfile?: string;
+  acceptTerms?: boolean;
 
-    metodoPago?: {
-        hasEfectivo?: boolean;
-        qr?: boolean;
-        tarjetaCredito?: boolean;
-    };
+  metodoPago?: {
+    hasEfectivo?: boolean;
+    qr?: boolean;
+    tarjetaCredito?: boolean;
+  };
 
-    experience?: {
-        descripcion?: string;
-    };
+  experience?: {
+    descripcion?: string;
+  };
 
-    workLocation?: {
-        lat?: number;
-        lng?: number;
-        direccion?: string;
-        departamento?: string;
-        pais?: string;
-    };
-
-    createdAt?: string;
-    updatedAt?: string;
+  workLocation?: {
+    lat?: number;
+    lng?: number;
+    direccion?: string;
+    departamento?: string;
+    pais?: string;
+  };
+  description?: string;
+  createdAt?: string;
+  updatedAt?: string;
 }

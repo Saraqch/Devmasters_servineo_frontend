@@ -1,16 +1,16 @@
-import { useMemo } from "react"
+import { useMemo } from 'react';
 
 export interface Fixer {
-  id: string
-  name: string
-  city: string
-  rating: number
-  avatar?: string
+  id: string;
+  name: string;
+  city: string;
+  rating: number;
+  avatar?: string;
 }
 
 export interface JobWithFixers {
-  jobType: string
-  fixers: Fixer[]
+  jobType: string;
+  fixers: Fixer[];
 }
 
 export function useFixersByJob(jobs: JobWithFixers[], searchQuery: string) {
@@ -20,22 +20,22 @@ export function useFixersByJob(jobs: JobWithFixers[], searchQuery: string) {
         ...job,
         matchCount: job.fixers.length,
         filteredFixers: job.fixers,
-      }))
+      }));
     }
 
-    const query = searchQuery.toLowerCase()
+    const query = searchQuery.toLowerCase();
 
     return jobs
       .map((job) => {
         const filteredFixers = job.fixers.filter((fixer) =>
-          fixer.name.toLowerCase().includes(query)
-        )
+          fixer.name.toLowerCase().includes(query),
+        );
         return {
           ...job,
           matchCount: filteredFixers.length,
           filteredFixers,
-        }
+        };
       })
-      .filter((job) => job.matchCount > 0)
-  }, [jobs, searchQuery])
+      .filter((job) => job.matchCount > 0);
+  }, [jobs, searchQuery]);
 }

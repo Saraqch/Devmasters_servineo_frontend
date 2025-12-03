@@ -1,44 +1,42 @@
-"use client";
+'use client';
 
-import React, { useEffect, useState } from "react";
-import { Mail } from "lucide-react";
-import { FaGithub, FaDiscord } from "react-icons/fa";
-import { FcGoogle } from "react-icons/fc";
+import React, { useEffect, useState } from 'react';
+import { Mail } from 'lucide-react';
+import { FaGithub, FaDiscord } from 'react-icons/fa';
+import { FcGoogle } from 'react-icons/fc';
 import {
   obtenerMetodosCliente,
   desvincularMetodo,
   AuthProvider,
-} from "@/app/redux/services/services/api";
-import VincularCorreo from "./vinculoCuenta/vincularCorreo";
-import VincularGoogle from "./vinculoCuenta/vincularGoogle";
-import VincularGithub from "./vinculoCuenta/vincularGithub";
-import VincularDiscord from "./vinculoCuenta/vincularDiscord";
-
+} from '@/app/redux/services/services/api';
+import VincularCorreo from './vinculoCuenta/vincularCorreo';
+import VincularGoogle from './vinculoCuenta/vincularGoogle';
+import VincularGithub from './vinculoCuenta/vincularGithub';
+import VincularDiscord from './vinculoCuenta/vincularDiscord';
 
 interface Props {
   token?: string;
 }
 
 const ALL_PROVIDERS_META = [
-  { provider: "google", name: "Google" },
-  { provider: "github", name: "GitHub" },
-  { provider: "email", name: "Correo Electrónico" },
-  { provider: "discord", name: "Discord" },
+  { provider: 'google', name: 'Google' },
+  { provider: 'github', name: 'GitHub' },
+  { provider: 'email', name: 'Correo Electrónico' },
+  { provider: 'discord', name: 'Discord' },
 ] as const;
 
 interface FullAuthProvider extends AuthProvider {
   isLinked: boolean;
   name: string;
+  providerId?: string;
 }
 
-export default function AccountLoginSettings({ token = "" }: Props) {
+export default function AccountLoginSettings({ token = '' }: Props) {
   const [methods, setMethods] = useState<FullAuthProvider[]>([]);
 
-  const buildFullMethodsList = (
-    linkedMethodsFromAPI: AuthProvider[]
-  ): FullAuthProvider[] => {
+  const buildFullMethodsList = (linkedMethodsFromAPI: AuthProvider[]): FullAuthProvider[] => {
     const linkedMethodsMap = new Map<string, AuthProvider>(
-      linkedMethodsFromAPI.map((m) => [m.provider, m])
+      linkedMethodsFromAPI.map((m) => [m.provider, m]),
     );
 
     return ALL_PROVIDERS_META.map((p) => {
@@ -47,7 +45,7 @@ export default function AccountLoginSettings({ token = "" }: Props) {
         provider: p.provider,
         name: p.name,
         isLinked: !!linkedData,
-        email: linkedData?.email,
+        providerId: linkedData?.providerId,
         token: linkedData?.token,
       };
     });
@@ -60,7 +58,7 @@ export default function AccountLoginSettings({ token = "" }: Props) {
         const fullList = buildFullMethodsList(linkedMethodsFromAPI);
         setMethods(fullList);
       } catch (err) {
-        console.error("Error al cargar métodos:", err);
+        console.error('Error al cargar métodos:', err);
       }
     }
     fetchMethods();
@@ -78,15 +76,15 @@ export default function AccountLoginSettings({ token = "" }: Props) {
       console.error(err);
       alert(
         `Error al vincular el método ${provider}: ${
-          err instanceof Error ? err.message : "Desconocido"
-        }`
+          err instanceof Error ? err.message : 'Desconocido'
+        }`,
       );
     }
   };
 
   const handleUnlink = async (provider: string) => {
     if (linkedMethods.length <= 1) {
-      alert("Debes tener al menos un método activo.");
+      alert('Debes tener al menos un método activo.');
       return;
     }
     if (window.confirm(`¿Desvincular ${provider}?`)) {
@@ -98,8 +96,8 @@ export default function AccountLoginSettings({ token = "" }: Props) {
         console.error(err);
         alert(
           `Error al desvincular método ${provider}: ${
-            err instanceof Error ? err.message : "Desconocido"
-          }`
+            err instanceof Error ? err.message : 'Desconocido'
+          }`,
         );
       }
     }
@@ -113,64 +111,55 @@ export default function AccountLoginSettings({ token = "" }: Props) {
 
       {/* Métodos vinculados */}
       <section className="mb-10">
-  <h2 className="text-lg font-semibold text-gray-800 mb-3">
-    Cuentas Vinculadas ({linkedMethods.length})
-  </h2>
+        <h2 className="text-lg font-semibold text-gray-800 mb-3">
+          Cuentas Vinculadas ({linkedMethods.length})
+        </h2>
 
-  <div className="space-y-3">
-    {linkedMethods.map((method) => {
-      return (
-        <div
-          key={method.provider}
-          className="w-full flex items-center justify-between bg-white border border-gray-200 rounded-2xl px-4 py-3 shadow-sm hover:bg-gray-50 transition"
-        >
-          <div className="flex items-center gap-3">
-            {/* Íconos con mismo estilo que los componentes de vinculación */}
-            {method.provider === "google" && (
-              <FcGoogle size={30} />
-            )}
-            {method.provider === "github" && (
-              <FaGithub size={30} className="text-gray-800" />
-            )}
-            {method.provider === "email" && (
-              <Mail size={28} className="text-gray-800" />
-            )}
-            {method.provider === "discord" && (
-              <FaDiscord size={30} className="text-[#5865F2]" />
-            )}
+        <div className="space-y-3">
+          {linkedMethods.map((method) => (
+            <div
+              key={method.provider}
+              className="w-full flex items-center gap-3 bg-white border border-gray-200 rounded-2xl px-4 py-3 shadow-sm hover:bg-gray-50 transition"
+            >
+              {/* Icono */}
+              <div className="flex-shrink-0">
+                {method.provider === 'google' && <FcGoogle size={30} />}
+                {method.provider === 'github' && <FaGithub size={30} className="text-gray-800" />}
+                {method.provider === 'email' && <Mail size={28} className="text-gray-800" />}
+                {method.provider === 'discord' && (
+                  <FaDiscord size={30} className="text-[#5865F2]" />
+                )}
+              </div>
 
-            <div className="flex flex-col">
-              <span className="text-sm font-semibold text-gray-800 flex items-center gap-2">
-                {method.name}
-                <span className="text-xs bg-green-100 text-green-700 px-2 py-0.5 rounded-full">
-                  Activo
+              {/* Texto */}
+              <div className="flex-1 min-w-0 flex flex-col">
+                <span className="text-sm font-semibold text-gray-800 flex items-center gap-2 truncate">
+                  {method.name}
+                  <span className="text-xs bg-green-100 text-green-700 px-2 py-0.5 rounded-full">
+                    Activo
+                  </span>
                 </span>
-              </span>
-              {method.email && (
-                <span className="text-xs text-gray-500 mt-0.5">{method.email}</span>
-              )}
+                {method.providerId && (
+                  <span className="text-xs text-gray-500 truncate">{method.providerId}</span>
+                )}
+              </div>
+
+              {/* Botón */}
+              <button
+                onClick={() => handleUnlink(method.provider)}
+                disabled={linkedMethods.length <= 1}
+                className={`flex-shrink-0 flex items-center justify-center gap-2 text-sm font-medium px-4 py-2 rounded-xl transition disabled:opacity-60 ${
+                  linkedMethods.length <= 1
+                    ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
+                    : 'bg-red-50 text-red-600 hover:bg-red-100'
+                }`}
+              >
+                Desvincular
+              </button>
             </div>
-          </div>
-
-          {/* Botón de Desvincular con estilo coherente */}
-          <button
-            onClick={() => handleUnlink(method.provider)}
-            disabled={linkedMethods.length <= 1}
-            className={`flex items-center justify-center gap-2 text-sm font-medium px-4 py-2 rounded-xl transition disabled:opacity-60 ${
-              linkedMethods.length <= 1
-                ? "bg-gray-100 text-gray-400 cursor-not-allowed"
-                : "bg-red-50 text-red-600 hover:bg-red-100"
-            }`}
-          >
-            Desvincular
-          </button>
+          ))}
         </div>
-      );
-    })}
-  </div>
-</section>
-
-
+      </section>
 
       {/* Métodos disponibles */}
       <section>
@@ -185,45 +174,34 @@ export default function AccountLoginSettings({ token = "" }: Props) {
         ) : (
           <div className="space-y-3">
             {availableMethods.map((method) => {
-              if (method.provider === "google") {
+              if (method.provider === 'google') {
                 return (
                   <VincularGoogle
                     key="google"
                     tokenUsuario={token}
-                    onLinked={() => handleLink("google")}
+                    onLinked={() => handleLink('google')}
                   />
                 );
               }
 
-              if (method.provider === "github") {
-                return (
-                  <VincularGithub
-                    key="github"
-                    onLinked={() => handleLink("github")}
-                  />
-                );
+              if (method.provider === 'github') {
+                return <VincularGithub key="github" onLinked={() => handleLink('github')} />;
               }
 
-              if (method.provider === "discord") {
-                return (
-                  <VincularDiscord
-                    key="discord"
-                    onLinked={() => handleLink("discord")}
-                  />
-                );
+              if (method.provider === 'discord') {
+                return <VincularDiscord key="discord" onLinked={() => handleLink('discord')} />;
               }
-              if (method.provider === "email") {
-                // Aquí reemplazamos el botón por el formulario directo
+
+              if (method.provider === 'email') {
                 return (
                   <VincularCorreo
                     key="email"
                     token={token}
                     onLinked={(client) => {
-                      if (!client) return; 
+                      if (!client) return;
                       const fullList = buildFullMethodsList(client.authProviders);
                       setMethods(fullList);
                     }}
-
                   />
                 );
               }

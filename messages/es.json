@@ -24,7 +24,8 @@
     "Soldador": "Soldador",
     "Techador": "Techador",
     "Vidriero": "Vidriero",
-    "Yesero": "Yesero"
+    "Yesero": "Yesero",
+    "Plomería": "Plomería"
   },
   "jobOffers": {
     "pageTitle": "Ofertas de Trabajo",
@@ -194,7 +195,8 @@
       "step8": "Seleccionar fecha de publicación: más recientes, más antiguos o fecha específica mediante el calendario.",
       "step9": "Seleccionar rango de calificación (1-5 estrellas). Al hacer click en una estrella muestra subrangos (1-9).",
       "step10": "Hacer click en \"Aplicar búsqueda\" para mostrar resultados con todos los filtros seleccionados.",
-      "step11": "Usar el botón \"Limpiar datos\" para borrar todos los filtros y volver al estado inicial."
+      "step11": "Usar el botón \"Limpiar datos\" para borrar todos los filtros y volver al estado inicial.",
+      "step12": "Puedes salir de la búsqueda avanzada en cualquier momento presionando la tecla \"ESC\"."
     }
   },
   "resultsAdvSearch": {
@@ -290,7 +292,6 @@
     "register": "Regístrate",
     "logo": "LOGO"
   },
-
   "cta": {
     "footerTitle": "¿Listo para encontrar al profesional ideal?",
     "footerSubtitle": "Únete a miles de personas que ya encontraron al profesional perfecto para sus necesidades",
@@ -319,14 +320,14 @@
     "mapInteractive": "Mapa interactivo aqui"
   },
   "RecentOffer": {
-  "recOfTitle": "Ofertas Recientes",
-  "recOfDescription": "Descubre las últimas ofertas publicadas",
-  "viewAll": "Ver todas",
-  "filterByCategory": "Filtrar por categoría",
-  "noOffersAvailable": "No hay ofertas disponibles",
-  "noOffersCategory": "No se encontraron ofertas para esta categoría",
-  "closeModal": "Cerrar"
-},
+    "recOfTitle": "Ofertas Recientes",
+    "recOfDescription": "Descubre las últimas ofertas publicadas",
+    "viewAll": "Ver todas",
+    "filterByCategory": "Filtrar por categoría",
+    "noOffersAvailable": "No hay ofertas disponibles",
+    "noOffersCategory": "No se encontraron ofertas para esta categoría",
+    "closeModal": "Cerrar"
+  },
   "Services": {
     "serTitle": "Nuestros Servicios",
     "serDescription": "Encuentra el servicio perfecto para tus necesidades"

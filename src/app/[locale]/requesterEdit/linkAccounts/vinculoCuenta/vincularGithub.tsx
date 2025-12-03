@@ -1,10 +1,10 @@
-"use client";
+'use client';
 
-import { useState } from "react";
-import { FaGithub } from "react-icons/fa";
-import { toast } from "sonner";
-import { Loader2 } from "lucide-react";
-import { vincularGitHub, Client } from "@/app/redux/services/services/api";
+import { useState } from 'react';
+import { FaGithub } from 'react-icons/fa';
+import { toast } from 'sonner';
+import { Loader2 } from 'lucide-react';
+import { vincularGitHub, Client } from '@/app/redux/services/services/api';
 
 interface VincularGithubProps {
   onLinked?: (client?: Client) => void;
@@ -14,9 +14,9 @@ export default function VincularGithub({ onLinked }: VincularGithubProps) {
   const [loading, setLoading] = useState(false);
 
   const handleVincularGitHub = () => {
-    const token = localStorage.getItem("servineo_token");
+    const token = localStorage.getItem('servineo_token');
     if (!token) {
-      toast.error("No hay sesión activa para vincular cuenta");
+      toast.error('No hay sesión activa para vincular cuenta');
       return;
     }
 
@@ -25,14 +25,14 @@ export default function VincularGithub({ onLinked }: VincularGithubProps) {
     vincularGitHub(
       token,
       (client) => {
-        toast.success("Cuenta de GitHub vinculada con éxito");
+        toast.success('Cuenta de GitHub vinculada con éxito');
         setLoading(false);
         onLinked?.(client);
       },
       (msg) => {
         toast.error(msg);
         setLoading(false);
-      }
+      },
     );
   };
 
@@ -42,9 +42,7 @@ export default function VincularGithub({ onLinked }: VincularGithubProps) {
         <FaGithub size={30} className="text-gray-800" />
         <div className="flex flex-col">
           <span className="text-sm font-semibold text-gray-800">GitHub</span>
-          <span className="text-xs text-gray-500">
-            Vincula tu cuenta de GitHub
-          </span>
+          <span className="text-xs text-gray-500">Vincula tu cuenta de GitHub</span>
         </div>
       </div>
       <div>
@@ -58,7 +56,7 @@ export default function VincularGithub({ onLinked }: VincularGithubProps) {
               <Loader2 className="w-4 h-4 animate-spin" /> Vinculando...
             </>
           ) : (
-            "Vincular"
+            'Vincular'
           )}
         </button>
       </div>

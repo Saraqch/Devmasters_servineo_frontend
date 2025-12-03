@@ -1,26 +1,3 @@
-export interface JobOffer {
-  id: string
-  fixerId: string
-  fixerName: string
-  fixerPhoto?: string
-  title: string
-  description: string
-  price: number
-  city: string
-  photos: string[]
-  services: string[]
-  tags: string[]
-  whatsapp: string
-  createdAt: Date
-  location?: {
-    lat: number
-    lng: number
-    address?: string
-  }
-  status: 'pending' | 'accepted' | 'in_progress' | 'completed' | 'cancelled';
-  // Add other fields as needed
-}
-
 export interface IUserProfile {
   user: {
     id: string;
@@ -91,22 +68,7 @@ export interface IUserProfile {
 }
 
 export interface Location {
-  lat: number
-  lng: number
-  address?: string
-}
-
-export interface IJob {
-  _id?: string;
-  title: string;
-  description: string;
-  status: 'pending' | 'in_progress' | 'completed';
-  requesterId: string;
-  fixerId?: string;
-  price: number;
-  fixerName?: string;
-  department: string;
-  jobType: string;
-  createdAt?: string;
-  updatedAt?: string;
+  lat: number;
+  lng: number;
+  address?: string;
 }

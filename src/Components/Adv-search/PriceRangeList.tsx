@@ -60,7 +60,6 @@ const PriceRangeList: React.FC<PriceRangeListProps> = ({ onFilterChange, clearSi
       // Guardar en sessionStorage para futuros montajes
       try {
         sessionStorage.setItem('adv_price_ranges', JSON.stringify(items));
-        console.log('💾 [PriceRangeList] Saved to sessionStorage cache');
       } catch (err) {
         console.error('❌ [PriceRangeList] Error saving cache:', err);
       }

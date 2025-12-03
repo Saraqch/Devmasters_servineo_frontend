@@ -50,4 +50,4 @@ export const DB_TO_TRANSLATION_KEY = {
 } as const;
 
 export type TranslatableValue = keyof typeof DB_TO_TRANSLATION_KEY;
-export type TranslationKey = typeof DB_TO_TRANSLATION_KEY[TranslatableValue];
+export type TranslationKey = (typeof DB_TO_TRANSLATION_KEY)[TranslatableValue];

@@ -1,56 +1,51 @@
-'use client'
+'use client';
 
-import { useState, useEffect } from 'react'
-import { Eye, EyeOff, Pencil, Loader2, Crosshair } from 'lucide-react'
-import { useRouter } from 'next/navigation'
-import dynamic from 'next/dynamic'
+import { useState, useEffect } from 'react';
+import { Eye, EyeOff, Pencil, Loader2, Crosshair } from 'lucide-react';
+import { useRouter } from 'next/navigation';
+import dynamic from 'next/dynamic';
 import {
   obtenerDatosUsuarioLogueado,
   actualizarDatosUsuario,
-} from '../../../app/redux/services/editNumber'
+} from '../../../app/redux/services/editNumber';
 
-const MapContainer = dynamic(
-  () => import('react-leaflet').then((m) => m.MapContainer),
-  { ssr: false }
-)
-const TileLayer = dynamic(
-  () => import('react-leaflet').then((m) => m.TileLayer),
-  { ssr: false }
-)
+const MapContainer = dynamic(() => import('react-leaflet').then((m) => m.MapContainer), {
+  ssr: false,
+});
+const TileLayer = dynamic(() => import('react-leaflet').then((m) => m.TileLayer), { ssr: false });
 
-type LatLng = { lat: number; lng: number }
+type LatLng = { lat: number; lng: number };
 type Ubicacion = {
-  lat: number
-  lng: number
-  direccion: string
-  departamento: string
-  pais: string
-}
+  lat: number;
+  lng: number;
+  direccion: string;
+  departamento: string;
+  pais: string;
+};
 
 export default function RequesterEditForm() {
-  const router = useRouter()
-  const [telefono, setTelefono] = useState('')
+  const router = useRouter();
+  const [telefono, setTelefono] = useState('');
   const [ubicacion, setUbicacion] = useState<Ubicacion>({
     lat: 0,
     lng: 0,
     direccion: '',
     departamento: '',
     pais: '',
-  })
-  const [latLng, setLatLng] = useState<LatLng | null>(null)
-  const [loading, setLoading] = useState(false)
-  const [error, setError] = useState<string | null>(null)
-  const [errorTelefono, setErrorTelefono] = useState<string | null>(null)
-  const [showTelefono, setShowTelefono] = useState(false)
-  const [isEditingTelefono, setIsEditingTelefono] = useState(false)
-  const [mapReady, setMapReady] = useState(false)
-
+  });
+  const [latLng, setLatLng] = useState<LatLng | null>(null);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [errorTelefono, setErrorTelefono] = useState<string | null>(null);
+  const [showTelefono, setShowTelefono] = useState(false);
+  const [isEditingTelefono, setIsEditingTelefono] = useState(false);
+  const [mapReady, setMapReady] = useState(false);
 
   useEffect(() => {
     async function cargarDatos() {
       try {
-        const userData = await obtenerDatosUsuarioLogueado()
-        setTelefono(userData.telefono || '')
+        const userData = await obtenerDatosUsuarioLogueado();
+        setTelefono(userData.telefono || '');
         setUbicacion(
           userData.ubicacion || {
             lat: 0,
@@ -58,60 +53,58 @@ export default function RequesterEditForm() {
             direccion: '',
             departamento: '',
             pais: '',
-          }
-        )
+          },
+        );
 
         if (userData.ubicacion?.lat && userData.ubicacion?.lng) {
           setLatLng({
             lat: userData.ubicacion.lat,
             lng: userData.ubicacion.lng,
-          })
+          });
         }
       } catch (err: unknown) {
-        if (err instanceof Error) setError(err.message)
-        else setError('Error al cargar tus datos.')
+        if (err instanceof Error) setError(err.message);
+        else setError('Error al cargar tus datos.');
       }
     }
-    cargarDatos()
-  }, [])
+    cargarDatos();
+  }, []);
 
   useEffect(() => {
     if (typeof window !== 'undefined') {
       import('leaflet').then((L) => {
-        delete (L.Icon.Default.prototype as unknown as { _getIconUrl?: string })
-          ._getIconUrl
+        delete (L.Icon.Default.prototype as unknown as { _getIconUrl?: string })._getIconUrl;
         L.Icon.Default.mergeOptions({
           iconRetinaUrl: '/marker-icon-2x.png',
           iconUrl: '/marker-icon.png',
           shadowUrl: '/marker-shadow.png',
-        })
-      })
+        });
+      });
     }
-  }, [])
+  }, []);
 
   function validarTelefono(valor: string): boolean {
-    if (valor.length < 8 || valor.length > 15) return false
-    if (valor.startsWith('+')) return /^[+][0-9]{7,14}$/.test(valor)
-    return /^[0-9]{8,15}$/.test(valor)
+    if (valor.length < 8 || valor.length > 15) return false;
+    if (valor.startsWith('+')) return /^[+][0-9]{7,14}$/.test(valor);
+    return /^[0-9]{8,15}$/.test(valor);
   }
 
-
   function handleTelefonoChange(e: React.ChangeEvent<HTMLInputElement>) {
-    let valor = e.target.value
-    if (valor.startsWith('+')) valor = '+' + valor.slice(1).replace(/[^0-9]/g, '')
-    else valor = valor.replace(/[^0-9]/g, '')
-    setTelefono(valor)
-    setErrorTelefono(null)
-    setError(null)
+    let valor = e.target.value;
+    if (valor.startsWith('+')) valor = '+' + valor.slice(1).replace(/[^0-9]/g, '');
+    else valor = valor.replace(/[^0-9]/g, '');
+    setTelefono(valor);
+    setErrorTelefono(null);
+    setError(null);
   }
 
   async function fetchAddress(lat: number, lng: number): Promise<void> {
     try {
       const res = await fetch(
-        `https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=${lat}&lon=${lng}`
-      )
-      const data = await res.json()
-      const { country, state, road, suburb, city, town } = data.address || {}
+        `https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=${lat}&lon=${lng}`,
+      );
+      const data = await res.json();
+      const { country, state, road, suburb, city, town } = data.address || {};
 
       setUbicacion({
         lat,
@@ -119,100 +112,100 @@ export default function RequesterEditForm() {
         direccion: [road, suburb, city || town].filter(Boolean).join(', ') || '',
         departamento: state || '',
         pais: country || '',
-      })
+      });
     } catch {
       setUbicacion((prev) => ({
         ...prev,
         lat,
         lng,
         direccion: `${lat.toFixed(6)}, ${lng.toFixed(6)}`,
-      }))
+      }));
     }
   }
 
   function handleGetLocation(): void {
     if (!navigator.geolocation) {
-      setError('Tu navegador no soporta geolocalización')
-      return
+      setError('Tu navegador no soporta geolocalización');
+      return;
     }
-    setError(null)
+    setError(null);
     navigator.geolocation.getCurrentPosition(
       (pos) => {
-        const coords = { lat: pos.coords.latitude, lng: pos.coords.longitude }
-        setLatLng(coords)
-        fetchAddress(coords.lat, coords.lng)
+        const coords = { lat: pos.coords.latitude, lng: pos.coords.longitude };
+        setLatLng(coords);
+        fetchAddress(coords.lat, coords.lng);
       },
       () => setError('No se pudo obtener tu ubicación'),
-      { enableHighAccuracy: true }
-    )
+      { enableHighAccuracy: true },
+    );
   }
 
   const LocationMarker = dynamic(
     async () => {
-      const { useMap, useMapEvents, Marker } = await import('react-leaflet')
-      const { useEffect } = await import('react')
+      const { useMap, useMapEvents, Marker } = await import('react-leaflet');
+      const { useEffect } = await import('react');
 
       interface Props {
-        latLng: LatLng | null
-        onChange: (coords: LatLng) => void
+        latLng: LatLng | null;
+        onChange: (coords: LatLng) => void;
       }
 
       const Component = ({ latLng, onChange }: Props) => {
-        const map = useMap()
+        const map = useMap();
 
         useMapEvents({
           click(e) {
-            const newCoords = { lat: e.latlng.lat, lng: e.latlng.lng }
-            onChange(newCoords)
-            map.flyTo(e.latlng, map.getZoom(), { animate: true })
+            const newCoords = { lat: e.latlng.lat, lng: e.latlng.lng };
+            onChange(newCoords);
+            map.flyTo(e.latlng, map.getZoom(), { animate: true });
           },
-        })
+        });
 
         useEffect(() => {
           if (latLng) {
-            map.flyTo([latLng.lat, latLng.lng], map.getZoom(), { animate: true })
+            map.flyTo([latLng.lat, latLng.lng], map.getZoom(), { animate: true });
           }
-        }, [latLng, map])
+        }, [latLng, map]);
 
-        return latLng ? <Marker position={[latLng.lat, latLng.lng]} /> : null
-      }
+        return latLng ? <Marker position={[latLng.lat, latLng.lng]} /> : null;
+      };
 
-      return Component
+      return Component;
     },
-    { ssr: false }
-  )
+    { ssr: false },
+  );
 
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>): Promise<void> {
-    e.preventDefault()
-    if (loading) return
-    setError(null)
+    e.preventDefault();
+    if (loading) return;
+    setError(null);
 
     if (!validarTelefono(telefono)) {
-      setError('Ingrese un número de teléfono válido')
-      return
+      setError('Ingrese un número de teléfono válido');
+      return;
     }
 
-    setLoading(true)
+    setLoading(true);
     try {
-      const result = await actualizarDatosUsuario({ telefono, ubicacion })
+      const result = await actualizarDatosUsuario({ telefono, ubicacion });
 
       if (!result.success) {
         if (result.code === 'PHONE_TAKEN') {
-          setErrorTelefono('Este número ya está registrado')
-          setError(null)
-          setLoading(false)
-          return
+          setErrorTelefono('Este número ya está registrado');
+          setError(null);
+          setLoading(false);
+          return;
         }
-        throw new Error(result.message)
+        throw new Error(result.message);
       }
 
-      alert('Perfil actualizado correctamente')
-      setIsEditingTelefono(false)
+      alert('Perfil actualizado correctamente');
+      setIsEditingTelefono(false);
     } catch (err: unknown) {
-      if (err instanceof Error) setError(err.message)
-      else setError('Error al actualizar perfil')
+      if (err instanceof Error) setError(err.message);
+      else setError('Error al actualizar perfil');
     } finally {
-      setLoading(false)
+      setLoading(false);
     }
   }
 
@@ -250,8 +243,8 @@ export default function RequesterEditForm() {
           <button
             type="button"
             onClick={() => {
-              setIsEditingTelefono((p) => !p)
-              setErrorTelefono(null)
+              setIsEditingTelefono((p) => !p);
+              setErrorTelefono(null);
             }}
             className={`p-2 rounded-md border transition ${
               isEditingTelefono
@@ -294,9 +287,7 @@ export default function RequesterEditForm() {
       </div>
 
       <div>
-        <label className="block text-sm font-semibold mb-1 text-[#1A223F]">
-          Mapa
-        </label>
+        <label className="block text-sm font-semibold mb-1 text-[#1A223F]">Mapa</label>
         <div className="w-full h-64 border border-[#E5F4FB] rounded-lg overflow-hidden bg-gradient-to-br from-[#F5FAFE] to-[#E5F4FB] relative">
           <MapContainer
             center={latLng ? [latLng.lat, latLng.lng] : [-16.5, -68.15]}
@@ -312,8 +303,8 @@ export default function RequesterEditForm() {
               <LocationMarker
                 latLng={latLng}
                 onChange={(coords: LatLng) => {
-                  setLatLng(coords)
-                  fetchAddress(coords.lat, coords.lng)
+                  setLatLng(coords);
+                  fetchAddress(coords.lat, coords.lng);
                 }}
               />
             )}
@@ -355,5 +346,5 @@ export default function RequesterEditForm() {
         </button>
       </div>
     </form>
-  )
+  );
 }
